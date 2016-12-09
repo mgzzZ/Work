@@ -1,0 +1,82 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" reuseIdentifier="AreaCell" rowHeight="83" id="KGk-i7-Jjw" customClass="AreaCell">
+            <rect key="frame" x="0.0" y="0.0" width="318" height="83"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="318" height="83"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="4eG-8K-Ff6">
+                        <rect key="frame" x="0.0" y="0.0" width="53" height="82.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="53" id="VyZ-1k-Fh0"/>
+                        </constraints>
+                        <state key="normal" image="find_cart_button_find_cart_button_edit"/>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dff-va-eao">
+                        <rect key="frame" x="268" y="0.0" width="50" height="82.5"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="50" id="tnm-4D-jVH"/>
+                        </constraints>
+                        <state key="normal" image="find_cart_button_nochouse"/>
+                        <state key="selected" image="mine_cart_icon_choice_red"/>
+                    </button>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vEn-hV-MpW">
+                        <rect key="frame" x="53" y="15" width="200" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="SwE-1K-vYQ"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.12941176470588237" green="0.12941176470588237" blue="0.12941176470588237" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="fiz-GV-JIh">
+                        <rect key="frame" x="53" y="40" width="200" height="27.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="fiz-GV-JIh" firstAttribute="leading" secondItem="vEn-hV-MpW" secondAttribute="leading" id="0bk-Cd-Ypq"/>
+                    <constraint firstItem="4eG-8K-Ff6" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="4Cs-7s-Ps9"/>
+                    <constraint firstItem="vEn-hV-MpW" firstAttribute="leading" secondItem="4eG-8K-Ff6" secondAttribute="trailing" id="7la-Pk-nEe"/>
+                    <constraint firstItem="dff-va-eao" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="D98-1c-8EG"/>
+                    <constraint firstItem="fiz-GV-JIh" firstAttribute="width" secondItem="vEn-hV-MpW" secondAttribute="width" id="IJ6-FS-X1H"/>
+                    <constraint firstItem="vEn-hV-MpW" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="IZG-7B-93o"/>
+                    <constraint firstItem="4eG-8K-Ff6" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="IkE-wa-Dzr"/>
+                    <constraint firstAttribute="bottom" secondItem="dff-va-eao" secondAttribute="bottom" id="KAo-Mv-g2G"/>
+                    <constraint firstAttribute="bottom" secondItem="fiz-GV-JIh" secondAttribute="bottom" constant="15" id="SdA-8U-7PS"/>
+                    <constraint firstAttribute="bottom" secondItem="4eG-8K-Ff6" secondAttribute="bottom" id="bV2-Ll-1sW"/>
+                    <constraint firstItem="dff-va-eao" firstAttribute="leading" secondItem="vEn-hV-MpW" secondAttribute="trailing" constant="15" id="fR0-Za-gar"/>
+                    <constraint firstAttribute="trailing" secondItem="dff-va-eao" secondAttribute="trailing" id="i5A-l3-PpM"/>
+                    <constraint firstItem="fiz-GV-JIh" firstAttribute="top" secondItem="vEn-hV-MpW" secondAttribute="bottom" constant="10" id="rqm-cf-ApU"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="areaLab" destination="fiz-GV-JIh" id="eTZ-qd-KvJ"/>
+                <outlet property="chooseBtn" destination="dff-va-eao" id="5xz-BI-GR1"/>
+                <outlet property="nameLab" destination="vEn-hV-MpW" id="Ddv-gk-5Uc"/>
+                <outlet property="setBtn" destination="4eG-8K-Ff6" id="69c-YB-OEg"/>
+            </connections>
+            <point key="canvasLocation" x="26" y="71.5"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="find_cart_button_find_cart_button_edit" width="25" height="25"/>
+        <image name="find_cart_button_nochouse" width="25" height="25"/>
+        <image name="mine_cart_icon_choice_red" width="25" height="25"/>
+    </resources>
+</document>

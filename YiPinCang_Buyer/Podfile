@@ -1,0 +1,32 @@
+platform :ios, ‘8.0’
+
+inhibit_all_warnings!
+
+target 'YiPinCang_Buyer' do
+  
+pod 'AFNetworking', '~> 3.1.0'
+pod 'MJRefresh', '~> 3.1.12'
+pod 'MJExtension', '~> 3.0.13'
+pod 'SVProgressHUD', '~> 2.0.3'
+pod 'FMDB', '~> 2.6.2'
+pod 'SDWebImage', '~> 3.8.1'
+pod 'Qiniu', :git => 'https://github.com/qiniu/objc-sdk.git', :branch => 'AFNetworking-3.x'
+pod 'LGAlertView', '~> 2.0.13'
+pod 'ChatKit'
+pod 'SDAutoLayout', '~> 2.1.3'
+pod 'RTRootNavigationController', '~> 0.5.22'
+pod 'DZNEmptyDataSet', '~> 1.8.1'
+pod 'UMengUShare/UI'
+pod 'UMengUShare/Social/Sina'
+pod 'UMengUShare/Social/WeChat'
+pod 'UMengUShare/Social/QQ'
+pod 'WMPageController'
+pod 'YYText', '~> 1.0.7'
+pod 'YYWebImage', '~> 1.0.5'
+pod 'ImagePlayerView', '~> 1.0.3'
+pod 'SAMKeychain'
+pod 'PLPlayerKit'
+pod 'iCarousel', '~> 1.8.3'
+pod 'SDCycleScrollView','~> 1.64'
+
+end

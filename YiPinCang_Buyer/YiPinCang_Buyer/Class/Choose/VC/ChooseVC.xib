@@ -1,0 +1,122 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="ChooseVC">
+            <connections>
+                <outlet property="view" destination="i5M-Pr-FkT" id="sfx-zR-JGt"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view clearsContextBeforeDrawing="NO" contentMode="scaleToFill" id="i5M-Pr-FkT">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_bjypcdalou" translatesAutoresizingMaskIntoConstraints="NO" id="bPs-di-vnk">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="667"/>
+                </imageView>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ZCB-TR-Vta">
+                    <rect key="frame" x="48" y="158.5" width="279" height="350"/>
+                    <subviews>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="aN6-Yj-geF">
+                            <rect key="frame" x="0.0" y="0.0" width="279" height="65"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="65" id="VmF-7b-3th"/>
+                            </constraints>
+                            <state key="normal" image="button_homehomepage_women"/>
+                            <state key="selected" image="homehomepage_button_women_selected"/>
+                            <state key="highlighted" image="homehomepage_button_women_selected"/>
+                            <connections>
+                                <action selector="womenBtnClick:" destination="-1" eventType="touchUpInside" id="pps-BJ-C00"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bRC-pr-PIc">
+                            <rect key="frame" x="0.0" y="95" width="279" height="65"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="65" id="1tC-wh-bCa"/>
+                            </constraints>
+                            <state key="normal" image="button_homehomepage_men"/>
+                            <state key="selected" image="homehomepage_button_men_selected"/>
+                            <state key="highlighted" image="homehomepage_button_men_selected"/>
+                            <connections>
+                                <action selector="manBtnClick:" destination="-1" eventType="touchUpInside" id="QZK-Rf-DcK"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="xgA-8V-JNT">
+                            <rect key="frame" x="0.0" y="190" width="279" height="65"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="65" id="L2f-8B-m12"/>
+                            </constraints>
+                            <state key="normal" image="button_homehomepage_kids"/>
+                            <state key="selected" image="homehomepage_button_kids_selected"/>
+                            <state key="highlighted" image="homehomepage_button_kids_selected"/>
+                            <connections>
+                                <action selector="kidBtnClick:" destination="-1" eventType="touchUpInside" id="f14-Kq-2S5"/>
+                            </connections>
+                        </button>
+                        <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="ybF-df-WeE">
+                            <rect key="frame" x="0.0" y="285" width="279" height="65"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="65" id="II1-dK-yUx"/>
+                            </constraints>
+                            <state key="normal" image="button_homehomepage_home"/>
+                            <state key="selected" image="homehomepage_button_home_selected"/>
+                            <state key="highlighted" image="homehomepage_button_home_selected"/>
+                            <connections>
+                                <action selector="homeBtnClick:" destination="-1" eventType="touchUpInside" id="mmm-Dc-Uyw"/>
+                            </connections>
+                        </button>
+                    </subviews>
+                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstAttribute="bottom" secondItem="ybF-df-WeE" secondAttribute="bottom" id="0rg-Pf-W07"/>
+                        <constraint firstAttribute="trailing" secondItem="aN6-Yj-geF" secondAttribute="trailing" id="4Na-1k-nfa"/>
+                        <constraint firstItem="bRC-pr-PIc" firstAttribute="top" secondItem="aN6-Yj-geF" secondAttribute="bottom" constant="30" id="6nR-hV-TgA"/>
+                        <constraint firstItem="xgA-8V-JNT" firstAttribute="leading" secondItem="ZCB-TR-Vta" secondAttribute="leading" id="M3x-S9-JGr"/>
+                        <constraint firstItem="aN6-Yj-geF" firstAttribute="top" secondItem="ZCB-TR-Vta" secondAttribute="top" id="T72-j0-iAA"/>
+                        <constraint firstItem="aN6-Yj-geF" firstAttribute="leading" secondItem="ZCB-TR-Vta" secondAttribute="leading" id="X0C-Xg-QBO"/>
+                        <constraint firstAttribute="trailing" secondItem="bRC-pr-PIc" secondAttribute="trailing" id="XL4-44-ffT"/>
+                        <constraint firstItem="ybF-df-WeE" firstAttribute="leading" secondItem="ZCB-TR-Vta" secondAttribute="leading" id="aZu-tK-BUX"/>
+                        <constraint firstItem="bRC-pr-PIc" firstAttribute="leading" secondItem="ZCB-TR-Vta" secondAttribute="leading" id="nrb-aY-X6l"/>
+                        <constraint firstAttribute="height" constant="350" id="p8f-wj-7Us"/>
+                        <constraint firstAttribute="trailing" secondItem="xgA-8V-JNT" secondAttribute="trailing" id="qR9-d2-qGO"/>
+                        <constraint firstItem="xgA-8V-JNT" firstAttribute="top" secondItem="bRC-pr-PIc" secondAttribute="bottom" constant="30" id="uq1-2f-NDw"/>
+                        <constraint firstAttribute="trailing" secondItem="ybF-df-WeE" secondAttribute="trailing" id="ygT-1k-OKI"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstAttribute="trailing" secondItem="bPs-di-vnk" secondAttribute="trailing" id="4Zz-t0-EqP"/>
+                <constraint firstItem="bPs-di-vnk" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="9Ot-O5-Wx8"/>
+                <constraint firstAttribute="trailing" secondItem="bPs-di-vnk" secondAttribute="trailing" id="9au-kc-n4f"/>
+                <constraint firstItem="bPs-di-vnk" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="K7e-VC-XxH"/>
+                <constraint firstItem="ZCB-TR-Vta" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="48" id="RBZ-5x-Gsh"/>
+                <constraint firstAttribute="trailing" secondItem="ZCB-TR-Vta" secondAttribute="trailing" constant="48" id="VQl-SG-Uah"/>
+                <constraint firstAttribute="bottom" secondItem="bPs-di-vnk" secondAttribute="bottom" id="XdP-h8-ds2"/>
+                <constraint firstItem="bPs-di-vnk" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="gWr-zT-qDu"/>
+                <constraint firstItem="ZCB-TR-Vta" firstAttribute="centerY" secondItem="bPs-di-vnk" secondAttribute="centerY" id="kCk-FN-83D"/>
+                <constraint firstAttribute="bottom" secondItem="bPs-di-vnk" secondAttribute="bottom" id="rQ9-ol-gpP"/>
+                <constraint firstItem="bPs-di-vnk" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" id="y2f-lr-DkO"/>
+            </constraints>
+        </view>
+    </objects>
+    <resources>
+        <image name="button_homehomepage_home" width="283" height="66"/>
+        <image name="button_homehomepage_kids" width="283" height="66"/>
+        <image name="button_homehomepage_men" width="283" height="66"/>
+        <image name="button_homehomepage_women" width="283" height="66"/>
+        <image name="homehomepage_button_home_selected" width="281" height="65"/>
+        <image name="homehomepage_button_kids_selected" width="281" height="65"/>
+        <image name="homehomepage_button_men_selected" width="281" height="65"/>
+        <image name="homehomepage_button_women_selected" width="281" height="65"/>
+        <image name="homepage_bjypcdalou" width="375" height="667"/>
+    </resources>
+</document>

@@ -1,0 +1,90 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KGk-i7-Jjw" customClass="MineClearingAreaCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="82"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="82"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收货地址" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3z-p1-1hQ">
+                        <rect key="frame" x="15" y="34" width="62" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="DTh-BI-Z8g"/>
+                            <constraint firstAttribute="width" constant="62" id="Nkk-vb-tBS"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <color key="textColor" red="0.12941176470588237" green="0.12941176470588237" blue="0.12941176470588237" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="默认" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="ZeC-bK-w9Z">
+                        <rect key="frame" x="30" y="59" width="33" height="16"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="33" id="hgT-Ox-wG5"/>
+                            <constraint firstAttribute="height" constant="16" id="xaJ-Yb-yFJ"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                        <color key="textColor" red="0.87058823529411766" green="0.12156862745098039" blue="0.16078431372549021" alpha="1" colorSpace="calibratedRGB"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_cart_detai_button_specifications_dropdown" translatesAutoresizingMaskIntoConstraints="NO" id="NRK-8l-eW5">
+                        <rect key="frame" x="295" y="31" width="20" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="Avh-hW-a7Y"/>
+                            <constraint firstAttribute="height" constant="20" id="LIp-gj-BGd"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="13770353721" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uz6-WB-o3W">
+                        <rect key="frame" x="90" y="15" width="175" height="15"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="15" id="xQk-Tr-b1O"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="鱼子酱酱酱，上海国际设计中心西楼303鱼子酱酱酱，上海国际设计中心西楼303" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="y8v-5L-OUv">
+                        <rect key="frame" x="90" y="40" width="195" height="31.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="ZeC-bK-w9Z" firstAttribute="top" secondItem="h3z-p1-1hQ" secondAttribute="bottom" constant="10" id="5tk-WI-yJh"/>
+                    <constraint firstAttribute="trailing" secondItem="NRK-8l-eW5" secondAttribute="trailing" constant="5" id="7ii-17-tco"/>
+                    <constraint firstItem="y8v-5L-OUv" firstAttribute="top" secondItem="uz6-WB-o3W" secondAttribute="bottom" constant="10" id="F7k-q0-na9"/>
+                    <constraint firstItem="NRK-8l-eW5" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="OV9-hO-o24"/>
+                    <constraint firstItem="ZeC-bK-w9Z" firstAttribute="centerX" secondItem="h3z-p1-1hQ" secondAttribute="centerX" id="cj1-Fh-X8q"/>
+                    <constraint firstItem="NRK-8l-eW5" firstAttribute="leading" secondItem="y8v-5L-OUv" secondAttribute="trailing" constant="10" id="dsw-g0-xqn"/>
+                    <constraint firstItem="uz6-WB-o3W" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="90" id="gU3-7w-Wgx"/>
+                    <constraint firstItem="uz6-WB-o3W" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="gzz-6q-bJ5"/>
+                    <constraint firstItem="y8v-5L-OUv" firstAttribute="leading" secondItem="uz6-WB-o3W" secondAttribute="leading" id="lEF-cC-7sx"/>
+                    <constraint firstItem="NRK-8l-eW5" firstAttribute="leading" secondItem="uz6-WB-o3W" secondAttribute="trailing" constant="30" id="oJd-PS-zYJ"/>
+                    <constraint firstItem="h3z-p1-1hQ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="pCa-mm-7TF"/>
+                    <constraint firstItem="h3z-p1-1hQ" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="yUR-ng-M6L"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="areaLab" destination="y8v-5L-OUv" id="1OB-xB-82T"/>
+                <outlet property="phoneLab" destination="uz6-WB-o3W" id="A7C-VW-Eo9"/>
+                <outlet property="typeLab" destination="ZeC-bK-w9Z" id="bxf-x9-Jbz"/>
+            </connections>
+            <point key="canvasLocation" x="-149" y="0.0"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="find_cart_detai_button_specifications_dropdown" width="20" height="20"/>
+    </resources>
+</document>

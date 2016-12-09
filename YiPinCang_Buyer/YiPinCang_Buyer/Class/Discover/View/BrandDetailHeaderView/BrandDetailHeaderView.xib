@@ -1,0 +1,135 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="BrandDetailHeaderView">
+            <connections>
+                <outlet property="BrandTitleLab" destination="5sx-qb-QXx" id="vtm-iH-YU6"/>
+                <outlet property="bgimg" destination="7ZU-v4-aE3" id="ELI-Xx-eK1"/>
+                <outlet property="brandBtn" destination="7gr-oN-DlG" id="naR-rR-8eI"/>
+                <outlet property="brandNameLab" destination="Cki-1F-Tta" id="Ipb-Rk-L8e"/>
+                <outlet property="contentView" destination="iN0-l3-epB" id="iEy-We-76j"/>
+                <outlet property="fllowBtn" destination="axR-wU-VWn" id="WkZ-5j-b6Q"/>
+                <outlet property="liveView" destination="Sfi-vB-Ars" id="b7J-DY-Zln"/>
+                <outlet property="titleBtn" destination="U4I-4s-mnV" id="dEE-hh-05a"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="325"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="7ZU-v4-aE3">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="149"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="149" id="h3h-JV-Cif"/>
+                    </constraints>
+                </imageView>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_brandlogo_img" translatesAutoresizingMaskIntoConstraints="NO" id="z8L-HJ-75G">
+                    <rect key="frame" x="133" y="101" width="109" height="109"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="109" id="0P1-DU-VFK"/>
+                        <constraint firstAttribute="width" constant="109" id="f6N-Eh-qZj"/>
+                    </constraints>
+                </imageView>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="耐克/这里是品牌名" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Cki-1F-Tta">
+                    <rect key="frame" x="15" y="215" width="345" height="21"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="21" id="pQd-Yx-2Rq"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="boldSystem" pointSize="16"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="axR-wU-VWn">
+                    <rect key="frame" x="151" y="249" width="74" height="25"/>
+                    <color key="backgroundColor" red="0.92549019607843142" green="0.0" blue="0.14117647058823529" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="74" id="5dt-ry-Fk0"/>
+                        <constraint firstAttribute="height" constant="25" id="xsN-eH-5oF"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                    <state key="normal" image="find_canclefollow_button"/>
+                    <state key="selected" image="find_followbrand_button"/>
+                </button>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="耐克科比系列新品仓储直销8折限时抢购，这里放 活动介绍暂定两行字 可以查看详情" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5sx-qb-QXx">
+                    <rect key="frame" x="50" y="287" width="275" height="29"/>
+                    <fontDescription key="fontDescription" type="system" pointSize="12"/>
+                    <nil key="textColor"/>
+                    <nil key="highlightedColor"/>
+                </label>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Sfi-vB-Ars">
+                    <rect key="frame" x="40" y="291" width="8" height="8"/>
+                    <color key="backgroundColor" red="0.92549019607843142" green="0.0" blue="0.14117647058823529" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="8" id="EVy-rG-8iI"/>
+                        <constraint firstAttribute="width" constant="8" id="cUy-uZ-nPX"/>
+                    </constraints>
+                    <userDefinedRuntimeAttributes>
+                        <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                            <integer key="value" value="4"/>
+                        </userDefinedRuntimeAttribute>
+                    </userDefinedRuntimeAttributes>
+                </view>
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_button_more" translatesAutoresizingMaskIntoConstraints="NO" id="DRP-Wc-IVn">
+                    <rect key="frame" x="345" y="291.5" width="20" height="20"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="20" id="E61-qs-iEl"/>
+                        <constraint firstAttribute="height" constant="20" id="Pgo-gx-unM"/>
+                    </constraints>
+                </imageView>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="7gr-oN-DlG">
+                    <rect key="frame" x="139.5" y="107.5" width="96" height="96"/>
+                    <constraints>
+                        <constraint firstAttribute="width" constant="96" id="P0I-v6-13q"/>
+                        <constraint firstAttribute="height" constant="96" id="Sv4-UD-qaT"/>
+                    </constraints>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="U4I-4s-mnV">
+                    <rect key="frame" x="50" y="287" width="275" height="21"/>
+                </button>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
+            <constraints>
+                <constraint firstItem="5sx-qb-QXx" firstAttribute="top" secondItem="axR-wU-VWn" secondAttribute="bottom" constant="13" id="1hf-CB-OLd"/>
+                <constraint firstItem="U4I-4s-mnV" firstAttribute="top" secondItem="5sx-qb-QXx" secondAttribute="top" id="5EZ-c0-Xi6"/>
+                <constraint firstItem="7ZU-v4-aE3" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="6sf-EI-b9D"/>
+                <constraint firstItem="axR-wU-VWn" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="CTj-LG-Spu"/>
+                <constraint firstItem="7gr-oN-DlG" firstAttribute="centerX" secondItem="z8L-HJ-75G" secondAttribute="centerX" id="CVL-ZS-oiU"/>
+                <constraint firstAttribute="trailing" secondItem="DRP-Wc-IVn" secondAttribute="trailing" constant="10" id="Cs7-Ik-8cY"/>
+                <constraint firstItem="7gr-oN-DlG" firstAttribute="centerY" secondItem="z8L-HJ-75G" secondAttribute="centerY" id="LXn-HR-dkI"/>
+                <constraint firstItem="7ZU-v4-aE3" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="M43-Rh-WXU"/>
+                <constraint firstItem="Sfi-vB-Ars" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="40" id="RnA-bA-Wfa"/>
+                <constraint firstItem="z8L-HJ-75G" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="101" id="VCd-Wd-C8W"/>
+                <constraint firstItem="U4I-4s-mnV" firstAttribute="leading" secondItem="5sx-qb-QXx" secondAttribute="leading" id="XPA-ua-GvM"/>
+                <constraint firstItem="axR-wU-VWn" firstAttribute="top" secondItem="Cki-1F-Tta" secondAttribute="bottom" constant="13" id="edb-60-jN2"/>
+                <constraint firstItem="z8L-HJ-75G" firstAttribute="centerX" secondItem="iN0-l3-epB" secondAttribute="centerX" id="fPI-9L-cXN"/>
+                <constraint firstItem="U4I-4s-mnV" firstAttribute="height" secondItem="Cki-1F-Tta" secondAttribute="height" id="jWK-xi-IZp"/>
+                <constraint firstItem="5sx-qb-QXx" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="50" id="lzi-PD-85j"/>
+                <constraint firstItem="Sfi-vB-Ars" firstAttribute="top" secondItem="Cki-1F-Tta" secondAttribute="bottom" constant="55" id="mPa-cC-qz2"/>
+                <constraint firstItem="U4I-4s-mnV" firstAttribute="width" secondItem="5sx-qb-QXx" secondAttribute="width" id="mT8-XZ-8zZ"/>
+                <constraint firstItem="Cki-1F-Tta" firstAttribute="top" secondItem="z8L-HJ-75G" secondAttribute="bottom" constant="5" id="mZB-xU-T0L"/>
+                <constraint firstAttribute="trailing" secondItem="5sx-qb-QXx" secondAttribute="trailing" constant="50" id="nPl-Oq-XOf"/>
+                <constraint firstItem="DRP-Wc-IVn" firstAttribute="centerY" secondItem="5sx-qb-QXx" secondAttribute="centerY" id="rB1-h4-PGu"/>
+                <constraint firstAttribute="trailing" secondItem="7ZU-v4-aE3" secondAttribute="trailing" id="vqu-cs-Q2b"/>
+                <constraint firstAttribute="trailing" secondItem="Cki-1F-Tta" secondAttribute="trailing" constant="15" id="wJc-R8-Aqu"/>
+                <constraint firstItem="Cki-1F-Tta" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="15" id="wgm-X7-oOn"/>
+            </constraints>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="24.5" y="51.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="find_brandlogo_img" width="109" height="109"/>
+        <image name="find_button_more" width="20" height="20"/>
+        <image name="find_canclefollow_button" width="75" height="25"/>
+        <image name="find_followbrand_button" width="74" height="25"/>
+    </resources>
+</document>

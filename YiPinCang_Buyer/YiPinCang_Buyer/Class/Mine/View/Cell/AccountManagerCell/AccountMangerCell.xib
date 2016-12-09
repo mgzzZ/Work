@@ -1,0 +1,125 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" rowHeight="148" id="KGk-i7-Jjw" customClass="AccountMangerCell">
+            <rect key="frame" x="0.0" y="0.0" width="336" height="148"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="336" height="148"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_icon_more" translatesAutoresizingMaskIntoConstraints="NO" id="0Zu-PT-tCQ">
+                        <rect key="frame" x="296" y="61.5" width="25" height="25"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="25" id="OSS-PW-anz"/>
+                            <constraint firstAttribute="height" constant="25" id="tNW-eV-XA6"/>
+                        </constraints>
+                    </imageView>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="v2T-me-Gt5">
+                        <rect key="frame" x="14" y="41.5" width="65" height="65"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="65" id="2Mm-Me-PHf"/>
+                            <constraint firstAttribute="height" constant="65" id="r4V-Cz-Zbr"/>
+                        </constraints>
+                    </imageView>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="鱼子酱" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9G8-ON-9TM">
+                        <rect key="frame" x="89" y="64" width="197" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="20" id="yrx-bI-G5Y"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="18"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="dJW-FG-uuF">
+                        <rect key="frame" x="89" y="93" width="197" height="13.5"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="11"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                </subviews>
+                <constraints>
+                    <constraint firstAttribute="trailing" secondItem="0Zu-PT-tCQ" secondAttribute="trailing" constant="15" id="8xv-3E-Ean"/>
+                    <constraint firstItem="0Zu-PT-tCQ" firstAttribute="leading" secondItem="9G8-ON-9TM" secondAttribute="trailing" constant="10" id="Spv-Sl-hTg"/>
+                    <constraint firstItem="9G8-ON-9TM" firstAttribute="leading" secondItem="v2T-me-Gt5" secondAttribute="trailing" constant="10" id="acq-B5-WLr"/>
+                    <constraint firstItem="9G8-ON-9TM" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="jDU-Nh-mpM"/>
+                    <constraint firstItem="dJW-FG-uuF" firstAttribute="leading" secondItem="9G8-ON-9TM" secondAttribute="leading" id="jeu-cg-kQV"/>
+                    <constraint firstItem="dJW-FG-uuF" firstAttribute="bottom" secondItem="v2T-me-Gt5" secondAttribute="bottom" id="jlG-6s-xLF"/>
+                    <constraint firstItem="0Zu-PT-tCQ" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="kEM-Bq-7Hl"/>
+                    <constraint firstItem="dJW-FG-uuF" firstAttribute="width" secondItem="9G8-ON-9TM" secondAttribute="width" id="kap-oA-HEe"/>
+                    <constraint firstItem="v2T-me-Gt5" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="14" id="rP7-qQ-wH2"/>
+                </constraints>
+            </tableViewCellContentView>
+            <constraints>
+                <constraint firstItem="v2T-me-Gt5" firstAttribute="centerY" secondItem="KGk-i7-Jjw" secondAttribute="centerY" id="vKL-Ee-6IE"/>
+            </constraints>
+            <connections>
+                <outlet property="leftBtn" destination="Emr-la-0il" id="mZj-pb-CP2"/>
+                <outlet property="nameLab" destination="9G8-ON-9TM" id="G7o-mA-rOb"/>
+                <outlet property="rightBtn" destination="tqq-a3-LJp" id="Z7A-qJ-5Na"/>
+                <outlet property="titleLab" destination="dJW-FG-uuF" id="CsB-e2-QJR"/>
+                <outlet property="txImg" destination="v2T-me-Gt5" id="W6U-kj-Clz"/>
+            </connections>
+            <point key="canvasLocation" x="33" y="104"/>
+        </tableViewCell>
+        <tableViewCell clipsSubviews="YES" contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="Zh9-TT-vSA" userLabel="Account Managertwo Cell" customClass="AccountMangerCell">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="44"/>
+            <autoresizingMask key="autoresizingMask"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="Zh9-TT-vSA" id="qHs-il-RT7">
+                <rect key="frame" x="0.0" y="0.0" width="375" height="43"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Emr-la-0il">
+                        <rect key="frame" x="0.0" y="0.0" width="187.5" height="43.5"/>
+                        <state key="normal" title="尺码助手" image="mine_accountmanagement_icon_size">
+                            <color key="titleColor" red="0.12941176469999999" green="0.12941176469999999" blue="0.12941176469999999" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                    </button>
+                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="tqq-a3-LJp">
+                        <rect key="frame" x="187.5" y="0.0" width="187.5" height="43.5"/>
+                        <state key="normal" title="添加档案" image="mine_accountmanagement_icon_archives">
+                            <color key="titleColor" red="0.12941176469999999" green="0.12941176469999999" blue="0.12941176469999999" alpha="1" colorSpace="calibratedRGB"/>
+                        </state>
+                    </button>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Wzb-Wy-3HH">
+                        <rect key="frame" x="187.5" y="10" width="0.5" height="23.5"/>
+                        <color key="backgroundColor" red="0.70588235294117652" green="0.70588235294117652" blue="0.70588235294117652" alpha="1" colorSpace="calibratedRGB"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="0.5" id="rGy-7i-Kqe"/>
+                        </constraints>
+                    </view>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="tqq-a3-LJp" firstAttribute="top" secondItem="qHs-il-RT7" secondAttribute="top" id="2al-vj-Pch"/>
+                    <constraint firstItem="Emr-la-0il" firstAttribute="leading" secondItem="qHs-il-RT7" secondAttribute="leading" id="7Ab-I8-WU0"/>
+                    <constraint firstItem="tqq-a3-LJp" firstAttribute="leading" secondItem="Emr-la-0il" secondAttribute="trailing" id="83x-Nw-Jvr"/>
+                    <constraint firstAttribute="bottom" secondItem="Emr-la-0il" secondAttribute="bottom" id="D5S-DO-sbV"/>
+                    <constraint firstAttribute="bottom" secondItem="tqq-a3-LJp" secondAttribute="bottom" id="DeB-JO-hve"/>
+                    <constraint firstItem="Wzb-Wy-3HH" firstAttribute="centerX" secondItem="qHs-il-RT7" secondAttribute="centerX" id="KUb-Oz-X9p"/>
+                    <constraint firstItem="Wzb-Wy-3HH" firstAttribute="top" secondItem="qHs-il-RT7" secondAttribute="top" constant="10" id="Mvh-Dc-DWY"/>
+                    <constraint firstAttribute="bottom" secondItem="Wzb-Wy-3HH" secondAttribute="bottom" constant="10" id="Qw3-qc-o1X"/>
+                    <constraint firstAttribute="trailing" secondItem="tqq-a3-LJp" secondAttribute="trailing" id="XyV-PW-yBn"/>
+                    <constraint firstItem="Emr-la-0il" firstAttribute="width" secondItem="qHs-il-RT7" secondAttribute="width" multiplier="1 : 2" id="f9z-pl-MCX"/>
+                    <constraint firstItem="Emr-la-0il" firstAttribute="top" secondItem="qHs-il-RT7" secondAttribute="top" id="jO2-Rj-8Hk"/>
+                </constraints>
+            </tableViewCellContentView>
+            <point key="canvasLocation" x="14" y="-181"/>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="mine_accountmanagement_icon_archives" width="23" height="23"/>
+        <image name="mine_accountmanagement_icon_size" width="23" height="23"/>
+        <image name="mine_icon_more" width="25" height="25"/>
+    </resources>
+</document>

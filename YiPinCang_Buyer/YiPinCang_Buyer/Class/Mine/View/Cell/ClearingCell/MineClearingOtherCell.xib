@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner"/>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <tableViewCell contentMode="scaleToFill" selectionStyle="default" indentationWidth="10" id="KGk-i7-Jjw" customClass="MineClearingOtherCell">
+            <rect key="frame" x="0.0" y="0.0" width="320" height="42"/>
+            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
+            <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
+                <rect key="frame" x="0.0" y="0.0" width="320" height="41"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="支付方式:" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="JkG-qo-B7F">
+                        <rect key="frame" x="15" y="8" width="75" height="25"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="75" id="J2L-Ss-YdV"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_cart_detai_button_specifications_dropdown" translatesAutoresizingMaskIntoConstraints="NO" id="S5y-sJ-wMO">
+                        <rect key="frame" x="295" y="10.5" width="20" height="20"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="292-QY-6px"/>
+                            <constraint firstAttribute="height" constant="20" id="G7i-ad-R2z"/>
+                        </constraints>
+                    </imageView>
+                    <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9zv-J0-shV">
+                        <rect key="frame" x="100" y="0.0" width="185" height="41.5"/>
+                        <nil key="textColor"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                        <textInputTraits key="textInputTraits"/>
+                    </textField>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="9zv-J0-shV" firstAttribute="leading" secondItem="JkG-qo-B7F" secondAttribute="trailing" constant="10" id="5kA-Nm-2nu"/>
+                    <constraint firstItem="S5y-sJ-wMO" firstAttribute="leading" secondItem="9zv-J0-shV" secondAttribute="trailing" constant="10" id="Cbc-eo-RU0"/>
+                    <constraint firstItem="9zv-J0-shV" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="QUq-SJ-X3G"/>
+                    <constraint firstItem="JkG-qo-B7F" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottomMargin" id="aJo-So-41r"/>
+                    <constraint firstAttribute="trailing" secondItem="S5y-sJ-wMO" secondAttribute="trailing" constant="5" id="e2R-kV-UTP"/>
+                    <constraint firstAttribute="bottom" secondItem="9zv-J0-shV" secondAttribute="bottom" id="fzz-wc-fBz"/>
+                    <constraint firstItem="JkG-qo-B7F" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="hY1-Da-KfA"/>
+                    <constraint firstItem="JkG-qo-B7F" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="topMargin" id="iqb-u5-Z3Q"/>
+                    <constraint firstItem="S5y-sJ-wMO" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="s3W-5t-75d"/>
+                </constraints>
+            </tableViewCellContentView>
+            <connections>
+                <outlet property="textField" destination="9zv-J0-shV" id="cV3-le-Rsb"/>
+                <outlet property="titleLab" destination="JkG-qo-B7F" id="hyg-8I-sEc"/>
+                <outlet property="typeImg" destination="S5y-sJ-wMO" id="hv5-Sw-aVw"/>
+            </connections>
+        </tableViewCell>
+    </objects>
+    <resources>
+        <image name="find_cart_detai_button_specifications_dropdown" width="20" height="20"/>
+    </resources>
+</document>

@@ -1,0 +1,114 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+    <device id="retina4_7" orientation="portrait">
+        <adaptation id="fullscreen"/>
+    </device>
+    <dependencies>
+        <deployment identifier="iOS"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
+    </dependencies>
+    <objects>
+        <placeholder placeholderIdentifier="IBFilesOwner" id="-1" userLabel="File's Owner" customClass="OrderDetailView">
+            <connections>
+                <outlet property="contentView" destination="iN0-l3-epB" id="6i4-xG-K0C"/>
+                <outlet property="leftBtn" destination="FXB-EL-92Z" id="Zxg-Km-8fM"/>
+                <outlet property="rightBtn" destination="laF-bl-pmc" id="9NT-ls-J0b"/>
+                <outlet property="timeImg" destination="Ko4-vK-XDV" id="7Mn-uw-PjG"/>
+                <outlet property="timeLab" destination="gdb-aG-Q5b" id="HOb-9O-CNn"/>
+                <outlet property="titleLab" destination="BTh-YK-cao" id="Nx9-mM-K6R"/>
+            </connections>
+        </placeholder>
+        <placeholder placeholderIdentifier="IBFirstResponder" id="-2" customClass="UIResponder"/>
+        <view contentMode="scaleToFill" id="iN0-l3-epB">
+            <rect key="frame" x="0.0" y="0.0" width="375" height="49"/>
+            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+            <subviews>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="BzO-Mg-D1Z">
+                    <rect key="frame" x="0.0" y="0.0" width="375" height="1"/>
+                    <color key="backgroundColor" red="0.93725490199999995" green="0.93725490199999995" blue="0.93725490199999995" alpha="1" colorSpace="calibratedRGB"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="1" id="5gI-bM-lnA"/>
+                    </constraints>
+                </view>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="laF-bl-pmc">
+                    <rect key="frame" x="267" y="6" width="84" height="36"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="36" id="BVW-PY-zig"/>
+                        <constraint firstAttribute="width" constant="84" id="MvM-D5-VHH"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                    <state key="normal" title="Button"/>
+                </button>
+                <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="FXB-EL-92Z">
+                    <rect key="frame" x="173" y="7" width="84" height="36"/>
+                    <constraints>
+                        <constraint firstAttribute="height" constant="36" id="2M0-24-l5L"/>
+                        <constraint firstAttribute="width" constant="84" id="VOL-g7-1ai"/>
+                    </constraints>
+                    <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                </button>
+                <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MjA-BF-KTc">
+                    <rect key="frame" x="0.0" y="1" width="163" height="48"/>
+                    <subviews>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="付款剩余时间" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BTh-YK-cao">
+                            <rect key="frame" x="46" y="10" width="71" height="13"/>
+                            <constraints>
+                                <constraint firstAttribute="width" constant="71" id="5JL-yD-nf4"/>
+                                <constraint firstAttribute="height" constant="13" id="P1V-lt-DFF"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="10"/>
+                            <color key="textColor" red="0.87058823529999996" green="0.1215686275" blue="0.16078431369999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:29:59" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gdb-aG-Q5b">
+                            <rect key="frame" x="50" y="28" width="64" height="16"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="16" id="iOl-F2-5Ew"/>
+                            </constraints>
+                            <fontDescription key="fontDescription" type="system" pointSize="15"/>
+                            <color key="textColor" red="0.87058823529999996" green="0.1215686275" blue="0.16078431369999999" alpha="1" colorSpace="calibratedRGB"/>
+                            <nil key="highlightedColor"/>
+                        </label>
+                        <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_myorder_all_icon_clock" translatesAutoresizingMaskIntoConstraints="NO" id="Ko4-vK-XDV">
+                            <rect key="frame" x="25" y="16.5" width="16" height="16"/>
+                            <constraints>
+                                <constraint firstAttribute="height" constant="16" id="1f0-bK-7Sm"/>
+                                <constraint firstAttribute="width" constant="16" id="vPE-Yo-ijM"/>
+                            </constraints>
+                        </imageView>
+                    </subviews>
+                    <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    <constraints>
+                        <constraint firstItem="Ko4-vK-XDV" firstAttribute="centerY" secondItem="MjA-BF-KTc" secondAttribute="centerY" id="Ewz-Hj-2r8"/>
+                        <constraint firstItem="BTh-YK-cao" firstAttribute="leading" secondItem="Ko4-vK-XDV" secondAttribute="trailing" constant="5" id="VMD-Rg-zFh"/>
+                        <constraint firstItem="gdb-aG-Q5b" firstAttribute="top" secondItem="BTh-YK-cao" secondAttribute="bottom" constant="5" id="hJy-fZ-ykY"/>
+                        <constraint firstItem="BTh-YK-cao" firstAttribute="centerX" secondItem="MjA-BF-KTc" secondAttribute="centerX" id="lFd-64-wj4"/>
+                        <constraint firstItem="gdb-aG-Q5b" firstAttribute="centerX" secondItem="MjA-BF-KTc" secondAttribute="centerX" id="qx0-Ye-dzy"/>
+                        <constraint firstItem="BTh-YK-cao" firstAttribute="top" secondItem="MjA-BF-KTc" secondAttribute="top" constant="10" id="vGS-Pf-q51"/>
+                    </constraints>
+                </view>
+            </subviews>
+            <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+            <constraints>
+                <constraint firstItem="FXB-EL-92Z" firstAttribute="leading" secondItem="MjA-BF-KTc" secondAttribute="trailing" constant="10" id="1ZQ-1e-2oO"/>
+                <constraint firstItem="laF-bl-pmc" firstAttribute="leading" secondItem="FXB-EL-92Z" secondAttribute="trailing" constant="10" id="2Cu-pb-ijf"/>
+                <constraint firstItem="laF-bl-pmc" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="6MC-cH-zJA"/>
+                <constraint firstItem="MjA-BF-KTc" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" constant="1" id="A0i-8c-qPF"/>
+                <constraint firstItem="BzO-Mg-D1Z" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="CHl-6h-zD5"/>
+                <constraint firstAttribute="bottom" secondItem="MjA-BF-KTc" secondAttribute="bottom" id="ErE-43-b4x"/>
+                <constraint firstAttribute="trailing" secondItem="BzO-Mg-D1Z" secondAttribute="trailing" id="FOU-rn-kud"/>
+                <constraint firstItem="FXB-EL-92Z" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="gfv-oG-t87"/>
+                <constraint firstItem="BzO-Mg-D1Z" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="iGq-68-kRm"/>
+                <constraint firstAttribute="trailing" secondItem="laF-bl-pmc" secondAttribute="trailing" constant="24" id="qBw-cU-6st"/>
+                <constraint firstItem="MjA-BF-KTc" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="uq0-PX-mme"/>
+            </constraints>
+            <nil key="simulatedStatusBarMetrics"/>
+            <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
+            <point key="canvasLocation" x="32.5" y="31.5"/>
+        </view>
+    </objects>
+    <resources>
+        <image name="mine_myorder_all_icon_clock" width="16" height="16"/>
+    </resources>
+</document>
