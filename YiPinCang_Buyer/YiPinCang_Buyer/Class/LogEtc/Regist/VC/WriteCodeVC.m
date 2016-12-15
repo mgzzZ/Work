@@ -9,6 +9,9 @@
 #import "WriteCodeVC.h"
 #import "SetPasswordVC.h"
 #import "LoginSetPasswordVC.h"
+#import "LeanChatFactory.h"
+#import "JPUSHService.h"
+
 static int countDown = 59;
 @interface WriteCodeVC ()
 @property (strong, nonatomic) IBOutlet UILabel *phoneLab;
@@ -72,7 +75,7 @@ static int countDown = 59;
                   refreshCache:YES
                         params:@{
                        @"tel" : _phoneNumber,
-                       @"type":_from
+                       @"type": _from
                                 }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
@@ -99,9 +102,9 @@ static int countDown = 59;
  */
 - (IBAction)nextBtnClick:(id)sender {
     
-    
+    WS(weakSelf);
     if (_codeTextfield.text.length == 0) {
-        [YPC_Tools showSvpWithNoneImgHud:@"请输入正确验证码"];
+        [YPC_Tools showSvpWithNoneImgHud:@"请输入验证码"];
     }else{
         [YPCNetworking postWithUrl:@"shop/user/smscodecheck"
                       refreshCache:YES
@@ -111,37 +114,89 @@ static int countDown = 59;
                                      }
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
-                                   
                                    _token = response[@"data"][@"token"];
-                                   NSNumber *ismemeber = response[@"data"][@"ismemeber"];
-                                   if ([ismemeber.stringValue isEqualToString:@"0"]) {
-                                       
+                                   if ([_from isEqualToString:@"1"]) {
                                        SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
                                        setpassword.token = _token;
-                                       [self.navigationController pushViewController:setpassword animated:YES];
-                                       
-                                       
-                                   }else{
-                                       
-                                       if ([_from isEqualToString:@"2"]) {
-                                           LoginSetPasswordVC *Login = [[LoginSetPasswordVC alloc]init];
-                                           Login.from = _from;
-                                           Login.token = _token;
-                                           [self.navigationController pushViewController:Login animated:YES];
-                                       }else{
-                                           //登录
+                                       [weakSelf.navigationController pushViewController:setpassword animated:YES];
+                                   }else if ([_from isEqualToString:@"2"]) {
+                                       LoginSetPasswordVC *Login = [[LoginSetPasswordVC alloc]init];
+                                       Login.from = _from;
+                                       Login.token = _token;
+                                       [weakSelf.navigationController pushViewController:Login animated:YES];
+                                   }else if ([_from isEqualToString:@"3"]) { // 快速登录
+                                       if ([response[@"data"][@"ismemeber"] integerValue] == 0) {
+                                           SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
+                                           setpassword.token = _token;
+                                           [weakSelf.navigationController pushViewController:setpassword animated:YES];
+                                       }else {
+                                           [weakSelf fastSignin];
                                        }
+                                   }else if ([_from isEqualToString:@"4"]) { // 更换&绑定手机号
+                                       [weakSelf setPhone];
                                    }
-                                   
-                                   
-                               }else{
-                                   
                                }
                            }
                               fail:^(NSError *error) {
                                   
                               }];
     }
+}
+
+#pragma mark - 快速登录
+- (void)fastSignin
+{
+    WS(weakSelf);
+    [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+        if (registrationID) {
+            [YPCNetworking postWithUrl:@"shop/user/fastsignin"
+                          refreshCache:YES
+                                params:@{
+                                         @"token" : _token,
+                                         @"registration_id" : registrationID
+                                         }
+                               success:^(id response) {
+                                   if ([YPC_Tools judgeRequestAvailable:response]) {
+                                       [YPCRequestCenter setUserInfoWithResponse:response];
+                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                           [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                           [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                       } failed:^(NSError *error) {
+                                           YPCAppLog(@"%@", [error description]);
+                                       }];
+                                   }
+                               } fail:^(NSError *error) {
+                                   YPCAppLog(@"%@", [error description]);
+                               }];
+        }
+    }];
+}
+
+#pragma mark - 设置手机号
+- (void)setPhone
+{
+    WS(weakSelf);
+    [YPCNetworking postWithUrl:@"shop/user/setphone"
+                  refreshCache:YES
+                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"token" : _token}]
+                       success:^(id response) {
+                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                               if ([YPCRequestCenter shareInstance].model.member_mobile) { // 更换手机号
+                                   [YPC_Tools showSvpWithNoneImgHud:@"更换手机号成功"];
+                                   [[YPCRequestCenter shareInstance].model setMember_mobile:response[@"data"][@"phone"]];
+                                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                       [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                   });
+                               }else { // 绑定手机号
+                                   SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
+                                   setpassword.setType = SetPasswordBinding;
+                                   setpassword.token = _token;
+                                   [weakSelf.navigationController pushViewController:setpassword animated:YES];
+                               }
+                           }
+                       } fail:^(NSError *error) {
+                           YPCAppLog(@"%@", [error description]);
+                       }];
 }
 
 /**

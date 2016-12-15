@@ -15,5 +15,6 @@
 @property (strong, nonatomic) IBOutlet UIButton *priceBtn;
 @property (strong, nonatomic) IBOutlet UIButton *brandBtn;
 @property (strong, nonatomic) IBOutlet UIButton *otherBtn;
+@property (strong, nonatomic) IBOutlet UIButton *recommendBtn;
 
 @end

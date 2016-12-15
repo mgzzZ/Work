@@ -17,6 +17,7 @@
 #import "ChooseSizeModel.h"
 #import "ChooseSize.h"
 #import "DiscoverDetailVC.h"
+#import "LiveBottomView.h"
 
 static NSString *TvIdentifier = @"tvIdentifierCell";
 static NSString *CvIdentifier = @"cvIdentifierCell";
@@ -27,10 +28,13 @@ UITableViewDelegate,
 UITableViewDataSource,
 UICollectionViewDelegate,
 UICollectionViewDataSource,
-UICollectionViewDelegateFlowLayout
+UICollectionViewDelegateFlowLayout,
+DZNEmptyDataSetSource,
+DZNEmptyDataSetDelegate
 >
 {
     BOOL goodsIsShowing;
+    BOOL GroupInfoIsShowing;
 }
 @property (nonatomic, strong) AFNetworkReachabilityManager *internetReachability;
 
@@ -50,6 +54,8 @@ UICollectionViewDelegateFlowLayout
 @property (nonatomic,assign)BOOL isChooseSize;
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,strong)ChooseSizeModel *chooseModel;
+
+@property (nonatomic, strong) LiveBottomView *liveBottomView;
 @end
 
 @implementation VideoPlayerVC
@@ -72,11 +78,43 @@ UICollectionViewDelegateFlowLayout
     return _allGoodsDataArr;
 }
 
+#pragma mark - 懒加载
+- (LiveBottomView *)liveBottomView
+{
+    WS(weakSelf);
+    if (_liveBottomView == nil) {
+        _liveBottomView = [[LiveBottomView alloc]init];
+        _liveBottomView.store_id = self.mainDataModel.store_id;//加载数据
+        //点击cell
+        _liveBottomView.didcell = ^(TempHomePushModel *model){
+            [weakSelf.playerV pause];
+            weakSelf.playerV.isRemoveFromWindow = YES;
+            weakSelf.playerV.playerIsOnWindow = NO;
+            VideoPlayerVC *vVC = [VideoPlayerVC new];
+            vVC.tempModel = model;
+            vVC.hidesBottomBarWhenPushed = YES;
+            [weakSelf.navigationController pushViewController:vVC animated:YES];
+        };
+        //点击私信
+        _liveBottomView.pushMessage = ^(NSString *hx_name){
+            if (weakSelf.playerV.state == WMPlayerStateFailed) {
+                [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+            }else {
+                if (!weakSelf.playerV.playerIsOnWindow) {
+                    [weakSelf playVideoOnWindow];
+                    [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                }
+            }
+        };
+        [self.view addSubview:_liveBottomView];
+    }
+    return _liveBottomView;
+}
+
 - (void)dealloc
 {
     YPCAppLog(@"VideoPlayerVC----Dealloc");
     [NotificationCenter removeObserver:self];
-    [self releaseWMPlayer];
 }
 
 - (void)viewDidLoad {
@@ -113,12 +151,15 @@ UICollectionViewDelegateFlowLayout
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    if (self.playerV.playerIsOnWindow) {
-        [self hiddenVideoOnWindowWithViewController:self];
-    }
-    if (self.playerV.isRemoveFromWindow && !self.playerV.playerIsOnWindow) {
-        if (self.playerV.state == WMPlayerStateStopped) {
-            [self.playerV play];
+    if (self.playerV.state != WMPlayerStateFailed) {
+        
+        if (self.playerV.playerIsOnWindow) {
+            [self hiddenVideoOnWindowWithViewController:self];
+        }
+        if (self.playerV.isRemoveFromWindow && !self.playerV.playerIsOnWindow) {
+            if (self.playerV.state == WMPlayerStateStopped) {
+                [self.playerV play];
+            }
         }
     }
 }
@@ -197,6 +238,7 @@ UICollectionViewDelegateFlowLayout
 - (void)initWithPlayer
 {
     goodsIsShowing = NO; // 商品View是否弹出
+    GroupInfoIsShowing = NO;
     self.playerV.playerIsOnWindow = NO; // 视频是否在window上
     self.playerV.isRemoveFromWindow = NO; // 是否点击关闭从window上移除
     self.playerV.delegate = self;
@@ -215,7 +257,7 @@ UICollectionViewDelegateFlowLayout
                 [weakSelf followLiveGroup];
             }
         }else if ([type isEqualToString:@"seeAbout"]) {
-            
+            [weakSelf showGroupInfoAction];
         }
     }];
 }
@@ -350,13 +392,21 @@ UICollectionViewDelegateFlowLayout
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!self.playerV.playerIsOnWindow) {
-        [self playVideoOnWindow];
-        
+    if (self.playerV.state == WMPlayerStateFailed) {
         DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
         detailVC.live_id = self.mainDataModel.live_id;
         detailVC.strace_id = [self.allGoodsDataArr[indexPath.row] strace_id];
         [self.navigationController pushViewController:detailVC animated:YES];
+    }else {
+        
+        if (!self.playerV.playerIsOnWindow) {
+            [self playVideoOnWindow];
+            
+            DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
+            detailVC.live_id = self.mainDataModel.live_id;
+            detailVC.strace_id = [self.allGoodsDataArr[indexPath.row] strace_id];
+            [self.navigationController pushViewController:detailVC animated:YES];
+        }
     }
 }
 
@@ -379,20 +429,52 @@ UICollectionViewDelegateFlowLayout
 }
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (!self.playerV.playerIsOnWindow) {
-        [self playVideoOnWindow];
-        
+    if (self.playerV.state == WMPlayerStateFailed) {
         DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
         detailVC.live_id = self.mainDataModel.live_id;
         detailVC.strace_id = [self.commendDataArr[indexPath.row] strace_id];
         [self.navigationController pushViewController:detailVC animated:YES];
+    }else {
+        if (!self.playerV.playerIsOnWindow) {
+            [self playVideoOnWindow];
+            
+            DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
+            detailVC.live_id = self.mainDataModel.live_id;
+            detailVC.strace_id = [self.commendDataArr[indexPath.row] strace_id];
+            [self.navigationController pushViewController:detailVC animated:YES];
+        }
     }
+}
+
+#pragma mark - NO DATA IMAGE SET
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    if (scrollView == self.collectionView) {
+        return [UIImage imageNamed:@"blankpage_Sellinggoods_img"];
+    }else if(scrollView == self.tableView) {
+        return [UIImage imageNamed:@"blankpage_goods_img"];
+    }else {
+        return nil;
+    }
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView
+{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView
+{
+    return YES;
 }
 
 #pragma mark - PlayerDelegate
 -(void)wmplayer:(WMPlayer *)wmplayer clickedCloseButton:(UIButton *)closeBtn
 {
     if (!self.playerV.playerIsOnWindow) {
+        [self releaseWMPlayer];
         [self.navigationController popViewControllerAnimated:YES];
         return;
     }
@@ -405,10 +487,12 @@ UICollectionViewDelegateFlowLayout
 {
     if (goodsIsShowing && !self.playerV.playerIsOnWindow) {
         [self hiddenGoodsAction];
-        return;
     }
     if (self.playerV.playerIsOnWindow) {
         [self hiddenVideoOnWindowWithViewController:self];
+    }
+    if (GroupInfoIsShowing) {
+        [self.liveBottomView animationHiden];
     }
 }
 -(void)wmplayer:(WMPlayer *)wmplayer doubleTaped:(UITapGestureRecognizer *)doubleTap
@@ -470,6 +554,18 @@ UICollectionViewDelegateFlowLayout
         [UIView animateWithDuration:.2f animations:^{
             [weakself.view layoutIfNeeded];
         }];
+    }
+}
+
+#pragma mark - 直播员信息弹出隐藏
+- (void)showGroupInfoAction
+{
+    if (!GroupInfoIsShowing) {
+        [self.liveBottomView animationShow];
+        GroupInfoIsShowing = YES;
+    }else {
+        [self.liveBottomView animationHiden];
+        GroupInfoIsShowing = NO;
     }
 }
 

@@ -14,29 +14,11 @@
 #import "DanmuMessage.h"
 #import "TimerLiveInfoModel.h"
 #import "DiscoverDetailVC.h"
+#import "LivingLikeMessage.h"
+#import "LiveBottomView.h"
+#import "VideoPlayerVC.h"
 
 #define Window [UIApplication sharedApplication].keyWindow
-typedef NS_ENUM(NSInteger, livingLikeTransientMessageType) {
-    livingLikeTransientMessageTypeOperation = 3 // 1为订单消息 2为弹幕消息 //3为直播间点赞消息
-};
-
-@interface livingLikeTransientMessage : AVIMTextMessage <AVIMTypedMessageSubclassing>
-
-@end
-
-@implementation livingLikeTransientMessage
-
-+ (AVIMMessageMediaType)classMediaType {
-    return livingLikeTransientMessageTypeOperation;
-}
-
-+ (void)load {
-    // 自定义消息需要注册
-    [livingLikeTransientMessage registerSubclass];
-}
-
-@end
-
 
 static NSString *status[] = {
     @"PLPlayerStatusUnknow",
@@ -67,13 +49,50 @@ UITextFieldDelegate
 @property (nonatomic, strong) dispatch_source_t timer; // 强引用time, 防止提前释放
 @property (nonatomic, strong) TimerLiveInfoModel *timerLiveModel;
 
+@property (nonatomic, strong) LiveBottomView *liveBottomView;
+
 @end
 
 @implementation LivingVC
 {
     BOOL goodsIsShowing;
+    BOOL LivingGroupInfoIsShowing;
     BOOL isFirstLoadData;
+    NSDictionary *_currentTopGoodsDic;
 }
+#pragma mark - 懒加载
+- (LiveBottomView *)liveBottomView
+{
+    WS(weakSelf);
+    if (_liveBottomView == nil) {
+        _liveBottomView = [[LiveBottomView alloc]init];
+        _liveBottomView.store_id = self.rtmpModel.store_id;//加载数据
+        //点击cell
+        _liveBottomView.didcell = ^(TempHomePushModel *model){
+            [weakSelf.player stop];
+            weakSelf.isRemoveFromWindow = YES;
+            weakSelf.playerIsOnWindow = NO;
+            VideoPlayerVC *vVC = [VideoPlayerVC new];
+            vVC.tempModel = model;
+            vVC.hidesBottomBarWhenPushed = YES;
+            [weakSelf.navigationController pushViewController:vVC animated:YES];
+        };
+        //点击私信
+        _liveBottomView.pushMessage = ^(NSString *hx_name){
+            if (weakSelf.player.status == AVIMClientStatusNone || weakSelf.player.status == AVIMClientStatusClosing || weakSelf.player.status == AVIMClientStatusClosed) {
+                [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+            }else {
+                if (!weakSelf.playerIsOnWindow) {
+                    [weakSelf playVideoOnWindow];
+                    [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                }
+            }
+        };
+        [self.view addSubview:_liveBottomView];
+    }
+    return _liveBottomView;
+}
+
 #pragma mark - ViewController声明周期
 -(void)dealloc
 {
@@ -114,12 +133,15 @@ UITextFieldDelegate
         [self resumeTimer];
     }
     isFirstLoadData = NO;
-    if (self.playerIsOnWindow) {
-        [self hiddenVideoOnWindowWithViewController:self];
-    }
-    if (self.isRemoveFromWindow && !self.playerIsOnWindow) {
-        if (self.player.status == PLPlayerStatusStopped) {
-            [self.player play];
+    if (self.player.status != AVIMClientStatusNone || self.player.status != AVIMClientStatusClosing || self.player.status != AVIMClientStatusClosed) {
+        
+        if (self.playerIsOnWindow) {
+            [self hiddenVideoOnWindowWithViewController:self];
+        }
+        if (self.isRemoveFromWindow && !self.playerIsOnWindow) {
+            if (self.player.status == PLPlayerStatusStopped) {
+                [self.player play];
+            }
         }
     }
 }
@@ -133,10 +155,24 @@ UITextFieldDelegate
 {
     isFirstLoadData = YES;
     goodsIsShowing = NO;
+    LivingGroupInfoIsShowing = NO;
     self.playerIsOnWindow = NO;
     self.isRemoveFromWindow = NO;
     self.localLikeCount = 0;
     self.playerPHView.image = self.playerPHImg;
+    
+    // 隐藏商品轻拍手势
+    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
+    [self.itemContentView addGestureRecognizer:singleTap];
+    // 小视频单击手势, 返回页面, 全屏播放
+    UITapGestureRecognizer *smallSingleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
+    [self.player.playerView addGestureRecognizer:smallSingleTap];
+    // 小视频拖拽手势
+    UIPanGestureRecognizer *panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(doHandlePanAction:)];
+    [self.player.playerView addGestureRecognizer:panGes];
+    // 点击头像
+    UITapGestureRecognizer *avatorTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(lookLivingGroupInfoAction:)];
+    [self.avatorImgV addGestureRecognizer:avatorTap];
 }
 #pragma mark - DATA
 // 推流相关初始数据
@@ -152,7 +188,7 @@ UITextFieldDelegate
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                _rtmpModel = [RTMPModel mj_objectWithKeyValues:response[@"data"]];
                                if (_rtmpModel.state.integerValue == 4) {
-                                   self.livingPauseImgV.hidden = NO;
+                                   weakSelf.livingPauseImgV.hidden = NO;
                                }else {                                   
                                    // 配置拉流, 准备拉流
                                    [weakSelf configPlayer];
@@ -284,8 +320,7 @@ UITextFieldDelegate
     PLPlayerOption *option = [PLPlayerOption defaultOption];
     [option setOptionValue:@10 forKey:PLPlayerOptionKeyTimeoutIntervalForMediaPackets];
     
-//    self.player = [PLPlayer playerWithURL:[NSURL URLWithString:self.rtmpModel.qn_rtmppublishurl] option:option];
-    self.player = [PLPlayer playerWithURL:[NSURL URLWithString:@"rtmp://pili-publish.gongchangtemai.com/ypc-taofactory-live/5835256d5e77b06cee125a89"] option:option];
+    self.player = [PLPlayer playerWithURL:[NSURL URLWithString:self.rtmpModel.qn_rtmppublishurl] option:option];
     self.player.delegate = self;
     self.player.delegateQueue = dispatch_get_main_queue();
     self.player.backgroundPlayEnable = YES;
@@ -306,12 +341,6 @@ UITextFieldDelegate
         make.height.mas_equalTo(30);
     }];
     
-    UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
-    [self.itemContentView addGestureRecognizer:singleTap];
-    UITapGestureRecognizer *smallSingleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
-    [self.player.playerView addGestureRecognizer:smallSingleTap];
-    UIPanGestureRecognizer *panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(doHandlePanAction:)];
-    [self.player.playerView addGestureRecognizer:panGes];
     [self startPlayer];
     
     self.reconnectCount = 0; // 重新连接次数
@@ -319,18 +348,19 @@ UITextFieldDelegate
 - (void)startPlayer {
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     [self.player play];
-    [self addNetworkNotifications];
+    [self addNotifications];
 }
 
 #pragma mark - 定时器
 - (void)setUpTimer
 {
+    WS(weakSelf);
     dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
     _timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
     dispatch_source_set_timer(_timer, DISPATCH_TIME_NOW, 2 * NSEC_PER_SEC, 0 * NSEC_PER_SEC);
     dispatch_source_set_event_handler(_timer, ^{
-        [self refreshLivingInfoData];
-        [self uploadLocalLikeCount];
+        [weakSelf refreshLivingInfoData];
+        [weakSelf uploadLocalLikeCount];
     });
     dispatch_resume(_timer);
 }
@@ -352,7 +382,7 @@ UITextFieldDelegate
 }
 
 #pragma mark - 监听
-- (void)addNetworkNotifications
+- (void)addNotifications
 {
     [NotificationCenter addObserver:self
                            selector:@selector(startPlayer)
@@ -366,8 +396,12 @@ UITextFieldDelegate
     self.internetReachability = [AFNetworkReachabilityManager sharedManager];
     [self.internetReachability startMonitoring];
     
-    // 点赞监听
+    // Leancloud监听
     [NotificationCenter addObserver:self selector:@selector(animationWithLivingLike) name:DidReceiveLivingLikeFormLeanCloudCusstomMessage object:nil];
+    [NotificationCenter addObserver:self selector:@selector(livingGoodsTopAction:) name:DidReceiveLivingGoodsTopFormLeanCloudCusstomMessage object:nil];
+    [NotificationCenter addObserver:self selector:@selector(livingGoodsIssueAction:) name:DidReceiveLivingGoodsIssueLeanCloudCusstomMessage object:nil];
+    [NotificationCenter addObserver:self selector:@selector(MessagelivingPauseAction) name:DidReceiveLivingLivingPauseLeanCloudCusstomMessage object:nil];
+    [NotificationCenter addObserver:self selector:@selector(MessagelivingStopAction) name:DidReceiveLivingLivingStopLeanCloudCusstomMessage object:nil];
 }
 - (void)addKeyboardNotifications
 {
@@ -398,6 +432,7 @@ UITextFieldDelegate
             break;
         case AFNetworkReachabilityStatusReachableViaWWAN:
             if (self.player.status == PLPlayerStatusPlaying || self.player.status == PLPlayerStatusCaching) {
+                WS(weakSelf);
                 [YPC_Tools customAlertViewWithTitle:@"提示"
                                             Message:@"当前非WiFi网络\n继续播放将产生流量费用"
                                           BtnTitles:nil
@@ -405,8 +440,8 @@ UITextFieldDelegate
                                 DestructiveBtnTitle:@"继续播放"
                                       actionHandler:nil
                                       cancelHandler:^(LGAlertView *alertView) {
-                                          [self.player stop];
-                                          [self.navigationController popViewControllerAnimated:YES];
+                                          [weakSelf.player stop];
+                                          [weakSelf.navigationController popViewControllerAnimated:YES];
                                       } destructiveHandler:nil];
             }
             break;
@@ -479,7 +514,7 @@ UITextFieldDelegate
 }
 - (void)playerWillBeginBackgroundTask:(nonnull PLPlayer *)player
 {
-    
+
 }
 - (void)playerWillEndBackgroundTask:(nonnull PLPlayer *)player
 {
@@ -546,6 +581,18 @@ UITextFieldDelegate
             sender.hidden = YES;
             [self.player play];
             break;
+        case 2222:{
+            // 直播间弹出商品
+            if (!self.playerIsOnWindow) {
+                [self playVideoOnWindow];
+                
+                DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
+                detailVC.live_id = self.tempModel.live_id;
+                detailVC.strace_id = [_currentTopGoodsDic safe_objectForKey:@"strace_id"];
+                [self.navigationController pushViewController:detailVC animated:YES];
+            }
+        }
+            break;
             
         default:
             break;
@@ -555,10 +602,26 @@ UITextFieldDelegate
 {
     if (goodsIsShowing && !self.playerIsOnWindow) {
         [self hiddenGoodsAction];
-        return;
     }
     if (self.playerIsOnWindow) {
         [self hiddenVideoOnWindowWithViewController:self];
+    }
+    if (self.player.status == AVIMClientStatusNone || self.player.status == AVIMClientStatusClosing || self.player.status == AVIMClientStatusClosed) {
+        [self hiddenGoodsAction];
+    }
+    if (LivingGroupInfoIsShowing) {
+        [self.liveBottomView animationHiden];
+        LivingGroupInfoIsShowing = NO;
+    }
+}
+- (void)lookLivingGroupInfoAction:(UITapGestureRecognizer *)tap
+{
+    if (!LivingGroupInfoIsShowing) {
+        [self.liveBottomView animationShow];
+        LivingGroupInfoIsShowing = YES;
+    }else {
+        [self.liveBottomView animationHiden];
+        LivingGroupInfoIsShowing = NO;
     }
 }
 
@@ -621,7 +684,7 @@ UITextFieldDelegate
         self.likeCountL.text = [NSString stringWithFormat:@"%ld   ", self.likeCount];
     }
     [self showTheApplauseInView:self.view belowView:sender];
-    livingLikeTransientMessage *message = [livingLikeTransientMessage messageWithText:@"0" attributes:nil];
+    LivingLikeMessage *message = [LivingLikeMessage messageWithText:@"0" attributes:nil];
     AVIMMessageOption *option = [AVIMMessageOption new];
     option.transient = YES;
     option.priority = AVIMMessagePriorityLow;
@@ -631,10 +694,42 @@ UITextFieldDelegate
     }];
 }
 
-#pragma mark - 调用点赞动画
+#pragma mark - LeanCloud暂态消息接收
 - (void)animationWithLivingLike
 {
     [self showTheApplauseInView:self.view belowView:[self.view viewWithTag:2004]];
+}
+- (void)livingGoodsTopAction:(NSNotification *)not
+{
+    _currentTopGoodsDic = [not userInfo];
+    if (self.livingTopGoodsView.hidden) {
+        self.livingTopGoodsView.hidden = NO;
+    }
+    [self.topGoodsImgV sd_setImageWithURL:[NSURL URLWithString:[_currentTopGoodsDic safe_objectForKey:@"img"]] placeholderImage:YPCImagePlaceHolderSquare];
+    self.topGoodsTitleL.text = [_currentTopGoodsDic safe_objectForKey:@"name"];
+    self.topGoodPriceL.text = [_currentTopGoodsDic safe_objectForKey:@"goods_price"];
+    
+    // 刷新推荐商品跟总列表商品
+    [self getMainData];
+    [self getIssueData];
+    
+}
+- (void)livingGoodsIssueAction:(NSNotification *)not
+{
+    [self getIssueData];
+}
+- (void)MessagelivingPauseAction
+{
+    [self.player stop];
+    self.livingPauseImgV.hidden = NO;
+    self.player.playerView.hidden = YES;
+}
+- (void)MessagelivingStopAction
+{
+    [self.player stop];
+    self.livingPauseImgV.image = IMAGE(@"liveover_placeholder");
+    self.livingPauseImgV.hidden = NO;
+    self.player.playerView.hidden = YES;
 }
 
 #pragma mark - 商品点击block
@@ -643,14 +738,23 @@ UITextFieldDelegate
     WS(weakSelf);
     [self.goodsView setCellSelectedBlock:^(NSString *strace_id) {
         if (strace_id) {
-            if (!weakSelf.playerIsOnWindow) {
-                [weakSelf playVideoOnWindow];
+            if (self.player.status == AVIMClientStatusNone || self.player.status == AVIMClientStatusClosing || self.player.status == AVIMClientStatusClosed) {
                 
                 DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
                 detailVC.live_id = weakSelf.tempModel.live_id;
                 detailVC.strace_id = strace_id;
                 [weakSelf.navigationController pushViewController:detailVC animated:YES];
+            }else {
+                if (!weakSelf.playerIsOnWindow) {
+                    [weakSelf playVideoOnWindow];
+                    
+                    DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
+                    detailVC.live_id = weakSelf.tempModel.live_id;
+                    detailVC.strace_id = strace_id;
+                    [weakSelf.navigationController pushViewController:detailVC animated:YES];
+                }
             }
+            
         }
     }];
 }

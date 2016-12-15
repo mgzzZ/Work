@@ -28,4 +28,7 @@
 @property (nonatomic,copy)NSString *address;
 @property (nonatomic,copy)NSString *start;
 @property (nonatomic,copy)NSString *end;
+@property (nonatomic,copy)NSString *livingshowinitimg;
+@property (nonatomic,copy)NSString *store_avatar;
+@property (nonatomic,copy)NSString *store_name;
 @end

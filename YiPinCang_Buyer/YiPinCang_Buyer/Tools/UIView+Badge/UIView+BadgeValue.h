@@ -13,6 +13,10 @@
  *
  *  设置消息数，设置小于或等于0 、@"" 、nil 就隐藏
  */
-@property (nonatomic,copy)NSString *badgeValue;
+@property (nonatomic, copy) NSString *badgeValue;
+
+@property (nonatomic, copy) NSString *WhiteLayerbadgeValue;
+
+@property (nonatomic, copy) NSString *littleRedBadgeValue;
 
 @end

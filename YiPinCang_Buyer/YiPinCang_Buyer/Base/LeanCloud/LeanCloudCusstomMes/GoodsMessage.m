@@ -17,31 +17,31 @@
  *  - summary 会显示在 push 提示中
  * @attention 务必添加这三个字段，ChatKit 内部会使用到。
  */
-//- (instancetype)initWithOrderModel:(OrdersModel *)orderModel conversationType:(LCCKConversationType)conversationType
-//{
-//    self = [super init];
-//    if (!self) {
-//        return nil;
-//    }
-//    [self lcck_setObject:@"商品订单" forKey:LCCKCustomMessageTypeTitleKey];
-//    [self lcck_setObject:@"这是一条商品订单消息，当前版本过低无法显示，请尝试升级APP查看" forKey:LCCKCustomMessageDegradeKey];
-//    [self lcck_setObject:@"有人向您发送了商品订单消息，请打开APP查看" forKey:LCCKCustomMessageSummaryKey];
-//    [self lcck_setObject:@(conversationType) forKey:LCCKCustomMessageConversationTypeKey];
-//    [self lcck_setObject:orderModel.order_id forKey:@"orderID"];
-//    return self;
-//}
+- (instancetype)initWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType
+{
+    self = [super init];
+    if (!self) {
+        return nil;
+    }
+    [self lcck_setObject:@"商品订单" forKey:LCCKCustomMessageTypeTitleKey];
+    [self lcck_setObject:@"这是一条商品订单消息，当前版本过低无法显示，请尝试升级APP查看" forKey:LCCKCustomMessageDegradeKey];
+    [self lcck_setObject:@"有人向您发送了商品订单消息，请打开APP查看" forKey:LCCKCustomMessageSummaryKey];
+    [self lcck_setObject:@(conversationType) forKey:LCCKCustomMessageConversationTypeKey];
+    [self lcck_setObject:orderModel.order_id forKey:@"orderID"];
+    return self;
+}
 
-//+ (instancetype)GoodsMessageWithOrderModel:(OrdersModel *)orderModel conversationType:(LCCKConversationType)conversationType
-//{
-//    return [[self alloc] initWithOrderModel:orderModel conversationType:conversationType];
-//}
++ (instancetype)GoodsMessageWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType
+{
+    return [[self alloc] initWithOrderModel:orderModel conversationType:conversationType];
+}
 
 + (void)load {
     [self registerSubclass];
 }
 
 + (AVIMMessageMediaType)classMediaType {
-    return AVIMGoodsMessageType;
+    return LeanCloudCustomMessageGoods;
 }
 
 

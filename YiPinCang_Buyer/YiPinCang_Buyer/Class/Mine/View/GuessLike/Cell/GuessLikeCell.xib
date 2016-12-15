@@ -39,7 +39,7 @@
                                 <nil key="textColor"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_img" translatesAutoresizingMaskIntoConstraints="NO" id="qSQ-Sa-SuK">
+                            <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_img" translatesAutoresizingMaskIntoConstraints="NO" id="qSQ-Sa-SuK">
                                 <rect key="frame" x="0.0" y="0.0" width="153" height="213"/>
                             </imageView>
                             <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_img_hotselling" translatesAutoresizingMaskIntoConstraints="NO" id="B4f-zz-3dC">

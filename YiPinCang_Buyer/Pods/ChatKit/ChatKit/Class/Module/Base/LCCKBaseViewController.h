@@ -2,7 +2,7 @@
 //  LCCKBaseViewController.h
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/26.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/26.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -22,14 +22,14 @@ typedef void(^LCCKViewDidDismissBlock)(__kindof LCCKBaseViewController *viewCont
 typedef void(^LCCKViewControllerWillDeallocBlock) (__kindof LCCKBaseViewController *viewController);
 typedef void(^LCCKViewDidReceiveMemoryWarningBlock)(__kindof LCCKBaseViewController *viewController);
 
-@property (nonatomic, copy, readonly) LCCKViewDidLoadBlock viewDidLoadBlock;
-@property (nonatomic, copy, readonly) LCCKViewWillAppearBlock viewWillAppearBlock;
-@property (nonatomic, copy, readonly) LCCKViewDidAppearBlock viewDidAppearBlock;
-@property (nonatomic, copy, readonly) LCCKViewWillDisappearBlock viewWillDisappearBlock;
-@property (nonatomic, copy, readonly) LCCKViewDidDisappearBlock viewDidDisappearBlock;
-@property (nonatomic, copy, readonly) LCCKViewDidDismissBlock viewDidDismissBlock;
-@property (nonatomic, copy, readonly) LCCKViewControllerWillDeallocBlock viewControllerWillDeallocBlock;
-@property (nonatomic, copy, readonly) LCCKViewDidReceiveMemoryWarningBlock didReceiveMemoryWarningBlock;
+@property (nonatomic, copy) LCCKViewDidLoadBlock viewDidLoadBlock;
+@property (nonatomic, copy) LCCKViewWillAppearBlock viewWillAppearBlock;
+@property (nonatomic, copy) LCCKViewDidAppearBlock viewDidAppearBlock;
+@property (nonatomic, copy) LCCKViewWillDisappearBlock viewWillDisappearBlock;
+@property (nonatomic, copy) LCCKViewDidDisappearBlock viewDidDisappearBlock;
+@property (nonatomic, copy) LCCKViewDidDismissBlock viewDidDismissBlock;
+@property (nonatomic, copy) LCCKViewControllerWillDeallocBlock viewControllerWillDeallocBlock;
+@property (nonatomic, copy) LCCKViewDidReceiveMemoryWarningBlock didReceiveMemoryWarningBlock;
 
 /**
  *  View的相关事件调出

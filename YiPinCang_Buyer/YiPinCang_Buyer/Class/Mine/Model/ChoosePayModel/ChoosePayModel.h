@@ -9,12 +9,11 @@
 #import <Foundation/Foundation.h>
 #import "PayParamModel.h"
 #import "PaylistModel.h"
-@class paylistModel;
 @class PaylistModel;
 @interface ChoosePayModel : NSObject
 
 @property (nonatomic,copy)NSString *remaintime;
-@property (nonatomic,copy)NSString *amount;
+@property (nonatomic,copy)NSString *amount;//应付金额
 @property (nonatomic,strong)NSMutableArray *paylist;
 @property (nonatomic,strong)NSString *pay_sn;
 

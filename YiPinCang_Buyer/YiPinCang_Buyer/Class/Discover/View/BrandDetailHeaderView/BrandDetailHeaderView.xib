@@ -59,8 +59,8 @@
                     <state key="normal" image="find_canclefollow_button"/>
                     <state key="selected" image="find_followbrand_button"/>
                 </button>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="耐克科比系列新品仓储直销8折限时抢购，这里放 活动介绍暂定两行字 可以查看详情" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5sx-qb-QXx">
-                    <rect key="frame" x="50" y="287" width="275" height="29"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="5sx-qb-QXx">
+                    <rect key="frame" x="50" y="287" width="275" height="0.0"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <nil key="textColor"/>
                     <nil key="highlightedColor"/>
@@ -79,7 +79,7 @@
                     </userDefinedRuntimeAttributes>
                 </view>
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_button_more" translatesAutoresizingMaskIntoConstraints="NO" id="DRP-Wc-IVn">
-                    <rect key="frame" x="345" y="291.5" width="20" height="20"/>
+                    <rect key="frame" x="345" y="277" width="20" height="20"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="20" id="E61-qs-iEl"/>
                         <constraint firstAttribute="height" constant="20" id="Pgo-gx-unM"/>

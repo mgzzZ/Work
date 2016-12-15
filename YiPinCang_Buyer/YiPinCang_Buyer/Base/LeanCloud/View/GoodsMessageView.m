@@ -7,8 +7,8 @@
 //
 
 #import "GoodsMessageView.h"
-//#import "OrderGoodsModel.h"
 #import "GoodsImgCell.h"
+#import "OrderGoodsModel.h"
 
 @interface GoodsMessageView () <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
 
@@ -18,22 +18,11 @@
 
 @property (nonatomic, strong) IBOutlet UICollectionView *goodsImgCollectionView;
 
-@property (nonatomic, strong) NSMutableArray *collectionDataArr;
-
-//@property (nonatomic, strong) OdModel *dataModel;
+@property (nonatomic, strong) OrderDetailModel *dataModel;
 
 @end
 
 @implementation GoodsMessageView
-
-- (NSMutableArray *)collectionDataArr
-{
-    if (_collectionDataArr) {
-        return _collectionDataArr;
-    }
-    _collectionDataArr = [NSMutableArray array];
-    return _collectionDataArr;
-}
 
 + (id)GoodsMessageView
 {
@@ -51,18 +40,17 @@
 
 - (void)gMesClicked
 {
-//    !self.GoodsMesViewClickBlock ?: self.GoodsMesViewClickBlock(self.dataModel);
+    !self.GoodsMesViewClickBlock ?: self.GoodsMesViewClickBlock(self.dataModel);
 }
 
-//- (void)configureWithOdModel:(OdModel *)model
-//{
-//    self.dataModel = model;
-//    self.storeNameL.text = model.store_name;
-//    self.stateL.text = model.state_desc;
-//    self.collectionDataArr = [OrderGoodsModel mj_objectArrayWithKeyValuesArray:model.goods];
-//    self.endPriceL.text = [NSString stringWithFormat:@"共%ld件商品 已付款: ¥%@ (含运费: ¥%@)", (unsigned long)self.collectionDataArr.count, model.goods_amount, model.shipping_fee];
-//    [self configTempCell];
-//}
+- (void)configureWithModel:(OrderDetailModel *)model
+{
+    self.dataModel = model;
+    self.storeNameL.text = self.dataModel.store_name;
+    self.stateL.text = self.dataModel.state_desc;
+    self.endPriceL.text = [NSString stringWithFormat:@"共%ld件商品 已付款: ¥%@ (含运费: ¥%@)", (unsigned long)[self.dataModel.goodsinfo.firstObject goods].count, model.goods_amount, self.dataModel.shipping_fee];
+    [self configTempCell];
+}
 
 - (void)configTempCell
 {
@@ -73,13 +61,13 @@
 
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    return self.collectionDataArr.count;
+    return [self.dataModel.goodsinfo.firstObject goods].count;
 }
 
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     GoodsImgCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"goodsImgItem" forIndexPath:indexPath];
-//    cell.tempStr = [self.collectionDataArr[indexPath.item] goods_image];
+    cell.tempStr = [[self.dataModel.goodsinfo.firstObject goods][indexPath.item] goods_image];
     return cell;
 }
 

@@ -2,7 +2,7 @@
 //  AVIMConversation+LCCKExtension.h
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/11.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/11.
 //  Copyright © 2016年 ElonChan (wechat:chenyilong1010). All rights reserved.
 //
 #import <AVOSCloudIM/AVIMConversation.h>
@@ -23,7 +23,7 @@
 @property (nonatomic, assign) NSInteger lcck_unreadCount;
 
 /*!
- * 如果未读消息数未超出100，显示数字，否则消息省略号
+ * 如果未读消息数未超出100，显示数字，否则显示省略号
  */
 - (NSString *)lcck_badgeText;
 

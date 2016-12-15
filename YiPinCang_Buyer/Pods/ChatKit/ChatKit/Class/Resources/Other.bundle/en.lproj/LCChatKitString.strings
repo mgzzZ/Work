@@ -1,7 +1,7 @@
 //  LCChatKitString.strings
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (wechat:chenyilong1010) on 16/3/1.
+//  v0.8.5 Created by ElonChan (wechat:chenyilong1010) on 16/3/1.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 "Delete" = "Delete";
@@ -46,8 +46,8 @@
 "connectFailed" = "connect failed";
 "requestForceSingleSignOnAuthorization" = "Force sign on?";
 "call" = "call";
-"unknownMessage" = "unknown message type, please update your APP";
-"unknownMessageType" = "unknown message type";
+"unknownMessage" = "Unsupported message, please update your APP";
+"unknownMessageType" = "Unsupported message type";
 "SingleWelcomeMessage" = "Hello!";
 "GroupWelcomeMessage" = "Hello!";
 "GroupWelcomeMessageWithNickName" = "Hello! I am ";
@@ -68,3 +68,4 @@
 "button.label.error.message" = "Error Message";
 "button.label.info.message" = "Information Message";
 "button.label.hide.all" = "Hide All";
+

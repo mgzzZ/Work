@@ -14,19 +14,19 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - AVOSCloud (3.6.1)
-  - AVOSCloudIM (3.6.1):
-    - AVOSCloud (= 3.6.1)
-    - AVOSCloudIM/_ARC (= 3.6.1)
-    - AVOSCloudIM/_NOARC (= 3.6.1)
-  - AVOSCloudIM/_ARC (3.6.1):
-    - AVOSCloud (= 3.6.1)
-    - AVOSCloudIM/_NOARC (= 3.6.1)
-  - AVOSCloudIM/_NOARC (3.6.1):
-    - AVOSCloud (= 3.6.1)
-  - ChatKit (0.8.0):
-    - AVOSCloud (~> 3.6.0)
-    - AVOSCloudIM (~> 3.6.0)
+  - AVOSCloud (3.8.0)
+  - AVOSCloudIM (3.8.0):
+    - AVOSCloud (= 3.8.0)
+    - AVOSCloudIM/_ARC (= 3.8.0)
+    - AVOSCloudIM/_NOARC (= 3.8.0)
+  - AVOSCloudIM/_ARC (3.8.0):
+    - AVOSCloud (= 3.8.0)
+    - AVOSCloudIM/_NOARC (= 3.8.0)
+  - AVOSCloudIM/_NOARC (3.8.0):
+    - AVOSCloud (= 3.8.0)
+  - ChatKit (0.8.7):
+    - AVOSCloud (~> 3.8.0)
+    - AVOSCloudIM (~> 3.8.0)
     - DACircularProgress (~> 2.3.1)
     - FDStackView (~> 1.0)
     - FMDB (~> 2.6.2)
@@ -99,7 +99,7 @@ PODS:
 
 DEPENDENCIES:
   - AFNetworking (~> 3.1.0)
-  - ChatKit
+  - ChatKit (~> 0.8.7)
   - DZNEmptyDataSet (~> 1.8.1)
   - FMDB (~> 2.6.2)
   - iCarousel (~> 1.8.3)
@@ -135,9 +135,9 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  AVOSCloud: cc9b567da2d30f07e3da1e4db682cad9ff56a1b6
-  AVOSCloudIM: 7c30a50d1e8f6afee000a2037ea24eb6abcbc8db
-  ChatKit: 7c5fa96b01e69bcfc38b9158fdafe363ce56352b
+  AVOSCloud: ae9804496f51de99c4143fea7f842d6f46a32b4c
+  AVOSCloudIM: bea73c50c58c7c5e466e0c7134b4b7d2f02c338a
+  ChatKit: 3eaa705e079272c02e5e8ba02560ccf88a487cc2
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
   DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
   FDStackView: 3a4bbe0ce9c35e974246a585168b9da8c32213f1
@@ -171,6 +171,6 @@ SPEC CHECKSUMS:
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
   YYWebImage: 5f7f36aee2ae293f016d418c7d6ba05c4863e928
 
-PODFILE CHECKSUM: 3521586a77fdcd47a2fa5f1e307be5548539277e
+PODFILE CHECKSUM: 5a1eb773ca57e53524ef34d907ee565377d1afc4
 
 COCOAPODS: 1.0.0

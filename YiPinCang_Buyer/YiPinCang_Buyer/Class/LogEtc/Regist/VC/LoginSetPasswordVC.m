@@ -8,7 +8,7 @@
 
 #import "LoginSetPasswordVC.h"
 #import "LoginVC.h"
-#import "RegistModel.h"
+#import "UserModel.h"
 #import "JPUSHService.h"
 #import "LeanChatFactory.h"
 

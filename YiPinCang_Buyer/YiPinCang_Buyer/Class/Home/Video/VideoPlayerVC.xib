@@ -99,6 +99,8 @@
                                 <connections>
                                     <outlet property="dataSource" destination="-1" id="3FJ-hg-Oht"/>
                                     <outlet property="delegate" destination="-1" id="vox-vm-tL3"/>
+                                    <outlet property="emptyDataSetDelegate" destination="-1" id="WGw-bn-Ypc"/>
+                                    <outlet property="emptyDataSetSource" destination="-1" id="gB6-WH-IHb"/>
                                 </connections>
                             </collectionView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="WkF-s7-uA9">
@@ -160,6 +162,8 @@
                     <connections>
                         <outlet property="dataSource" destination="-1" id="eN9-iC-C1A"/>
                         <outlet property="delegate" destination="-1" id="yhm-F1-erc"/>
+                        <outlet property="emptyDataSetDelegate" destination="-1" id="GRs-e0-MmS"/>
+                        <outlet property="emptyDataSetSource" destination="-1" id="8nc-9f-D9D"/>
                     </connections>
                 </tableView>
             </subviews>

@@ -13,7 +13,7 @@
 #import "DiscoverCommentCell.h"
 #import "LoginVC.h"
 #import "KeyboardTextView.h"
-
+#import "PushModel.h"
 static NSString *Identifier = @"identifier";
 @interface PreheatingDetailVC ()
 @property (nonatomic, strong) UILabel *likeCountLab;
@@ -33,7 +33,8 @@ static NSString *Identifier = @"identifier";
 
 - (void)dealloc
 {
-    YPCAppLog(@"dealloc");
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+    
 }
 
 - (NSMutableArray *)commentDataArr
@@ -57,7 +58,7 @@ static NSString *Identifier = @"identifier";
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
                                                                                    @"strace_id" : weakSelf.tempModel.strace_id,
-                                                                                   @"message" : text
+                                                                                   @"message" : [text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
                                                                                    }]
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
@@ -85,6 +86,7 @@ static NSString *Identifier = @"identifier";
     [self setupTableViewHeader];
     [self getDataForTableView];
     [self.view addSubview:self.keyboardView];
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addComment:) name:@"comment" object:nil];
 }
 
 - (void)getDataForTableView
@@ -179,7 +181,7 @@ static NSString *Identifier = @"identifier";
         UIImageView *videoImgV = [UIImageView new];
         videoImgV.contentMode = UIViewContentModeScaleAspectFill;
         videoImgV.clipsToBounds = YES;
-        [videoImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.video_img] placeholderImage:YPCImagePlaceHolder];
+        [videoImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.video_img] placeholderImage:YPCImagePlaceMainHomeHolder];
         [tvHeaderV addSubview:videoImgV];
         
         UIButton *playVideoBtn = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -332,10 +334,32 @@ static NSString *Identifier = @"identifier";
                action:@selector(naviRightAction:)
      forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *shareItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-    self.navigationItem.rightBarButtonItem = shareItem;
+//    self.navigationItem.rightBarButtonItem = shareItem;
 }
 - (void)naviRightAction:(UIButton *)sender
 {
+    
+}
+
+
+- (void)addComment:(NSNotification *)notification{
+    NSDictionary *dic = [notification object];
+    
+    PushModel *model = [PushModel mj_objectWithKeyValues:dic];
+    if ([model.extras.strace_id isEqualToString:self.tempModel.strace_id]) {
+        CommentListModel *commentlistModel = [[CommentListModel alloc]init];
+        commentlistModel.scomm_memberavatar = model.extras.avatar;
+        commentlistModel.scomm_content = model.title;
+        commentlistModel.comment_type = model.extras.comment_type;
+        commentlistModel.scommto_memberid = model.extras.replyto;
+        commentlistModel.scomm_membername = model.extras.scomm_membername;
+        commentlistModel.scomm_time = model.extras.scomm_time;
+        commentlistModel.scommto_membername = model.extras.scommto_membername;
+        [self.commentDataArr addObject:commentlistModel];
+        NSIndexPath *index = [NSIndexPath indexPathForRow:self.commentDataArr.count - 1 inSection:0];
+        [self.CommentTableView insertRowsAtIndexPaths:@[index] withRowAnimation:UITableViewRowAnimationNone];
+    }
+    
     
 }
 - (void)didReceiveMemoryWarning {

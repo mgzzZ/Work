@@ -69,11 +69,11 @@
     cell.bgView.backgroundColor = self.bgColor;
     cell.bgView.layer.borderColor = [Color colorWithHex:@"0xf0f0f0"].CGColor;
     cell.bgView.layer.borderWidth = 1;
-    if ([self.type isEqualToString:@"brand"] || [self.type isEqualToString:@""] || self.type == nil) {
+    if (self.typeEnum == BrandCell || self.typeEnum == FindCell) {
         DiscoverBrandLiskModel *model = self.dataArr[indexPath.row];
         cell.titleLab.text = model.brand_name;
         
-    }else if([self.type isEqualToString:@"bind"]){
+    }else if(self.typeEnum == BindCell){
         BrandLiskTypeListModel *model = self.dataArr[indexPath.row];
         cell.titleLab.text = model.bind_name;
     }
@@ -83,13 +83,13 @@
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
     FiterBrandTypeCell *cell = (FiterBrandTypeCell *)[self.collectionView cellForItemAtIndexPath:indexPath];
     cell.bgView.layer.borderColor = [UIColor redColor].CGColor;
-    if ([self.type isEqualToString:@""] || self.type == nil) {
+    if (self.typeEnum == FindCell) {
         DiscoverBrandLiskModel *model = self.dataArr[indexPath.row];
         if (self.backIdCell) {
             self.backIdCell(@"brandType",model.brand_id);
         }
     }else{
-        if ([self.type isEqualToString:@"brand"]) {
+        if (self.typeEnum == BrandCell) {
             DiscoverBrandLiskModel *model = self.dataArr[indexPath.row];
             if (model.typelist.count != 0) {
                 if (self.didseleteCell) {

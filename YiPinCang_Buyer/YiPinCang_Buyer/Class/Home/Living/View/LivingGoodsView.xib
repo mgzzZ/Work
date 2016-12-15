@@ -79,6 +79,8 @@
                                 <connections>
                                     <outlet property="dataSource" destination="-1" id="EPU-1C-isK"/>
                                     <outlet property="delegate" destination="-1" id="kJi-wh-7S0"/>
+                                    <outlet property="emptyDataSetDelegate" destination="-1" id="Kbp-St-M23"/>
+                                    <outlet property="emptyDataSetSource" destination="-1" id="bje-U5-of2"/>
                                 </connections>
                             </collectionView>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="zIl-3p-ApS">

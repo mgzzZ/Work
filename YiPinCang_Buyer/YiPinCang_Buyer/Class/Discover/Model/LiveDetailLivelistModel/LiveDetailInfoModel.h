@@ -19,4 +19,5 @@
 @property (nonatomic,copy)NSString *likenum;
 @property (nonatomic,copy)NSString *isfollow;
 @property (nonatomic,copy)NSString *hx_uname;
+@property (nonatomic,copy)NSString *store_banner;
 @end

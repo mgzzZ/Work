@@ -17,8 +17,19 @@
 #import <AlipaySDK/AlipaySDK.h>
 #import <SAMKeychain.h>
 #import <PLPlayerKit.h>
+// 引入JPush功能所需头文件
+#import "JPUSHService.h"
+// iOS10注册APNs所需头文件
+#ifdef NSFoundationVersionNumber_iOS_9_x_Max
+#import <UserNotifications/UserNotifications.h>
+#endif
+// 如果需要使用idfa功能所需要引入的头文件（可选）
+#import <AdSupport/AdSupport.h>
+#ifdef NSFoundationVersionNumber_iOS_9_x_Max
+#import <UserNotifications/UserNotifications.h>
+#endif
 
-@interface AppDelegate ()<WXApiDelegate>
+@interface AppDelegate ()<WXApiDelegate, JPUSHRegisterDelegate>
 
 
 @end
@@ -30,7 +41,7 @@
 }
 
 - (BOOL)application:(UIApplication *)application didFinishLaunchingWithOptions:(NSDictionary *)launchOptions {
-    
+//    [NSThread sleepForTimeInterval:2.0];
     self.window = [[UIWindow alloc] initWithFrame:[UIScreen mainScreen].bounds];
     self.window.backgroundColor = [UIColor whiteColor];
     [self.window makeKeyAndVisible];
@@ -40,7 +51,7 @@
      *    状态栏设置
      *
      */
-    application.statusBarStyle = UIStatusBarStyleLightContent;
+    application.statusBarStyle = UIStatusBarStyleDefault;
     application.statusBarHidden = NO;
 
     /*!
@@ -93,20 +104,66 @@
 
 - (void)JPushInitWithOptions:(NSDictionary *)launchOptions
 {
-    [JPUSHService setupWithOption:launchOptions appKey:kJPushAppKey channel:nil apsForProduction:NO];
+    JPUSHRegisterEntity * entity = [[JPUSHRegisterEntity alloc] init];
+    entity.types = UNAuthorizationOptionAlert|UNAuthorizationOptionBadge|UNAuthorizationOptionSound;
+    if ([[UIDevice currentDevice].systemVersion floatValue] >= 8.0) {
+        // 可以添加自定义categories
+        // NSSet<UNNotificationCategory *> *categories for iOS10 or later
+        // NSSet<UIUserNotificationCategory *> *categories for iOS8 and iOS9
+    }
+    [JPUSHService registerForRemoteNotificationConfig:entity delegate:self];
+    
+    [JPUSHService setupWithOption:launchOptions appKey:kJPushAppKey channel:nil apsForProduction:YES];
 }
 
 - (void)setNetWorkConfig
 {
 #pragma mark - 本地服务器
-    NSString *url = @"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url=";
+//    NSString *url = @"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url=";
 #pragma mark - 外网服务器
-//    NSString *url = @"http://139.224.46.57/ypcang-api/api/ecapi/index.php?url=";
+   NSString *url = @"http://api.gongchangtemai.com/index.php?url=";
     [YPCNetworking updateBaseUrl:url];
     [YPCNetworking setTimeout:15.f];
 //    [YPCNetworking enableInterfaceDebug:YES];
     [YPCNetworking obtainDataFromLocalWhenNetworkUnconnected:YES];
     [YPCNetworking cacheGetRequest:YES shoulCachePost:NO];
+}
+
+- (void)judgementKeychainIsOutOfDate
+{
+    NSString *SID = [SAMKeychain passwordForService:KEY_KEYCHAIN_SERVICE account:KEY_KEYCHAIN_NAME];
+    if (SID) {
+        [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+            NSDictionary *sessionDic = @{
+                                         @"session" : @{@"sid" : SID,
+                                                        @"uid" : @"0"},
+                                         @"registration_id" : registrationID
+                                         };
+            [YPCNetworking postWithUrl:@"shop/user/checkinfo"
+                          refreshCache:YES
+                                params:sessionDic
+                               success:^(id response) {
+                                   NSNumber *num = [NSNumber numberWithInteger:0];
+                                   if (response[@"status"][@"succeed"] != num) {
+                                       [YPCRequestCenter setUserInfoWithResponse:response];
+                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                           [YPCRequestCenter setUserLogin];
+                                       } failed:^(NSError *error) {
+                                           YPCAppLog(@"%@", [error description]);
+                                           [YPCRequestCenter removeCacheUserKeychain];
+                                       }];
+                                   }else {
+                                       [YPCRequestCenter removeCacheUserKeychain];
+                                   }
+                               }
+                                  fail:^(NSError *error) {
+                                      [YPCRequestCenter removeCacheUserKeychain];
+                                      YPCAppLog(@"%@", [error description]);
+                                  }];
+        }];
+    }else {
+        [YPCRequestCenter removeCacheUserKeychain];
+    }
 }
 
 - (BOOL)application:(UIApplication *)application openURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation
@@ -161,42 +218,6 @@
         }
     }
     return result;
-}
-
-- (void)judgementKeychainIsOutOfDate
-{
-    NSString *SID = [SAMKeychain passwordForService:KEY_KEYCHAIN_SERVICE account:KEY_KEYCHAIN_NAME];
-    if (SID) {
-        [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-            NSDictionary *sessionDic = @{
-                                         @"session" : @{@"sid" : SID,
-                                                        @"uid" : @"0"},
-                                         @"registration_id" : registrationID
-                                         };
-            [YPCNetworking postWithUrl:@"shop/user/checkinfo"
-                          refreshCache:YES
-                                params:sessionDic
-                               success:^(id response) {
-                                   NSNumber *num = [NSNumber numberWithInteger:0];
-                                   if (response[@"status"][@"succeed"] != num) {
-                                       [YPCRequestCenter setUserInfoWithResponse:response];
-                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                           [YPCRequestCenter setUserLogin];
-                                       } failed:^(NSError *error) {
-                                           YPCAppLog(@"%@", [error description]);
-                                       }];
-                                   }else {
-                                       [YPCRequestCenter removeCacheUserKeychain];
-                                   }
-                               }
-                                  fail:^(NSError *error) {
-                                      [YPCRequestCenter removeCacheUserKeychain];
-                                      YPCAppLog(@"%@", [error description]);
-                                  }];
-        }];
-    }else {
-        [YPCRequestCenter removeCacheUserKeychain];
-    }
 }
 
 //支付结果
@@ -269,5 +290,11 @@
 //    [self.window.rootViewController presentViewController:logVC animated:YES completion:nil];
 }
 
+// 监听评论
+- (void)networkDidReceiveMessage:(NSNotification *)notification
+{
+    NSDictionary *dic = [notification userInfo];
+    
+}
 
 @end

@@ -39,15 +39,15 @@
     .topEqualToView(bgView)
     .leftEqualToView(bgView)
     .rightEqualToView(bgView)
-    .heightIs(158);
+    .heightIs(kHeight(158));
     UIView *txView = [[UIView alloc]init];
     txView.backgroundColor = [UIColor whiteColor];
     [bgView addSubview:txView];
     txView.sd_layout
     .centerXEqualToView(bgView)
-    .widthIs(104)
-    .heightIs(104)
-    .topSpaceToView(bgView,95);
+    .widthIs(kWidth(104))
+    .heightIs(kWidth(104))
+    .topSpaceToView(bgView,kHeight(95));
     
     self.txImg = [[UIImageView alloc]init];
     self.txImg.userInteractionEnabled = YES;
@@ -86,7 +86,7 @@
     .widthIs(146)
     .heightIs(40)
     .centerXEqualToView(bgView)
-    .topSpaceToView(self.fansLab,15);
+    .topSpaceToView(self.fansLab,kHeight(15));
     
     self.titleLab = [[UILabel alloc]init];
     self.titleLab.textAlignment = NSTextAlignmentCenter;
@@ -97,16 +97,18 @@
     self.titleLab.sd_layout
     .leftSpaceToView(bgView,20)
     .rightSpaceToView(bgView,20)
-    .topSpaceToView(self.fllowBtn,21)
+    .topSpaceToView(self.fllowBtn,kHeight(10))
     .heightIs(40);
     self.classLab = [[YYLabel alloc]init];
     self.classLab.textAlignment = NSTextAlignmentCenter;
+    self.classLab.userInteractionEnabled = NO;
     [bgView addSubview:self.classLab];
     self.classLab.sd_layout
     .leftSpaceToView(bgView,20)
     .rightSpaceToView(bgView,20)
-    .topSpaceToView(self.titleLab,20)
-    .heightIs(50);
+    .topSpaceToView(self.titleLab,kHeight(0))
+    .heightIs(40);
+   
 }
 
 - (void)setModel:(LiveTopViewModel *)model{
@@ -150,10 +152,10 @@
             
             [text appendAttributedString:tagText];
         }
-        self.classLab.sd_layout.heightIs(50);
+        self.classLab.sd_layout.heightIs(40);
         self.classLab.attributedText = text;
     }
-    [self.topImg sd_setImageWithURL:[NSURL URLWithString:model.store_banner] placeholderImage:YPCImagePlaceHolder];
+    [self.topImg sd_setImageWithURL:[NSURL URLWithString:model.store_banner] placeholderImage:IMAGE(@"find_logo_placeholder")];
     self.fansLab.text = [NSString stringWithFormat:@"%@粉丝",model.store_collect];
     [self.txImg sd_setImageWithURL:[NSURL URLWithString:model.store_avatar] placeholderImage:YPCImagePlaceHolder];
     [self.bgImg setImage:IMAGE(@"shadow1")];

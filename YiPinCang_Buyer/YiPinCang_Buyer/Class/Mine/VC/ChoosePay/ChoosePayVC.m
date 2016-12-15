@@ -37,7 +37,6 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.view.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [self setup];
     [self getdata];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotoOrderDetail) name:PaySuccess object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotoOrderDetailError) name:PayError object:nil];
@@ -68,7 +67,7 @@
     priceLab.textAlignment = NSTextAlignmentLeft;
     priceLab.font = [UIFont systemFontOfSize:15];
     [self.bottomView addSubview:priceLab];
-    priceLab.text = [NSString stringWithFormat:@"支付 ¥%@",self.price];
+    priceLab.text = [NSString stringWithFormat:@"支付 ¥%@",self.model.amount];
     
     payBtn.sd_layout
     .rightEqualToView(self.bottomView)
@@ -97,7 +96,10 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.model = [ChoosePayModel mj_objectWithKeyValues:response[@"data"]];
                                [weakSelf.tableView reloadData];
-                               
+                               if (weakSelf.bottomView == nil) {
+                                   [weakSelf setup];
+
+                               }
                            }
                            
                        }
@@ -121,7 +123,7 @@
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 20)];
     view.backgroundColor = [Color colorWithHex:@"0xefefef"];
     UILabel *titileLab = [[UILabel alloc]init];
-    titileLab.text = @"目前仅支持一下付款方式";
+    titileLab.text = @"目前仅支持以下付款方式";
     titileLab.font = [UIFont systemFontOfSize:10];
     titileLab.textAlignment = NSTextAlignmentLeft;
     titileLab.textColor = [Color colorWithHex:@"0xbfbfbf"];
@@ -175,7 +177,7 @@
     if (!_tableView) {
         _tableView = [[UITableView alloc]init];
         [self.view addSubview:_tableView];
-        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 49, 0));
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 49, 0));
         _tableView.delegate = self;
         _tableView.dataSource = self;
         _tableView.tableFooterView = [UIView new];

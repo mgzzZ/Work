@@ -10,7 +10,7 @@
 #import "AppDelegate.h"
 #import "RegistVC.h"
 #import <UMSocialCore/UMSocialCore.h>
-#import "RegistModel.h"
+#import "UserModel.h"
 #import "JPUSHService.h"
 #import "LeanChatFactory.h"
 
@@ -218,6 +218,7 @@
     WS(weakSelf);
     [[UMSocialManager defaultManager] authWithPlatform:UMSocialPlatformType_WechatSession currentViewController:self completion:^(id result, NSError *error) {
         if (!error) {
+            [YPC_Tools showSvpHud];
             [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
                 if (!registrationID) {
                     return;
@@ -241,12 +242,15 @@
                                                    weakSelf.back();
                                                }
                                                [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                               [YPC_Tools dismissHud];
                                            } failed:^(NSError *error) {
                                                YPCAppLog(@"%@", [error description]);
                                                [weakSelf failedLogin];
+                                               [YPC_Tools dismissHud];
                                            }];
                                        }else {
                                            [weakSelf failedLogin];
+                                           [YPC_Tools dismissHud];
                                        }
                                    } fail:^(NSError *error) {
                                        YPCAppLog(@"%@", [error description]);

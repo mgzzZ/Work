@@ -38,26 +38,35 @@
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.automaticallyAdjustsScrollViewInsets = NO;
     self.view.backgroundColor = [UIColor whiteColor];
     self.navigationItem.title = @"商品详情";
     self.isChooseSize = NO;
     [self getData];
 }
+- (void)viewDidDisappear:(BOOL)animated{
+    [super viewDidDisappear:animated];
+    if (self.isChooseSize) {
+        [self chooseSizeHide];
+    }
+    
+}
 - (void)setup{
     WS(weakSelf);
     self.scrollView = [[UIScrollView alloc]init];
     [self.view addSubview:self.scrollView];
-    self.scrollView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 58, 0));
+    self.scrollView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 58, 0));
     self.scrollView.backgroundColor = [UIColor whiteColor];
     self.shopView = [[ShopCarView alloc]init];
     if (![YPCRequestCenter isLogin]) {
     }else{
         self.shopView.shopcar = ^{
-            
+            weakSelf.payType = @"1";
+            [weakSelf chooseSizeShow];
         };
         self.shopView.clearing = ^{
-           
+            weakSelf.payType = @"2";
+           [weakSelf chooseSizeShow];
         };
     }
     [self.view addSubview:self.shopView];
@@ -199,8 +208,7 @@
     timeLab.font = [UIFont systemFontOfSize:13];
     timeLab.textAlignment = NSTextAlignmentLeft;
     
-    NSString *time = [YPC_Tools timeWithTimeIntervalString:self.model.goodscommon_info.goods_uptime Format:@"YYYY-MM-DD"];
-    timeLab.text = time;
+    timeLab.text = self.model.goodscommon_info.goods_uptime;
     [timeLab sizeToFit];
     timeLab.sd_layout
     .leftSpaceToView(self.scrollView,15)
@@ -326,7 +334,7 @@
        
     }else{
          ShoppingImgsModel *model = self.model.image[index];
-        [imageView sd_setImageWithURL:[NSURL URLWithString:model.goods_image] placeholderImage:YPCImagePlaceHolder];
+        [imageView sd_setImageWithURL:[NSURL URLWithString:model.goods_image] placeholderImage:IMAGE(@"find_logo_placeholder")];
     }
     [imageView setupImageViewerWithDatasource:self initialIndex:index onOpen:^{
         NSLog(@"OPEN!");
@@ -345,7 +353,7 @@
 }
 
 - (UIImage*) imageDefaultAtIndex:(NSInteger)index imageViewer:(MHFacebookImageViewer *)imageViewer{
-    return YPCImagePlaceHolder;
+    return IMAGE(@"find_logo_placeholder");
 }
 
 

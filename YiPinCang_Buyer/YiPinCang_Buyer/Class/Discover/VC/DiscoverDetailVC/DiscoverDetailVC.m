@@ -16,6 +16,10 @@
 #import "ChooseSizeModel.h"
 #import "KeyboardTextView.h"
 #import "ClearingVC.h"
+#import "PushModel.h"
+
+
+
 @interface DiscoverDetailVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
@@ -34,19 +38,26 @@
 @property (nonatomic,assign)BOOL isChooseSize;
 @property (nonatomic,copy)NSString *payType;//0是先选  1加入购物车  2立即购买
 
+
+
 @end
 
 @implementation DiscoverDetailVC
-
+- (void)dealloc
+{
+    [[NSNotificationCenter defaultCenter]removeObserver:self];
+    
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.navigationItem.title = @"商品详情";
+    self.automaticallyAdjustsScrollViewInsets = NO;
     self.isChooseSize = NO;
     self.view.backgroundColor = [UIColor whiteColor];
    
     [self getData:@"1"];
-   
+    [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addComment:) name:@"comment" object:nil];
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
@@ -59,7 +70,7 @@
 - (void)setup{
     WS(weakSelf);
     self.tableView = [[UITableView alloc]init];
-    self.tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
@@ -67,7 +78,7 @@
     
     self.tableView.tableFooterView = [UIView new];
     self.tableView.sd_layout
-    .topSpaceToView(self.view,0)
+    .topSpaceToView(self.view,64)
     .rightEqualToView(self.view)
     .leftEqualToView(self.view)
     .bottomSpaceToView(self.view,58);
@@ -92,11 +103,13 @@
                                    model.comment_type = weakSelf.comment_type;
                                    model.reback_memberid = weakSelf.replyto;
                                    model.reback_membername = weakSelf.replytoname;
+                                   model.scomm_membername = [YPCRequestCenter shareInstance].model.member_truename;
                                    NSDate *datenow = [NSDate date];
                                    NSString *timeSp = [NSString stringWithFormat:@"%zd", (long)[datenow timeIntervalSince1970]];
                                    model.scomm_time = timeSp;
                                    [weakSelf.model.commentlist addObject:model];
-                                   [weakSelf.tableView reloadData];
+                                   NSIndexPath *index = [NSIndexPath indexPathForRow:weakSelf.model.commentlist.count - 1 inSection:0];
+                                   [weakSelf.tableView insertRowsAtIndexPaths:@[index] withRowAnimation:UITableViewRowAnimationNone];
                                }
                            }
                               fail:^(NSError *error) {
@@ -238,6 +251,7 @@
     self.likeCountLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
     self.likeCountLab.font = [UIFont systemFontOfSize:13];
     UIImageView *likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_likes")];
+    likeImg.tag = 10000;
     UILabel *guding = [[UILabel alloc]init];
     guding.text = @"选择尺码,颜色分类";
     guding.tag = 1000;
@@ -256,6 +270,7 @@
     
     if ([self.model.islike isEqualToString:@"1"]) {
         likeBtn.selected = YES;
+        [likeImg setImage:IMAGE(@"find_productdetails_icon_likes_cliked")];
     }else{
         likeBtn.selected = NO;
     }
@@ -578,11 +593,14 @@
         [self login];
     }else{
         NSString *url= @"";
+        UIImageView *img = [self.view viewWithTag:10000];
         if (sender.selected == NO) {
+            [img setImage:IMAGE(@"find_productdetails_icon_likes_cliked")];
             sender.selected = YES;
             url = @"shop/explore/livegoodslike";
             
         }else{
+            [img setImage:IMAGE(@"find_productdetails_icon_likes")];
             sender.selected = NO;
             url = @"shop/explore/livegoodsunlike";
             
@@ -611,6 +629,8 @@
         self.replyto = @"";
     }
 }
+
+
 
 - (void)chooseSizeClick{
     if (self.isChooseSize) {
@@ -661,6 +681,26 @@
          [weakself chooseSizeShow];
     };
     
+}
+- (void)addComment:(NSNotification *)notification{
+    NSDictionary *dic = [notification object];
+    
+    PushModel *model = [PushModel mj_objectWithKeyValues:dic];
+    if ([model.extras.strace_id isEqualToString:self.strace_id]) {
+        CommentListModel *commentlistModel = [[CommentListModel alloc]init];
+        commentlistModel.scomm_memberavatar = model.extras.avatar;
+        commentlistModel.scomm_content = model.title;
+        commentlistModel.comment_type = model.extras.comment_type;
+        commentlistModel.scommto_memberid = model.extras.replyto;
+        commentlistModel.scomm_membername = model.extras.scomm_membername;
+        commentlistModel.scomm_time = model.extras.scomm_time;
+        commentlistModel.scommto_membername = model.extras.scommto_membername;
+        [self.model.commentlist addObject:commentlistModel];
+        NSIndexPath *index = [NSIndexPath indexPathForRow:self.model.commentlist.count - 1 inSection:0];
+        [self.tableView insertRowsAtIndexPaths:@[index] withRowAnimation:UITableViewRowAnimationNone];
+    }
+    
+
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

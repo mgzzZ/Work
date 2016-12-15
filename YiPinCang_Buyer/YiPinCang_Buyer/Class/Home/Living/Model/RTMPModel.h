@@ -17,5 +17,6 @@
 @property (nonatomic, copy) NSString *live_users;
 @property (nonatomic, copy) NSString *live_like;
 @property (nonatomic, copy) NSString *state;
+@property (nonatomic, copy) NSString *store_id;
 @property (nonatomic, strong) NSArray *live_useravars;
 @end

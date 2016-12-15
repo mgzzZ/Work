@@ -8,10 +8,18 @@
 
 #import <UIKit/UIKit.h>
 
+typedef enum : NSUInteger {
+    SetPasswordRegister = 1,
+    SetPasswordBinding,
+} SetPasswordType;
+
 @interface SetPasswordVC : UIViewController
 
 /**
  标识
  */
 @property (nonatomic,copy)NSString *token;
+
+@property (nonatomic, assign) SetPasswordType setType;
+
 @end

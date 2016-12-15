@@ -10,7 +10,6 @@
 #import "LiveActivityModel.h"
 
 
-
 typedef void(^ActivityDidcellBlock)(NSIndexPath *index,LiveActivityModel *model);
 
 @interface LiveSctivityView : UICollectionView

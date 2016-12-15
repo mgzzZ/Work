@@ -31,13 +31,14 @@ static NSString *DistributioncellId = @"Distribution";
 @property (nonatomic,strong)NSString *text;
 @property (nonatomic,strong)NSString *freight;
 @property (nonatomic,strong)NSString *oldfreight;
+@property (nonatomic,strong)NSString *address_id;
 @end
 
 @implementation ClearingVC
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view.
+    self.automaticallyAdjustsScrollViewInsets = NO;
     if (!_timer) {
         __block int timeout = 1200; //倒计时时间
         dispatch_queue_t queue = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0);
@@ -97,7 +98,7 @@ static NSString *DistributioncellId = @"Distribution";
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 58, 0));
+    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 58, 0));
     self.tableView.tableFooterView = [UIView new];
     UIView *bgView = [[UIView alloc]init];
     bgView.backgroundColor = [UIColor whiteColor];
@@ -145,12 +146,15 @@ static NSString *DistributioncellId = @"Distribution";
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakself.model = [CliearingModel mj_objectWithKeyValues:response[@"data"]];
                                weakself.oldfreight = weakself.model.freight;
+                               weakself.address_id = weakself.model.address_info.address_id;
                                if (!weakself.tableView) {
                                    [weakself setup];
                                }
                                [weakself.tableView reloadData];
                                NSString *str = [NSString stringWithFormat:@"合计:¥%@",self.model.total_price];
                                [weakself priceLabtext:str];
+                           }else{
+                              
                            }
                        }
                           fail:^(NSError *error) {
@@ -275,8 +279,17 @@ static NSString *DistributioncellId = @"Distribution";
                 cell = [nib objectAtIndex:0];
             }
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
-            cell.phoneLab.text = self.model.address_info.mob_phone;
-            cell.areaLab.text = self.model.address_info.address;
+            cell.phoneLab.text = [NSString stringWithFormat:@"%@%@",self.model.address_info.true_name,self.model.address_info.mob_phone];
+            cell.areaLab.text = [NSString stringWithFormat:@"%@%@",self.model.address_info.area_info,self.model.address_info.address];
+            if (self.model.address_info.address.length == 0) {
+                cell.nameLab.hidden = NO;
+                cell.phoneLab.hidden = YES;
+                cell.areaLab.hidden = YES;
+            }else{
+                cell.nameLab.hidden = YES;
+                cell.phoneLab.hidden = NO;
+                cell.areaLab.hidden = NO;
+            }
             if ([self.model.address_info.is_default isEqualToString:@"1"]) {
                 cell.typeLab.hidden = NO;
             }else{
@@ -361,10 +374,17 @@ static NSString *DistributioncellId = @"Distribution";
                 }else{
                     cell.typeLab.hidden = YES;
                 }
+                cell.nameLab.hidden = YES;
                 cell.phoneLab.text = name;
                 cell.areaLab.text = area;
                 weakself.model.address_info.address_id = address_id;
                 [weakself changeAddress:city_id area_id:area_id];
+                if (address_id.length == 0) {
+                    weakself.address_id = @"";
+                }else{
+                    weakself.address_id = address_id;
+                }
+                
                 
             };
             [self.navigationController pushViewController:areaManager animated:YES];
@@ -409,27 +429,32 @@ static NSString *DistributioncellId = @"Distribution";
 
 - (void)clearBtnClcik{
     WS(weakself);
-    [YPCNetworking postWithUrl:@"shop/flow/createorder"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"cart_id":self.data,
-                                                                               @"pay_message":weakself.text,
-                                                                               @"vat_hash":weakself.model.vat_hash,
-                                                                               @"address_id":weakself.model.address_info.address_id,
-                                                                               @"click_from_type":weakself.click_from_type,
-                                                                               @"invoice_id":weakself.invoice_id
-                                                                               }]
-                       success:^(id response) {
-                           if ([YPC_Tools judgeRequestAvailable:response]) {
-                               ChoosePayVC *choose = [[ChoosePayVC alloc]init];
-                               choose.pay_sn = response[@"data"][@"pay_sn"];
-                               choose.price = @"123";
-                               [weakself.navigationController pushViewController:choose animated:YES];
+    if (self.address_id.length == 0) {
+        [YPC_Tools showSvpWithNoneImgHud:@"请选择收货地址"];
+    }else{
+        
+        [YPCNetworking postWithUrl:@"shop/flow/createorder"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"cart_id":self.data,
+                                                                                   @"pay_message":weakself.text,
+                                                                                   @"vat_hash":weakself.model.vat_hash,
+                                                                                   @"address_id":weakself.address_id,
+                                                                                   @"click_from_type":weakself.click_from_type,
+                                                                                   @"invoice_id":weakself.invoice_id
+                                                                                   }]
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   ChoosePayVC *choose = [[ChoosePayVC alloc]init];
+                                   choose.pay_sn = response[@"data"][@"pay_sn"];
+                                   choose.price = @"123";
+                                   [weakself.navigationController pushViewController:choose animated:YES];
+                               }
                            }
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+                              fail:^(NSError *error) {
+                                  
+                              }];
+    }
 }
 - (void)changeAddress:(NSString *)city_id area_id:(NSString *)area_id{
     

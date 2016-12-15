@@ -46,6 +46,10 @@
 
 @property (strong, nonatomic) IBOutlet LivingGoodsView *goodsView; // 商品
 @property (strong, nonatomic) IBOutlet UIButton *smallCloseBtn; // 小窗口拉流时的关闭按钮
+@property (strong, nonatomic) IBOutlet UIView *livingTopGoodsView; // 直播弹出商品
+@property (strong, nonatomic) IBOutlet UIImageView *topGoodsImgV;
+@property (strong, nonatomic) IBOutlet UILabel *topGoodsTitleL;
+@property (strong, nonatomic) IBOutlet UILabel *topGoodPriceL;
 
 // 是否在window上播放
 @property (nonatomic, assign) BOOL playerIsOnWindow;

@@ -165,7 +165,7 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
     [self.headImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.store_avatar] placeholderImage:YPCImagePlaceHolder];
     self.nameL.text = self.tempModel.store_name;
     self.describeL.text = self.tempModel.live_msg;
-    [self.bigImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.activity_pic] placeholderImage:YPCImagePlaceHolder];
+    [self.bigImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.activity_pic] placeholderImage:IMAGE(@"live_zhanweitu2")];
     self.timeL.text = [NSString stringWithFormat:@"%@-%@", [YPC_Tools timeWithTimeIntervalString:self.tempModel.start Format:@"MM月dd日"], [YPC_Tools timeWithTimeIntervalString:self.tempModel.end Format:@"MM月dd日"]];
     self.addressL.text = self.tempModel.address;
 }
@@ -290,7 +290,7 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
                action:@selector(naviRightAction:)
      forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *shareItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-    self.navigationItem.rightBarButtonItem = shareItem;
+//    self.navigationItem.rightBarButtonItem = shareItem;
 }
 
 - (void)naviRightAction:(UIButton *)sender

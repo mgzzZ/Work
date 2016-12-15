@@ -58,7 +58,7 @@
     [rightBtn1 setImage:IMAGE(@"mine_productdetails_icon_share") forState:UIControlStateNormal];
     [rightBtn1 addTarget:self action:@selector(shareBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *message = [[UIBarButtonItem alloc]initWithCustomView:rightBtn1];
-    self.navigationItem.rightBarButtonItem= message;
+//    self.navigationItem.rightBarButtonItem= message;
 
 }
 
@@ -110,7 +110,7 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                            }
                            weakSelf.model = [LiveDetailDefaultModel mj_objectWithKeyValues:response[@"data"]];
-                           weakSelf.headerView.bgImg.backgroundColor = [UIColor blueColor];
+                           [weakSelf.headerView.bgImg sd_setImageWithURL:[NSURL URLWithString:weakSelf.model.info.store_banner] placeholderImage:IMAGE(@"find_logo_placeholder")];
                            [weakSelf.headerView.txImg sd_setImageWithURL:[NSURL URLWithString:weakSelf.model.info.store_avatar] placeholderImage:YPCImagePlaceHolder];
                            weakSelf.headerView.nameLab.text = weakSelf.model.info.store_name;
                            weakSelf.headerView.likeLab.text = [NSString stringWithFormat:@"收到赞%@",weakSelf.model.info.likenum];
@@ -187,9 +187,7 @@
         }
 
         _pagingView = [HHHorizontalPagingView pagingViewWithHeaderView:self.headerView headerHeight:265 segmentButtons:buttonArray segmentHeight:15 contentViews:@[self.listTab, self.activityColl,self.shareTab,self.noteTab]];
-        
-        
-        _pagingView.segmentTopSpace = 0;
+        _pagingView.segmentTopSpace = 20;
         [self.view addSubview:_pagingView];
     }
     return _pagingView;
@@ -207,6 +205,7 @@
                 if (![YPCRequestCenter isLogin]) {
                     [weakself login];
                 }else{
+                    [YPC_Tools showSvpHud];
                     LivingVC *live= [[LivingVC alloc]init];
                     TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
                     newmodel.live_id = model.live_id;
@@ -215,7 +214,21 @@
                     newmodel.store_name = weakself.model.info.store_name;
                     newmodel.store_id = weakself.model.info.store_id;
                     live.tempModel = newmodel;
-                    [weakself.navigationController pushViewController:live animated:YES];
+                    
+                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:model.livingshowinitimg] options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                        if (finished && !error) {
+                            dispatch_async(dispatch_get_main_queue(), ^{
+                                live.playerPHImg = image;
+                                [weakself.navigationController pushViewController:live animated:YES];
+                                [YPC_Tools dismissHud];
+                            });
+                        }else{
+                            [YPC_Tools showSvpHudError:@"图片未下载成功"];
+                        }
+                        
+                    }];
+                    
+                    
                 }
                 
             }else if ([typeStr isEqualToString:@"预告"]){
@@ -244,7 +257,6 @@
                 newmodel.store_avatar = weakself.model.info.store_avatar;
                 newmodel.store_name = weakself.model.info.store_name;
                 newmodel.video = model.video;
-        
                 video.tempModel = newmodel;
                 [weakself.navigationController pushViewController:video animated:YES];
             }else{
@@ -255,7 +267,7 @@
     return _listTab;
 }
 
-//好货分享
+//活动商品
 - (LiveSctivityView *)activityColl{
     WS(weakself);
     if (_activityColl == nil) {
@@ -269,11 +281,12 @@
             detail.typeStr = @"淘好货";
             [weakself.navigationController pushViewController:detail animated:YES];
         };
+        _activityColl.backgroundColor = [UIColor redColor];
     }
     return _activityColl;
 }
 
-//活动商品
+//好货分享
 - (LiveShareView *)shareTab{
      WS(weakself);
     if (_shareTab == nil) {

@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="82"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="82"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="81"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收货地址" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="h3z-p1-1hQ">
@@ -37,6 +37,17 @@
                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                         <color key="textColor" red="0.87058823529411766" green="0.12156862745098039" blue="0.16078431372549021" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
+                        <userDefinedRuntimeAttributes>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRadius">
+                                <integer key="value" value="4"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColorFromUIColor">
+                                <color key="value" red="0.89411764705882346" green="0.22352941176470587" blue="0.23529411764705882" alpha="1" colorSpace="calibratedRGB"/>
+                            </userDefinedRuntimeAttribute>
+                            <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
+                                <integer key="value" value="1"/>
+                            </userDefinedRuntimeAttribute>
+                        </userDefinedRuntimeAttributes>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_cart_detai_button_specifications_dropdown" translatesAutoresizingMaskIntoConstraints="NO" id="NRK-8l-eW5">
                         <rect key="frame" x="295" y="31" width="20" height="20"/>
@@ -60,17 +71,29 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="请选择收货地址" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="as6-eN-Na2">
+                        <rect key="frame" x="92" y="30.5" width="188" height="21"/>
+                        <constraints>
+                            <constraint firstAttribute="height" constant="21" id="gP5-Cx-5am"/>
+                        </constraints>
+                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <nil key="textColor"/>
+                        <nil key="highlightedColor"/>
+                    </label>
                 </subviews>
                 <constraints>
                     <constraint firstItem="ZeC-bK-w9Z" firstAttribute="top" secondItem="h3z-p1-1hQ" secondAttribute="bottom" constant="10" id="5tk-WI-yJh"/>
                     <constraint firstAttribute="trailing" secondItem="NRK-8l-eW5" secondAttribute="trailing" constant="5" id="7ii-17-tco"/>
                     <constraint firstItem="y8v-5L-OUv" firstAttribute="top" secondItem="uz6-WB-o3W" secondAttribute="bottom" constant="10" id="F7k-q0-na9"/>
+                    <constraint firstItem="NRK-8l-eW5" firstAttribute="leading" secondItem="as6-eN-Na2" secondAttribute="trailing" constant="15" id="JE5-qh-BYH"/>
                     <constraint firstItem="NRK-8l-eW5" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="OV9-hO-o24"/>
+                    <constraint firstItem="as6-eN-Na2" firstAttribute="leading" secondItem="h3z-p1-1hQ" secondAttribute="trailing" constant="15" id="UZC-aF-bEF"/>
                     <constraint firstItem="ZeC-bK-w9Z" firstAttribute="centerX" secondItem="h3z-p1-1hQ" secondAttribute="centerX" id="cj1-Fh-X8q"/>
                     <constraint firstItem="NRK-8l-eW5" firstAttribute="leading" secondItem="y8v-5L-OUv" secondAttribute="trailing" constant="10" id="dsw-g0-xqn"/>
                     <constraint firstItem="uz6-WB-o3W" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="90" id="gU3-7w-Wgx"/>
                     <constraint firstItem="uz6-WB-o3W" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="gzz-6q-bJ5"/>
                     <constraint firstItem="y8v-5L-OUv" firstAttribute="leading" secondItem="uz6-WB-o3W" secondAttribute="leading" id="lEF-cC-7sx"/>
+                    <constraint firstItem="as6-eN-Na2" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="mP7-Se-cJE"/>
                     <constraint firstItem="NRK-8l-eW5" firstAttribute="leading" secondItem="uz6-WB-o3W" secondAttribute="trailing" constant="30" id="oJd-PS-zYJ"/>
                     <constraint firstItem="h3z-p1-1hQ" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="pCa-mm-7TF"/>
                     <constraint firstItem="h3z-p1-1hQ" firstAttribute="centerY" secondItem="H2p-sc-9uM" secondAttribute="centerY" id="yUR-ng-M6L"/>
@@ -78,6 +101,7 @@
             </tableViewCellContentView>
             <connections>
                 <outlet property="areaLab" destination="y8v-5L-OUv" id="1OB-xB-82T"/>
+                <outlet property="nameLab" destination="as6-eN-Na2" id="hNy-u9-Xyr"/>
                 <outlet property="phoneLab" destination="uz6-WB-o3W" id="A7C-VW-Eo9"/>
                 <outlet property="typeLab" destination="ZeC-bK-w9Z" id="bxf-x9-Jbz"/>
             </connections>

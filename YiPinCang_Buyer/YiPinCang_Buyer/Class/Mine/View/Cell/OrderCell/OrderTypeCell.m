@@ -20,17 +20,19 @@
     if (self.model.goods.count == 1) {
         GoodsModel *goodsModel = self.model.goods[0];
         self.merchandiseTitleLab.text = goodsModel.goods_name;
+//        self.merchandisePriceLab.text = [NSString stringWithFormat:@"¥%@",goodsModel.goods_price];
         self.merchandiseColor.text = goodsModel.goods_spec;
         self.countLab.text = [NSString stringWithFormat:@"共%@件商品",model.goods_num];
         [self.merchandiseImg sd_setImageWithURL:[NSURL URLWithString:goodsModel.goods_image] placeholderImage:YPCImagePlaceHolder];
 
     }else{
+        self.countMoreLab.text = [NSString stringWithFormat:@"共%@件商品",model.goods_num];
          self.merchandiseMoreTypeLab.text = model.state_desc;
         [self.collectionView reloadData];
     }
     
     
-    if ([model.state_desc isEqualToString:@"待收货"]) {
+    if ([model.state_desc isEqualToString:@"待收货"] ||[model.state_desc isEqualToString:@"已发货"]  ) {
         [self.leftBtn setTitle:@"删除订单" forState:UIControlStateNormal];
         self.leftBtn.hidden = YES;
         self.rightBtn.hidden = NO;

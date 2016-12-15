@@ -16,23 +16,23 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="362"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="361.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="361"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="W8k-1K-udd">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="361.5"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="361"/>
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="oqf-b5-5gb">
-                        <rect key="frame" x="0.0" y="86" width="375" height="266.5"/>
+                        <rect key="frame" x="0.0" y="86" width="375" height="266"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="yOj-UE-S6s">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="266.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="266"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="sqL-Ln-xi1">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="266.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="266"/>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="kDR-fP-QQd">
-                                        <rect key="frame" x="159.5" y="105" width="55" height="55"/>
+                                        <rect key="frame" x="160" y="106" width="55" height="55"/>
                                         <state key="normal" image="bofang"/>
                                         <connections>
                                             <action selector="playVideoAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="5TW-xS-Jec"/>
@@ -44,15 +44,15 @@
                                             <constraint firstAttribute="height" constant="40" id="Cgo-pW-n1K"/>
                                         </constraints>
                                     </imageView>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_address_gray" translatesAutoresizingMaskIntoConstraints="NO" id="IRx-kt-NGQ">
-                                        <rect key="frame" x="14" y="247.5" width="11" height="13"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_map_icon" translatesAutoresizingMaskIntoConstraints="NO" id="IRx-kt-NGQ">
+                                        <rect key="frame" x="14" y="247" width="11" height="13"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="13" id="UDK-Di-LzN"/>
                                             <constraint firstAttribute="width" constant="11" id="jZY-eW-sWr"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="上海浦东新区航头路1800号壹品仓" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NdT-FF-rTq">
-                                        <rect key="frame" x="26" y="247.5" width="172.5" height="13.5"/>
+                                        <rect key="frame" x="26" y="246" width="173" height="14"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
@@ -119,7 +119,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="67" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="hhC-va-I2M">
-                                <rect key="frame" x="213" y="43.5" width="12.5" height="12"/>
+                                <rect key="frame" x="213" y="44" width="13" height="12"/>
                                 <fontDescription key="fontDescription" type="system" pointSize="10"/>
                                 <nil key="highlightedColor"/>
                             </label>
@@ -188,13 +188,13 @@
             <rect key="frame" x="0.0" y="0.0" width="375" height="415"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="egS-hL-qg8" id="FU1-FE-QHC">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="414.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="414"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="hFZ-ol-tiA">
                         <rect key="frame" x="0.0" y="0.0" width="375" height="405"/>
                         <subviews>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_address_gray" translatesAutoresizingMaskIntoConstraints="NO" id="qjr-VM-SbT">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_map_icon" translatesAutoresizingMaskIntoConstraints="NO" id="qjr-VM-SbT">
                                 <rect key="frame" x="12" y="380" width="11" height="13"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="13" id="eSw-PW-6el"/>
@@ -207,7 +207,7 @@
                                 <color key="textColor" red="0.20000000000000001" green="0.20000000000000001" blue="0.20000000000000001" alpha="1" colorSpace="calibratedRGB"/>
                                 <nil key="highlightedColor"/>
                             </label>
-                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_time_gray" translatesAutoresizingMaskIntoConstraints="NO" id="xGu-VA-8j6">
+                            <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_time_icon" translatesAutoresizingMaskIntoConstraints="NO" id="xGu-VA-8j6">
                                 <rect key="frame" x="12" y="361" width="11" height="13"/>
                                 <constraints>
                                     <constraint firstAttribute="width" constant="11" id="T4A-al-RIq"/>
@@ -334,14 +334,6 @@
                                 <state key="normal" image="homepage_icon_playtips">
                                     <color key="titleColor" red="0.0039215686269999999" green="0.75294117650000003" blue="0.52156862749999999" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
-                                <userDefinedRuntimeAttributes>
-                                    <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColorFromUIColor">
-                                        <color key="value" red="0.0039215686269999999" green="0.75294117650000003" blue="0.52156862749999999" alpha="1" colorSpace="calibratedRGB"/>
-                                    </userDefinedRuntimeAttribute>
-                                    <userDefinedRuntimeAttribute type="number" keyPath="layer.borderWidth">
-                                        <integer key="value" value="1"/>
-                                    </userDefinedRuntimeAttribute>
-                                </userDefinedRuntimeAttributes>
                                 <connections>
                                     <action selector="NoticeActicityAction:" destination="egS-hL-qg8" eventType="touchUpInside" id="qrw-9g-aG7"/>
                                 </connections>
@@ -397,59 +389,59 @@
                 <outlet property="timeCutdownV" destination="dtT-Bh-Y57" id="JmJ-u2-yDp"/>
                 <outlet property="timeL" destination="hpI-9k-Kou" id="JGa-SL-ird"/>
             </connections>
-            <point key="canvasLocation" x="111.5" y="650.5"/>
+            <point key="canvasLocation" x="-13.5" y="770.5"/>
         </tableViewCell>
         <tableViewCell contentMode="scaleToFill" selectionStyle="none" indentationWidth="10" reuseIdentifier="endCell" rowHeight="515" id="viJ-me-113" customClass="HomeCell">
             <rect key="frame" x="0.0" y="0.0" width="375" height="522"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="viJ-me-113" id="qFe-YK-PLX">
-                <rect key="frame" x="0.0" y="0.0" width="375" height="521.5"/>
+                <rect key="frame" x="0.0" y="0.0" width="375" height="521"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="6n1-Q8-tAv">
-                        <rect key="frame" x="0.0" y="0.0" width="375" height="522"/>
+                        <rect key="frame" x="0.0" y="0.0" width="375" height="521"/>
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="xiN-Y6-lfg">
-                        <rect key="frame" x="0.0" y="86" width="375" height="266.5"/>
+                        <rect key="frame" x="0.0" y="86" width="375" height="266"/>
                         <subviews>
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="w7Q-Sg-7xB">
-                                <rect key="frame" x="0.0" y="0.0" width="375" height="266.5"/>
+                                <rect key="frame" x="0.0" y="0.0" width="375" height="266"/>
                                 <subviews>
                                     <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="f6l-U4-ift">
-                                        <rect key="frame" x="0.0" y="0.0" width="375" height="266.5"/>
+                                        <rect key="frame" x="0.0" y="0.0" width="375" height="266"/>
                                     </imageView>
                                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="u47-jr-djp">
-                                        <rect key="frame" x="132" y="113.5" width="110" height="39"/>
+                                        <rect key="frame" x="132" y="114" width="110" height="39"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="39" id="FfM-ri-o6A"/>
                                             <constraint firstAttribute="width" constant="110" id="yF5-bX-f0N"/>
                                         </constraints>
-                                        <state key="normal" image="home_seeback"/>
+                                        <state key="normal" image="homepage_life_liveover_button"/>
                                         <connections>
                                             <action selector="playVideoAction:" destination="viJ-me-113" eventType="touchUpInside" id="nMF-f0-ajH"/>
                                         </connections>
                                     </button>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Rectangle" translatesAutoresizingMaskIntoConstraints="NO" id="FAQ-dd-AqZ">
-                                        <rect key="frame" x="0.0" y="226.5" width="375" height="40"/>
+                                        <rect key="frame" x="0.0" y="226" width="375" height="40"/>
                                         <constraints>
                                             <constraint firstAttribute="height" constant="40" id="ZDg-nf-KOW"/>
                                         </constraints>
                                     </imageView>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="home_address_gray" translatesAutoresizingMaskIntoConstraints="NO" id="2K6-bL-OTd">
-                                        <rect key="frame" x="14" y="245.5" width="11" height="13"/>
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_map_icon" translatesAutoresizingMaskIntoConstraints="NO" id="2K6-bL-OTd">
+                                        <rect key="frame" x="14" y="245" width="11" height="13"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="11" id="KEW-6r-H6U"/>
                                             <constraint firstAttribute="height" constant="13" id="y8H-Cb-Whq"/>
                                         </constraints>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="上海浦东新区航头路1800号壹品仓" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="HMv-4o-jeA">
-                                        <rect key="frame" x="26" y="244.5" width="173" height="14"/>
+                                        <rect key="frame" x="26" y="244" width="173" height="14"/>
                                         <fontDescription key="fontDescription" type="system" pointSize="11"/>
                                         <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                                         <nil key="highlightedColor"/>
                                     </label>
                                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Triangle 2" translatesAutoresizingMaskIntoConstraints="NO" id="LVT-Kv-tdB">
-                                        <rect key="frame" x="182" y="258.5" width="11" height="8"/>
+                                        <rect key="frame" x="182" y="258" width="11" height="8"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="11" id="Ydd-ug-gcB"/>
                                             <constraint firstAttribute="height" constant="8" id="itd-e3-NUi"/>
@@ -532,7 +524,7 @@
                                     <constraint firstAttribute="height" constant="25" id="vpj-x1-fxV"/>
                                 </constraints>
                                 <fontDescription key="fontDescription" type="system" pointSize="11"/>
-                                <state key="normal" title="已结束">
+                                <state key="normal" image="homepage_icon_over">
                                     <color key="titleColor" red="0.92549019607843142" green="0.011764705882352941" blue="0.011764705882352941" alpha="1" colorSpace="calibratedRGB"/>
                                 </state>
                             </button>
@@ -555,7 +547,7 @@
                         </constraints>
                     </view>
                     <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="m0Z-DT-ere">
-                        <rect key="frame" x="0.0" y="352.5" width="375" height="160"/>
+                        <rect key="frame" x="0.0" y="352" width="375" height="160"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="160" id="tNp-Nf-lBn"/>
@@ -609,11 +601,12 @@
         <image name="Rectangle" width="750" height="81"/>
         <image name="Triangle 2" width="23" height="17"/>
         <image name="bofang" width="55" height="55"/>
-        <image name="home_address_gray" width="22" height="27"/>
         <image name="home_seePreheart" width="220" height="78"/>
-        <image name="home_seeback" width="220" height="78"/>
-        <image name="home_time_gray" width="21" height="25"/>
+        <image name="homepage_icon_over" width="81" height="25"/>
         <image name="homepage_icon_playtips" width="81" height="25"/>
         <image name="homepage_icon_watchnumber" width="15" height="15"/>
+        <image name="homepage_life_liveover_button" width="110" height="39"/>
+        <image name="homepage_map_icon" width="10" height="13"/>
+        <image name="homepage_time_icon" width="11" height="12"/>
     </resources>
 </document>

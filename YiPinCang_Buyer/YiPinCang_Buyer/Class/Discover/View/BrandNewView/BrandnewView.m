@@ -10,17 +10,16 @@
 #import "LiveDetailListCell.h"
 #import "LiveDetailSectionModel.h"
 #import "GuessLikeView.h"
-
-#import "MHFacebookImageViewer.h"
-#import "UIImageView+MHFacebookImageViewer.h"
+#import "BannerModel.h"
 #import <ImagePlayerView.h>
 #import "BrandBannerModel.h"
-@interface BrandnewView ()<UITableViewDelegate,UITableViewDataSource,ImagePlayerViewDelegate,MHFacebookImageViewerDatasource>
+@interface BrandnewView ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,strong)NSMutableArray *guessLikeArr;//推荐商品
 @property (nonatomic,strong)ImagePlayerView *titleImg;
 @property (nonatomic,strong)BrandBannerModel *bannerModel;
+@property (nonatomic,strong)NSMutableArray *bannerDataArr;
 @end
 
 
@@ -42,9 +41,11 @@
 
 - (void)setup{
     self.dataArr = [NSMutableArray array];
+    self.bannerDataArr = [NSMutableArray array];
     self.tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];;
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    self.tableView.tableFooterView = [UIView new];
     [self addSubview:self.tableView];
     self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     self.titleImg = [[ImagePlayerView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 250)];
@@ -54,12 +55,13 @@
     self.titleImg.pageControlPosition = ICPageControlPosition_BottomCenter;
     self.titleImg.hidePageControl = NO;
     self.tableView.tableHeaderView = self.titleImg;
-    [self  getData];
+    [self getData];
+    [self addMjRefresh];
     [self getDataGuessUlike];
     [self getBrandbanner];
 }
 - (void)reload{
-    [self  getData];
+    [self addMjRefresh];
     [self getDataGuessUlike];
     [self getBrandbanner];
 }
@@ -78,7 +80,9 @@
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.dataArr = [LiveDetailSectionModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               [weakSelf json];
                                [weakSelf.tableView reloadData];
+                               [weakSelf.tableView.mj_header endRefreshing];
                            }
                            
                            
@@ -87,6 +91,14 @@
                               
                           }];
 }
+#pragma mark - 刷新加载
+- (void)addMjRefresh
+{
+    WS(weakSelf);
+    self.tableView.mj_header = [YPCRefreshHeader headerWithRefreshingBlock:^{
+        [weakSelf getData];
+    }];
+}
 
 - (void)getDataGuessUlike{
     WS(weakSelf);
@@ -94,14 +106,14 @@
     [YPCNetworking postWithUrl:@"shop/goods/guesslist"
                   refreshCache:YES
                         params:@{
-                                                                               @"pagination":@{
-                                                                                       @"count":@"24",
-                                                                                       @"page":@"1"
-                                                                                       }
-                                                                               }
+                                 @"pagination":@{
+                                         @"count":@"24",
+                                         @"page":@"1"
+                                         }
+                                 }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               weakSelf.guessLikeArr = [GuessModel mj_objectArrayWithKeyValuesArray:response[@"data"]];                              
+                               weakSelf.guessLikeArr = [GuessModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                GuessLikeView *guessLikeView = [[GuessLikeView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ((ScreenWidth - 46) / 2 * 182 / 137 +60 + 20) * weakSelf.guessLikeArr.count / 2 + 50)];
                                guessLikeView.dataArr = weakSelf.guessLikeArr;
                                guessLikeView.didSelect = ^(NSIndexPath *index){
@@ -122,26 +134,33 @@
 }
 
 - (void)getBrandbanner{
+  
     WS(weakSelf);
-    
-    [YPCNetworking postWithUrl:@"shop/showstore/brandbanner"
-                  refreshCache:YES
-                        params:@{
-                                 
-                                 }
-                       success:^(id response) {
-                           if ([YPC_Tools judgeRequestAvailable:response]) {
-                               weakSelf.bannerModel = [BrandBannerModel mj_objectWithKeyValues:response[@"data"]];
-                               [weakSelf.titleImg reloadData];
-                               
-                           }
-                           
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+    [YPCNetworking getWithUrl:@"shop/home/data"
+                 refreshCache:YES
+                       params:@{@"type":@"5"}
+                      success:^(id response) {
+                          if ([YPC_Tools judgeRequestAvailable:response]) {
+                              weakSelf.bannerDataArr = [BannerModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"banners"]];
+                             [weakSelf.titleImg reloadData];
+                             
+                             ;
+                          }
+                      } fail:^(NSError *error) {
+                          YPCAppLog(@"%@", [error description]);
+                      }];
+ 
 }
-
+- (void)json{
+    NSMutableArray *arr = [NSMutableArray arrayWithArray:[self.dataArr mutableCopy]];
+    for (int i = 0; i < self.dataArr.count; i++) {
+        LiveDetailSectionModel *model = self.dataArr[i];
+        if (model.data.count == 0) {
+            [arr removeObject:model];
+        }
+    }
+    self.dataArr = [NSMutableArray arrayWithArray:[arr mutableCopy]];;
+}
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return self.dataArr.count;
 }
@@ -270,23 +289,70 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     LiveDetailSectionModel *model = self.dataArr[indexPath.section];
     LiveDetailListDataModel *listModel = model.data[indexPath.row];
+    TempHomePushModel *tempModel = [[TempHomePushModel alloc]init];
     NSString *typeStr = @"";
     if ([model.type isEqualToString:@"start_activity"]) {
         //直播中
         typeStr = @"直播中";
+        tempModel.live_id = listModel.live_id;
+        tempModel.announcement_id = listModel.announcement_id;
+        tempModel.store_avatar = listModel.store_avatar;
+        tempModel.store_name = listModel.store_name;
+        tempModel.store_id = listModel.store_id;
+       
+
         
     }else if ([model.type isEqualToString:@"will_activity"]){
         //预告
         typeStr = @"预告";
+        tempModel.live_id = listModel.live_id;
+        tempModel.name = listModel.name;
+        tempModel.store_avatar = listModel.store_avatar;
+        tempModel.store_name = listModel.store_name;
+        tempModel.starttime = listModel.starttime;
+        tempModel.endtime = listModel.endtime;
+        tempModel.activity_pic = listModel.activity_pic;
+        tempModel.live_msg = listModel.message;
+        tempModel.address = listModel.address;
+        tempModel.start = listModel.start;
+        tempModel.end = listModel.end;
+        tempModel.live_state = listModel.live_state;
     }else if ([model.type isEqualToString:@"end_activity"]){
         //回放
+        tempModel.live_id = listModel.live_id;
+        tempModel.store_id = listModel.store_id;
+        tempModel.store_avatar = listModel.store_avatar;
+        tempModel.store_name = listModel.store_name;
+        tempModel.video = listModel.video;
         typeStr = @"回放";
     }else{
         typeStr = @"其他";
     }
     if (self.didcell) {
-        self.didcell(indexPath,listModel,typeStr);
+        self.didcell(indexPath,listModel,typeStr,tempModel,listModel.livingshowinitimg);
     }
+}
+
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView
+{
+    CGPoint point = scrollView.contentOffset;
+    if (self.dataArr.count > 0) {
+        if (point.y <= 42.f) {
+            scrollView.contentInset = UIEdgeInsetsMake(64, 0, 0, 0);
+        }else if (point.y >= 42.f) {
+            scrollView.contentInset = UIEdgeInsetsMake(128, 0, 0, 0);
+        }
+    }
+    if (self.didscroll) {
+        self.didscroll(point.y);
+    }
+    
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    return YES;
 }
 
 -(void)viewDidLayoutSubviews
@@ -314,38 +380,83 @@
 #pragma mark - ImagePlayerViewDelegate
 - (NSInteger)numberOfItems
 {
-    return self.bannerModel.image.count;
+    return self.bannerDataArr.count;
 }
 
 - (void)imagePlayerView:(ImagePlayerView *)imagePlayerView loadImageForImageView:(UIImageView *)imageView index:(NSInteger)index
 {
     // recommend to use SDWebImage lib to load web image
-    
+    BannerModel *model = self.bannerDataArr[index];
+
     imageView.contentMode = UIViewContentModeScaleAspectFill;
-    if (self.bannerModel.image.count == 0) {
+    if (self.bannerDataArr.count == 0) {
         
     }else{
         
-        [imageView sd_setImageWithURL:[NSURL URLWithString:self.bannerModel.image[index]] placeholderImage:YPCImagePlaceHolder];
+        [imageView sd_setImageWithURL:[NSURL URLWithString:model.pic] placeholderImage:IMAGE(@"find_banner_placeholder")];
     }
-    [imageView setupImageViewerWithDatasource:self initialIndex:index onOpen:^{
-        NSLog(@"OPEN!");
-    } onClose:^{
-        NSLog(@"CLOSE!");
-    }];
+   
     imageView.clipsToBounds = YES;
     
 }
-- (NSInteger) numberImagesForImageViewer:(MHFacebookImageViewer *)imageViewer {
-    return self.bannerModel.image.count;
-}
--  (NSURL*) imageURLAtIndex:(NSInteger)index imageViewer:(MHFacebookImageViewer *)imageViewer {
-   // ShoppingImgsModel *model = self.model.image[index];
-    return [NSURL URLWithString:self.bannerModel.image[index]];
-}
+- (void)imagePlayerView:(ImagePlayerView *)imagePlayerView didTapAtIndex:(NSInteger)index{
+    BannerModel *model = self.bannerDataArr[index];
+    BannerDetailModel *detailModel = model.param;
+    switch ([YPC_Tools judgementUrlSechmeTypeWithUrlString:(NSString *)[self.bannerDataArr[index] url]]) {
+        case urlSechmeWebView:
+        {
+            if (self.didbanner) {
+                self.didbanner(model.url,urlSechmeWebView,model.adv_title);
+            }
+        }
+            
+            break;
+        case urlSechmeGoodsDetail:
+        {
+            
+            
+            if ([detailModel.type isEqualToString:@"livegoods"]) {
+                if (self.didbanner) {
+                    self.didbanner(detailModel.data.strace_id,urlSechmeGoodsDetail,@"淘好货");
+                }
+            }else{
+                if (self.didbanner) {
+                    self.didbanner(detailModel.data.strace_id,urlSechmeGoodsDetail,@"品牌");
+                }
+            }
+            
+        }
+            
+            break;
+        case urlSechmeActivityDeatail:
+            [YPC_Tools customAlertViewWithTitle:@"Tip"
+                                        Message:@"活动详情"
+                                      BtnTitles:nil
+                                 CancelBtnTitle:nil
+                            DestructiveBtnTitle:@"确定"
+                                  actionHandler:nil
+                                  cancelHandler:nil
+                             destructiveHandler:nil];
+            break;
+        case urlSechmeLivingGroupDetail:
+        {
+            if (self.didbanner) {
+                self.didbanner(detailModel.data.store_id,urlSechmeLivingGroupDetail,@"");
+            }
+        }
+            break;
+        case urlSechmeBrandDetail:
+        {
+            if (self.didbanner) {
+                self.didbanner(detailModel.data.live_id,urlSechmeLivingGroupDetail,@"");
+            }
+        }
+            break;
+            
+        default:
+            break;
+    }
 
-- (UIImage*) imageDefaultAtIndex:(NSInteger)index imageViewer:(MHFacebookImageViewer *)imageViewer{
-    return YPCImagePlaceHolder;
 }
 
 @end

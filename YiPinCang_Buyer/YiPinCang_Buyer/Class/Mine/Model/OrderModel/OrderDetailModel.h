@@ -14,6 +14,8 @@
 @interface OrderDetailModel : NSObject
 
 @property (nonatomic,strong)Reciver_infoModel *reciver_info;
+@property (nonatomic,copy)NSString *order_id;
+@property (nonatomic,copy)NSString *store_name;
 @property (nonatomic,copy)NSString *pay_sn;
 @property (nonatomic,copy)NSString *add_time;
 @property (nonatomic,copy)NSString *shipping_time;//发货时间

@@ -7,7 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "RegistModel.h"
+#import "UserModel.h"
 #import <AFNetworkReachabilityManager.h>
 
 @interface YPCRequestCenter : NSObject
@@ -18,7 +18,7 @@
 
 @property (nonatomic, copy) NSString *sID; // USER_ID
 @property (nonatomic, copy) NSString *uID; // SESSION_ID
-@property (nonatomic, strong)RegistModel *model; // USER_DATA_MODEL
+@property (nonatomic, strong) UserModel *model; // USER_DATA_MODEL
 
 @property (nonatomic, assign) HomeStyleType homeStyleType;
 

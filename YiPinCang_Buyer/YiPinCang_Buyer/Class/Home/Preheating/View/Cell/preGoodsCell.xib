@@ -34,7 +34,7 @@
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_trailer_icon_yushou" translatesAutoresizingMaskIntoConstraints="NO" id="5VB-5J-Obf">
                         <rect key="frame" x="98" y="9" width="35" height="15"/>
                     </imageView>
-                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bYJ-Ha-rec">
+                    <button opaque="NO" contentMode="scaleToFill" enabled="NO" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="bYJ-Ha-rec">
                         <rect key="frame" x="339" y="65" width="61" height="20"/>
                         <color key="backgroundColor" red="0.89411764705882346" green="0.22352941176470587" blue="0.23529411764705882" alpha="1" colorSpace="calibratedRGB"/>
                         <constraints>

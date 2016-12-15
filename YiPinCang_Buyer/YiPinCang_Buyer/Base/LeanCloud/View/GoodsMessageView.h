@@ -7,12 +7,13 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "OrderDetailModel.h"
 
 @interface GoodsMessageView : UIView
 
 + (id)GoodsMessageView;
 
-//- (void)configureWithOdModel:(OdModel *)model;
+- (void)configureWithModel:(OrderDetailModel *)model;
 
 @property (nonatomic, copy) void (^GoodsMesViewClickBlock)(id object);
 

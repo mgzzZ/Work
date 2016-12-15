@@ -9,13 +9,16 @@
 #import "LIveView.h"
 #import <iCarousel.h>
 #import "LiveTopView.h"
-
-
-@interface LIveView ()<iCarouselDataSource, iCarouselDelegate>
+#import "LiveBottomCell.h"
+#import "HJCarouselViewLayout.h"
+@interface LIveView ()<iCarouselDataSource, iCarouselDelegate,UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic,strong)UIImageView *bgImg;
 @property (nonatomic,strong)iCarousel *topView;
 @property (nonatomic,strong)iCarousel *bottomView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
+@property (nonatomic,strong)UICollectionView *collevtion;
+@property (nonatomic,assign)NSInteger oldRow;
+@property (nonatomic,assign)CGFloat xxx;
 
 @end
 
@@ -33,7 +36,7 @@
 - (instancetype)init{
     self = [super init];
     if (self) {
-       
+        self.oldRow = 0;
         [self getData];
     }
     return self;
@@ -53,7 +56,7 @@
                                    weakSelf.dataArr = [LiveTopViewModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                     [weakSelf addSubview:self.bgImg];
                                    [weakSelf.topView reloadData];
-                                   [weakSelf.bottomView reloadData];
+                                   //[weakSelf.collevtion reloadData];
                                }
                                
                            }
@@ -70,7 +73,7 @@
                                    weakSelf.dataArr = [LiveTopViewModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                    [weakSelf addSubview:self.bgImg];
                                    [weakSelf.topView reloadData];
-                                   [weakSelf.bottomView reloadData];
+                                  // [weakSelf.collevtion reloadData];
                                }
                                
                            }
@@ -90,13 +93,13 @@
         _topView.dataSource = self;
 
         _topView.type = iCarouselTypeCustom;
-        CGSize offset = CGSizeMake(0.0f, -60);
+        CGSize offset = CGSizeMake(0.0f, -40);
         _topView.viewpointOffset = offset;
         [self addSubview:_topView];
         _topView.sd_layout
         .leftEqualToView(self)
         .rightEqualToView(self)
-        .bottomSpaceToView(self,150)
+        .bottomSpaceToView(self,100)
         .topSpaceToView(self,64);
     }
     return _topView;
@@ -120,7 +123,30 @@
     }
     return _bottomView;
 }
+- (UICollectionView *)collevtion{
+    if (_collevtion == nil) {
+        HJCarouselViewLayout *layout = [[HJCarouselViewLayout alloc] initWithAnim:HJCarouselAnimLinear];
+        layout.itemSize = CGSizeMake(50, 50);
 
+        layout.visibleCount = (ScreenWidth - 20) / 48;
+        layout.scrollDirection = UICollectionViewScrollDirectionHorizontal;
+        _collevtion = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:layout];
+        _collevtion.delegate = self;
+        _collevtion.backgroundColor = [UIColor clearColor];
+        _collevtion.dataSource = self;
+        _collevtion.showsVerticalScrollIndicator = NO;
+        _collevtion.showsHorizontalScrollIndicator = NO;
+        //_collevtion.contentSize = CGSizeMake(ScreenWidth - 20, 0);
+        [_collevtion registerNib:[UINib nibWithNibName:NSStringFromClass([LiveBottomCell class]) bundle:nil] forCellWithReuseIdentifier:@"LiveCell"];
+        [self addSubview:_collevtion];
+        _collevtion.sd_layout
+        .leftEqualToView(self)
+        .rightEqualToView(self)
+        .bottomSpaceToView(self,30)
+        .heightIs(100);
+    }
+    return _collevtion;
+}
 - (UIImageView *)bgImg{
     if (_bgImg == nil) {
         _bgImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_background")];
@@ -152,13 +178,16 @@
         LiveTopView *topView = nil;
         if (view == nil)
         {
-            CGFloat width = ScreenWidth - 84;
-            CGFloat height = ScreenHeight - 83 - 80 - 80;
+            CGFloat width = kWidth(290);
+            CGFloat height = kHeight(461);
             view = [UIView new];
             view.frame = CGRectMake(0, 0, width, height);
+            view.layer.cornerRadius = 4;
             view.backgroundColor = [UIColor whiteColor];
             topView = [[LiveTopView alloc] initWithFrame:view.bounds];
             topView.tag = 10000 + index;
+            topView.layer.cornerRadius = 4;
+            topView.layer.masksToBounds = YES;
             [view addSubview:topView];
         }
         else
@@ -232,17 +261,80 @@
     return CATransform3DTranslate(transform, offset * self.topView.itemWidth * 1.4, 0.0, 0.0);
 }
 
-- (void)carousel:(iCarousel *)carousel didSelectItemAtIndex:(NSInteger)index{
-    if(carousel == self.bottomView){
-        [self.topView scrollToItemAtIndex:index animated:YES];
-    }
-}
+
 
 - (void)carouselDidScroll:(iCarousel *)carousel{
-    if (carousel == self.topView) {
-        NSNumber *index = [NSNumber numberWithFloat:carousel.scrollOffset];
-        [self.bottomView scrollToItemAtIndex:index.integerValue animated:YES];
-    }
+//    if (carousel == self.topView) {
+//        NSNumber *index = [NSNumber numberWithFloat:carousel.scrollOffset];
+//      
+//        [self scrollToindex:index.integerValue];
+//    }
+}
+
+
+#pragma mark - collectionViewDelegate
+- (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
+    return self.dataArr.count;
+}
+- (NSInteger)numberOfSectionsInCollectionView:(UICollectionView *)collectionView
+{
+    return 1;
+}
+
+
+- (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    
+    NSString *identifier = @"LiveCell";
+    LiveBottomCell *cell = (LiveBottomCell *)[collectionView dequeueReusableCellWithReuseIdentifier:identifier forIndexPath:indexPath];
+    cell.model = self.dataArr[indexPath.row];
+     
+    return cell;
+}
+
+- (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
+{
+    return (CGSize){48 ,48 };
+}
+- (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
+{
+    return UIEdgeInsetsMake(0, 0, 0, 0);
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumLineSpacingForSectionAtIndex:(NSInteger)section
+{
+    return 0;
+}
+
+
+- (CGFloat)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout minimumInteritemSpacingForSectionAtIndex:(NSInteger)section
+{
+    return 0;
+}
+
+
+- (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath{
+    [self.topView scrollToItemAtIndex:indexPath.row animated:YES];
+//    NSInteger row = indexPath.row;
+//    self.oldRow = [self scrollToItem];
+//    if (row - self.oldRow > 0) {
+//        [self.collevtion setContentOffset:CGPointMake(self.xxx + (row - self.oldRow) * 50, 0)];
+//    }else{
+//         [self.collevtion setContentOffset:CGPointMake(self.xxx - (self.oldRow - row) * 50, 0)];
+//    }
+    
+
+
+}
+//- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+//    self.xxx = scrollView.contentOffset.x;
+//    
+//}
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+//    if (scrollView == self.collevtion) {
+//        [self.topView scrollToItemAtIndex:[self scrollToItem] animated:YES];
+//    }
 }
 - (void)liveDetail:(UIButton *)sender{
     
@@ -304,5 +396,30 @@
                               
                           }];
 }
+- (NSIndexPath *)curIndexPath {
+    NSArray *indexPaths = [self.collevtion indexPathsForVisibleItems];
+    NSIndexPath *curIndexPath = nil;
+    NSInteger curzIndex = 0;
+    for (NSIndexPath *path in indexPaths.objectEnumerator) {
+        UICollectionViewLayoutAttributes *attributes = [self.collevtion layoutAttributesForItemAtIndexPath:path];
+        if (!curIndexPath) {
+            curIndexPath = path;
+            curzIndex = attributes.zIndex;
+            continue;
+        }
+        if (attributes.zIndex > curzIndex) {
+            curIndexPath = path;
+            curzIndex = attributes.zIndex;
+        }
+    }
+    return curIndexPath;
+}
 
+- (NSInteger)scrollToItem{
+
+    return (self.xxx + 182)/50;
+}
+- (void)scrollToindex:(NSInteger)index{
+    [self.collevtion setContentOffset:CGPointMake(-182 + index * 50, 0)];
+}
 @end

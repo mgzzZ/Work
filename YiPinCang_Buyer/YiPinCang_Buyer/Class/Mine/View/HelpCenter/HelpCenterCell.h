@@ -10,5 +10,6 @@
 
 @interface HelpCenterCell : UITableViewCell
 @property (strong, nonatomic) IBOutlet UILabel *titleLab;
+@property (strong, nonatomic) IBOutlet UIImageView *img;
 
 @end

@@ -247,7 +247,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     self.shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.shareBtn.acceptEventInterval = .5f;
     self.shareBtn.showsTouchWhenHighlighted = YES;
-    [self.shareBtn setImage:IMAGE(@"productdetails_icon_share") forState:UIControlStateNormal];
+//    [self.shareBtn setImage:IMAGE(@"productdetails_icon_share") forState:UIControlStateNormal];
     [self.shareBtn addTarget:self action:@selector(buttonClickAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView addSubview:self.shareBtn];
     [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {

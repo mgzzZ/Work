@@ -11,11 +11,10 @@
 @implementation DanmuMessage
 
 + (AVIMMessageMediaType)classMediaType {
-    return DanmakuTransientMessageTypeOperation;
+    return LeanCloudCustomMessageDanmu;
 }
 
 + (void)load {
-    // 自定义消息需要注册
     [DanmuMessage registerSubclass];
 }
 

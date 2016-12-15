@@ -38,7 +38,7 @@
     self.rightBtn.titleLabel.font = [UIFont systemFontOfSize:16];
     [self addSubview:self.rightBtn];
     self.rightBtn.sd_layout
-    .widthIs(117)
+    .widthIs(kWidth(117))
     .rightSpaceToView(self,0)
     .topEqualToView(self)
     .bottomEqualToView(self);
@@ -50,7 +50,7 @@
     self.leftBtn.titleLabel.font = [UIFont systemFontOfSize:16];
     [self addSubview:self.leftBtn];
     self.leftBtn.sd_layout
-    .widthIs(117)
+    .widthIs(kWidth(117))
     .rightSpaceToView(self.rightBtn,0)
     .topEqualToView(self)
     .bottomEqualToView(self);
@@ -87,7 +87,7 @@
     [self.titleLab sizeToFit];
     self.titleLab.sd_layout
     .rightSpaceToView(self.leftView,10)
-    .leftSpaceToView(self.leftView,55)
+    .leftSpaceToView(self.leftView,kWidth(55))
     .heightIs(15)
     .topSpaceToView(self.leftView,10);
     self.timeLab = [[UILabel alloc]init];

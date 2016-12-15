@@ -12,7 +12,6 @@
 
 @property (nonatomic,copy)NSString *goods_commonid;
 @property (nonatomic,copy)NSString *goods_name;
-@property (nonatomic,copy)NSString *gc_name;
 @property (nonatomic,copy)NSString *goods_image;
 @property (nonatomic,copy)NSString *goods_price;
 @property (nonatomic,copy)NSString *goods_serial;

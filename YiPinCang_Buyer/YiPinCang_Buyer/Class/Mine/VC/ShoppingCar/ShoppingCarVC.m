@@ -18,7 +18,7 @@
 #import "GuessModel.h"
 static NSString *cellId = @"noedit";
 static NSString *cellId2 = @"edit";
-@interface ShoppingCarVC ()<UITableViewDelegate,UITableViewDataSource>
+@interface ShoppingCarVC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,assign)NSInteger index;
 @property (nonatomic,strong)NSMutableArray *dataArr;
@@ -32,10 +32,16 @@ static NSString *cellId2 = @"edit";
 @property (nonatomic,assign)CGFloat maxPrice;
 @property (nonatomic,strong)NSMutableArray *didCellArr;//选择的cell
 @property (nonatomic,strong)NSMutableArray *guessLikeArr;//推荐商品
+@property (nonatomic,strong)UIView *noDataView;
 
 @end
 
 @implementation ShoppingCarVC
+
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+    [self getDataList];
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -218,8 +224,12 @@ static NSString *cellId2 = @"edit";
     self.tableView = [[UITableView alloc]init];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    self.tableView.emptyDataSetDelegate = self;
+    self.tableView.emptyDataSetSource = self;
+    self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    self.tableView.tableFooterView = [UIView new];
     [self.view addSubview:self.tableView];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 58, 0));
+    
 }
 
 
@@ -234,6 +244,15 @@ static NSString *cellId2 = @"edit";
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.dataArr = [ShoppingCarModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               if (weakSelf.dataArr.count == 0) {
+                                   weakSelf.tableView.tableHeaderView = weakSelf.noDataView;
+                                   weakSelf.clearingView.hidden = YES;
+                                   self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+                               }else{
+                                   weakSelf.tableView.tableHeaderView = [UIView new];
+                                   weakSelf.clearingView.hidden = NO;
+                                   self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 58, 0));
+                               }
                                [weakSelf.tableView reloadData];
                                [weakSelf getDataGuessUlike];
                            }
@@ -386,6 +405,11 @@ static NSString *cellId2 = @"edit";
             if (weakSelf.seleteCount == weakSelf.didCellArr.count) {
                 weakSelf.clearingView.seleteBtn.selected = YES;
                 weakSelf.clearingView.seleteLab.text = @"全不选";
+                if (weakSelf.index == 0) {
+                    [weakSelf.clearingView.clearingBtn setTitle:[NSString stringWithFormat:@"结算(%zd)",weakSelf.seleteCount] forState:UIControlStateNormal];
+                }else{
+                    [weakSelf.clearingView.clearingBtn setTitle:[NSString stringWithFormat:@"删除(%zd)",weakSelf.seleteCount] forState:UIControlStateNormal];
+                }
             }else if(weakSelf.seleteCount == 0){
                 
                 if (weakSelf.index == 0) {
@@ -477,6 +501,7 @@ static NSString *cellId2 = @"edit";
                 weakSelf.maxPrice -= dataModel.goods_price.floatValue * dataModel.goods_num.integerValue;
                 [weakSelf priceLabtext:weakSelf.maxPrice];
                 [weakSelf.didCellArr removeObject:dataModel];
+                
             }else{
                 weakSelf.seleteCount++;
                 weakSelf.maxPrice += dataModel.goods_price.floatValue * dataModel.goods_num.integerValue;
@@ -487,6 +512,11 @@ static NSString *cellId2 = @"edit";
             if (weakSelf.seleteCount == weakSelf.didCellArr.count) {
                 weakSelf.clearingView.seleteBtn.selected = YES;
                 weakSelf.clearingView.seleteLab.text = @"全不选";
+                if (weakSelf.index == 0) {
+                    [weakSelf.clearingView.clearingBtn setTitle:[NSString stringWithFormat:@"结算(%zd)",weakSelf.seleteCount] forState:UIControlStateNormal];
+                }else{
+                    [weakSelf.clearingView.clearingBtn setTitle:[NSString stringWithFormat:@"删除(%zd)",weakSelf.seleteCount] forState:UIControlStateNormal];
+                }
             }else if(weakSelf.seleteCount == 0){
                 
                 if (weakSelf.index == 0) {
@@ -496,6 +526,7 @@ static NSString *cellId2 = @"edit";
                 }
                 weakSelf.clearingView.seleteBtn.selected = NO;
                 weakSelf.clearingView.seleteLab.text = @"全选";
+                
             }else{
                 if (weakSelf.index == 0) {
                     [weakSelf.clearingView.clearingBtn setTitle:[NSString stringWithFormat:@"结算(%zd)",weakSelf.seleteCount] forState:UIControlStateNormal];
@@ -553,15 +584,66 @@ static NSString *cellId2 = @"edit";
     }
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
-    for (ShoppongCarCell *cell in [self.tableView visibleCells]) {
-        [cell.payCount1.textField resignFirstResponder];
-        [cell.payCount2.textField resignFirstResponder];
+    if (self.index == 0) {
+        for (ShoppongCarCell *cell in [self.tableView visibleCells]) {
+            [cell.payCount1.textField resignFirstResponder];
+            [cell.payCount2.textField resignFirstResponder];
+        }
+        ShoppingCarDetailVC *shopping = [[ShoppingCarDetailVC alloc]init];
+        ShoppingCarModel *model = self.dataArr[indexPath.section];
+        Shoppingcar_dataModel *dataModel = model.data[indexPath.row];
+        shopping.goods_id = dataModel.goods_commonid;
+        [self.navigationController pushViewController:shopping animated:YES];
     }
-    ShoppingCarDetailVC *shopping = [[ShoppingCarDetailVC alloc]init];
-    ShoppingCarModel *model = self.dataArr[indexPath.section];
-    Shoppingcar_dataModel *dataModel = model.data[indexPath.row];
-    shopping.goods_id = dataModel.goods_commonid;
-    [self.navigationController pushViewController:shopping animated:YES];
+}
+- (UIView *)noDataView{
+    if (_noDataView == nil) {
+        _noDataView = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight - kHeight(260))];
+        _noDataView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        UIImageView *img = [[UIImageView alloc]initWithImage:IMAGE(@"blankpage_cart_nofindgoods_icon")];
+        [_noDataView addSubview:img];
+        img.sd_layout
+        .widthIs(110)
+        .heightIs(110)
+        .centerXEqualToView(_noDataView)
+        .centerYEqualToView(_noDataView);
+        UILabel *nameLab = [[UILabel alloc]init];
+        nameLab.text = @"购物车空空如也,快去添加商品";
+        nameLab.font = [UIFont systemFontOfSize:15];
+        nameLab.textColor = [Color colorWithHex:@"0x2c2c2c"];
+        nameLab.textAlignment = NSTextAlignmentCenter;
+        [_noDataView addSubview:nameLab];
+        nameLab.sd_layout
+        .leftEqualToView(_noDataView)
+        .rightEqualToView(_noDataView)
+        .topSpaceToView(img,50)
+        .heightIs(20);
+    }
+    return _noDataView;
+}
+
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_cart_nofindgoods_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"购物车空空如也,快去添加商品吧";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 
 #pragma mark- 编辑按钮
@@ -654,6 +736,11 @@ static NSString *cellId2 = @"edit";
                     self.maxPrice -= dataModel.goods_price.floatValue * dataModel.goods_num.integerValue;
                     if (model.data.count == 0) {
                         [self.dataArr removeObject:model];
+                    }
+                    if (self.dataArr.count == 0) {
+                        self.tableView.tableHeaderView = self.noDataView;
+                        self.clearingView.hidden = YES;
+                        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
                     }
                 }
             }

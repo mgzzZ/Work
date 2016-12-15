@@ -90,6 +90,21 @@ static NSString *AllIdentifier = @"allIdentifier";
 {
     _allGoodsDataArr = [NSMutableArray array];
     _allGoodsDataArr = allGoodsDataArr;
+    
+    if (self.allGoodsDataArr.count == 0) {
+        UIView *view = [UIView new];
+        view.backgroundColor = [UIColor whiteColor];
+        view.frame = CGRectMake(0, 30, ScreenWidth, 110);
+        
+        UIImageView *noDataImg = [UIImageView new];
+        noDataImg.image = IMAGE(@"blankpage_goods_img");
+        noDataImg.frame = CGRectMake(ScreenWidth / 2 - 55, 30, 110, 80);
+        [view addSubview:noDataImg];
+        [self.tableView setTableFooterView:view];
+    }else {
+        [self.tableView setTableFooterView:[UIView new]];
+    }
+    
     [self.tableView reloadData];
 }
 
@@ -144,6 +159,28 @@ static NSString *AllIdentifier = @"allIdentifier";
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath
 {
     self.CellSelectedBlock([self.commendDataArr[indexPath.row] strace_id]);
+}
+
+#pragma mark - NO DATA IMAGE SET
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    if (scrollView == self.collectionView) {
+        return [UIImage imageNamed:@"blankpage_Sellinggoods_img"];
+    }else {
+        return [UIImage imageNamed:@"blankpage_goods_img"];
+    }
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView
+{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView
+{
+    return YES;
 }
 
 - (void)getDataChooseSize:(NSString *)str price:(NSString *)price count:(NSString *)count maxCount:(NSString *)maxCount img:(NSString *)img{

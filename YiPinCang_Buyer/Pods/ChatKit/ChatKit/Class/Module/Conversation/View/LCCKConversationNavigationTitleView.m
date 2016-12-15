@@ -2,7 +2,7 @@
 //  LCCKConversationNavigationTitleView.m
 //  Pods
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/7/19.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/7/19.
 //
 //
 
@@ -71,7 +71,7 @@ static void * const LCCKConversationNavigationTitleViewShowRemindMuteImageViewCo
     [self addSubview:self.containerView];
     self.showRemindMuteImageView = NO;
     [self addObserver:self forKeyPath:@"showRemindMuteImageView" options:NSKeyValueObservingOptionNew context:LCCKConversationNavigationTitleViewShowRemindMuteImageViewContext];
-    __unsafe_unretained typeof(self) weakSelf = self;
+    __unsafe_unretained __typeof(self) weakSelf = self;
     [self lcck_executeAtDealloc:^{
         [weakSelf removeObserver:weakSelf forKeyPath:@"showRemindMuteImageView"];
     }];

@@ -10,7 +10,7 @@
 #import "LiveDetailListCell.h"
 #import "LiveDetailDefaultModel.h"
 
-@interface LiveListView ()<UITableViewDelegate,UITableViewDataSource>
+@interface LiveListView ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 
 @property (nonatomic,strong)LiveDetailDefaultModel *model;
 @end
@@ -22,7 +22,10 @@
     contentTV.backgroundColor = [UIColor clearColor];
     contentTV.separatorStyle = NO;
     contentTV.dataSource = contentTV;
+    contentTV.backgroundColor = [Color colorWithHex:@"0xefefef"];
     contentTV.delegate = contentTV;
+    contentTV.emptyDataSetSource = contentTV;
+    contentTV.emptyDataSetDelegate= contentTV;
     contentTV.tableFooterView = [UIView new];
     return contentTV;
 }
@@ -40,17 +43,33 @@
                                  }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                               weakSelf.model = [LiveDetailDefaultModel mj_objectWithKeyValues:response[@"data"]];
+                               
+                               [weakSelf json];
+                               
+                               [weakSelf reloadData];
+                               
                            }
-                           weakSelf.model = [LiveDetailDefaultModel mj_objectWithKeyValues:response[@"data"]];
-                           [weakSelf reloadData];
-                           
+                          
                        }
                           fail:^(NSError *error) {
                               
                           }];
+    
+    
+    
 }
 
-
+- (void)json{
+    NSMutableArray *arr = [NSMutableArray arrayWithArray:[self.model.list mutableCopy]];
+    for (int i = 0; i < self.model.list.count; i++) {
+        LiveDetailSectionModel *model = self.model.list[i];
+        if (model.data.count == 0) {
+            [arr removeObject:model];
+        }
+    }
+    self.model.list = [NSMutableArray arrayWithArray:[arr mutableCopy]];;
+}
 
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -222,5 +241,27 @@
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 }
-
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_livememberinformation_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"暂时没有可回放的直播观看";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+}
 @end

@@ -33,7 +33,7 @@
 {
     _tempModel = tempModel;
     _titleL.text = _tempModel.strace_title;
-    [self.videoImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.video_img] placeholderImage:YPCImagePlaceHolder];
+    [self.videoImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.video_img] placeholderImage:IMAGE(@"yure_zhanweitu2")];
     _timeL.text = [YPC_Tools timeWithTimeIntervalString:_tempModel.strace_time Format:@"YYYY-MM-dd"];
     _goodL.text = _tempModel.strace_cool;
     _commentL.text = _tempModel.strace_comment;

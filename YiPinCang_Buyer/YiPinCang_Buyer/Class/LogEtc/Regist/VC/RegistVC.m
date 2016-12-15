@@ -23,13 +23,19 @@
         _titleLab.text = @"注册壹品仓";
     }else if([_from isEqualToString:@"2"]){
         _titleLab.text = @"请输入手机号";
-    }else{
+    }else if ([_from isEqualToString:@"3"]){
         _titleLab.text = @"手机快捷登录";
+    }else if ([_from isEqualToString:@"4"]){
+        _titleLab.text = @"更换手机号码";
     }
     _nextBtn.userInteractionEnabled = NO;
 }
 - (IBAction)backBtnClick:(UIButton *)sender {
-    [self.navigationController popViewControllerAnimated:YES];
+    if ([_from isEqualToString:@"4"]){
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }else {
+        [self.navigationController popViewControllerAnimated:YES];
+    }
 }
 - (IBAction)NextBtnClick:(UIButton *)sender {
     if (![_phoneTextField.text isValidPhone]) {
@@ -38,7 +44,7 @@
         [YPCNetworking postWithUrl:@"shop/user/smscodesend"
                       refreshCache:YES
                             params:@{@"tel" : _phoneTextField.text,
-                                     @"type":_from
+                                     @"type": _from
                                      }
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {

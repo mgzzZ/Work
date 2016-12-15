@@ -12,6 +12,7 @@
 #import "LoginVC.h"
 #import "AppDelegate.h"
 #import "HomeVC.h"
+#import "LCPushMessageVC.h"
 
 @interface LeanChatFactory ()
 
@@ -51,16 +52,22 @@
 - (void)customMessageReceive:(NSNotification *)object
 {
     AVIMTypedMessage *message = object.object[LCCKDidReceiveCustomMessageUserInfoMessageKey];
-    if (message.mediaType == 1) { // 订单消息
-        
-    }else if (message.mediaType == 2) { // 弹幕消息
+    if (message.mediaType == LeanCloudCustomMessageDanmu) { // 弹幕消息
         NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:message.attributes];
         if (message.text) {
             [dic setValuesForKeysWithDictionary:@{@"message" : message.text}];
             [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:dic];
         }
-    }else if (message.mediaType == 3) { //直播间点赞消息
+    }else if (message.mediaType == LeanCloudCustomMessageLivingLike) { // 直播间点赞消息
         [NotificationCenter postNotificationName:DidReceiveLivingLikeFormLeanCloudCusstomMessage object:nil];
+    }else if (message.mediaType == LeanCloudCustomMessageGoodsTop) {  // 直播间商品顶置
+        [NotificationCenter postNotificationName:DidReceiveLivingGoodsTopFormLeanCloudCusstomMessage object:message.attributes];
+    }else if (message.mediaType == LeanCloudCustomMessageGoodsIssue) { // 直播间商品发布
+        [NotificationCenter postNotificationName:DidReceiveLivingGoodsIssueLeanCloudCusstomMessage object:message.attributes];
+    }else if (message.mediaType == LeanCloudCustomMessageLivingPause) { // 直播间暂停
+        [NotificationCenter postNotificationName:DidReceiveLivingLivingPauseLeanCloudCusstomMessage object:nil];
+    }else if (message.mediaType == LeanCloudCustomMessageLivingStop) { // 直播间停止
+        [NotificationCenter postNotificationName:DidReceiveLivingLivingStopLeanCloudCusstomMessage object:nil];
     }
 }
 
@@ -78,21 +85,20 @@
 {
     //设置最近联系人列表cell的操作
     [self lcck_setupConversationsCellOperation];
+    //设置编辑按钮
+    [self lcck_setupConversationEditActionForConversationList];
 }
 
 #pragma mark - SDK Life Control
 
 + (void)invokeThisMethodInDidFinishLaunching {
-    // 如果APP是在国外使用，开启北美节点
-    // [AVOSCloud setServiceRegion:AVServiceRegionUS];
     // 启用未读消息
     [AVIMClient setUserOptions:@{ AVIMUserOptionUseUnread : @(YES) }];
-    [AVOSCloud registerForRemoteNotification];
     [AVIMClient setTimeoutIntervalInSeconds:20];
     //添加输入框底部插件，如需更换图标标题，可子类化，然后调用 `+registerSubclass`
     [LCCKInputViewPluginTakePhoto registerSubclass];
     [LCCKInputViewPluginPickImage registerSubclass];
-    [LCCKInputViewPluginLocation registerSubclass];
+//    [LCCKInputViewPluginLocation registerSubclass];
 }
 
 + (void)invokeThisMethodInDidRegisterForRemoteNotificationsWithDeviceToken:(NSData *)deviceToken {
@@ -128,21 +134,29 @@
 + (void)invokeThisMethodAfterLoginSuccessWithClientId:(NSString *)clientId
                                               success:(LCCKVoidBlock)success
                                                failed:(LCCKErrorBlock)failed {
+    WS(weakSelf);
     [YPCNetworking postWithUrl:@"common/user/getnoreadnewscount"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"type" : @"1"}]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               [[self sharedInstance] leanCloudInit];
+                               [[weakSelf sharedInstance] leanCloudInit];
                                [[LCChatKit sharedInstance] openWithClientId:clientId callback:^(BOOL succeeded, NSError *error) {
                                    if (succeeded) {
-                                       [self saveLocalClientInfo:clientId];
-                                       !success ?: success();
-                                       [self getUnreadCountWithIineUnreadCount:[response[@"data"][@"noreadcount"] integerValue]];
+                                       [weakSelf getUnreadCountWithIineUnreadCount:[response[@"data"][@"noreadcount"] integerValue] AndCallBack:^(BOOL succeeded, NSError *error) {
+                                           if (succeeded) {
+                                               [weakSelf saveLocalClientInfo:clientId];
+                                               !success ?: success();
+                                           }else {
+                                                !failed ?: failed(error);
+                                           }
+                                       }];
                                    } else {
                                        !failed ?: failed(error);
                                    }
                                }];
+                           }else {
+                               !failed ?: failed([NSError new]);
                            }
                        } fail:^(NSError *error) {
                            !failed ?: failed(error);
@@ -208,23 +222,22 @@
         
         [userIds enumerateObjectsUsingBlock:^(NSString *_Nonnull clientId, NSUInteger idx,
                                               BOOL *_Nonnull stop) {
-            
-            
             [YPCNetworking postWithUrl:@"merchant/user/infobylean"
                           refreshCache:YES
                                 params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"client": clientId}]
                                success:^(id response) {
-                                   
-                                   NSNumber *num = [NSNumber numberWithInteger:0];
-                                   if (response[@"status"][@"succeed"] != num) {
+                                   if ([response[@"status"][@"succeed"] integerValue] != 0 && ![response[@"data"][@"hx_uname"] isEqual:[NSNull null]]  && ![response[@"data"][@"member_id"] isEqual:[NSNull null]]  && ![response[@"data"][@"member_truename"] isEqual:[NSNull null]]) {
                                        LCCKUser *user_ = [LCCKUser userWithUserId:response[@"data"][@"member_id"]
                                                                              name:response[@"data"][@"member_truename"]
                                                                         avatarURL:response[@"data"][@"member_avatar"]
                                                                          clientId:clientId];
                                        [users addObject:user_];
                                        !completionHandler ?: completionHandler([users copy], nil);
+                                   }else {
+                                       LCCKUser *user = [LCCKUser userWithClientId:clientId];
+                                       [users addObject:user];
+                                       !completionHandler ?: completionHandler([users copy], nil);
                                    }
-                                   
                                } fail:^(NSError *error) {
                                    LCCKUser *user_ = [LCCKUser userWithClientId:[LCChatKit sharedInstance].clientId];
                                    [users addObject:user_];
@@ -242,46 +255,142 @@
     [[LCChatKit sharedInstance] setDidSelectConversationsListCellBlock:^(
                                                                          NSIndexPath *indexPath, AVIMConversation *conversation,
                                                                          LCCKConversationListViewController *controller) {
-        
-        [YPCNetworking postWithUrl:@"merchant/user/infobylean"
-                      refreshCache:YES
-                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"client": conversation.members.lastObject}]
-                           success:^(id response) {
-                               NSNumber *num = [NSNumber numberWithInteger:0];
-                               if (response[@"status"][@"succeed"] != num) {
-                                   
-                                   LCCKConversationViewController *conversationViewController = [[LCCKConversationViewController alloc] initWithConversationId:conversation.conversationId];
-                                   conversationViewController.enableAutoJoin = YES;
-                                   conversationViewController.disableTitleAutoConfig = YES;
-                                   [controller.navigationController pushViewController:conversationViewController animated:YES];
-                                   
-                                   [conversationViewController setViewDidLoadBlock:^(__kindof LCCKBaseViewController *viewController) {
+        if (conversation.members.count > 0) {            
+            [YPCNetworking postWithUrl:@"merchant/user/infobylean"
+                          refreshCache:YES
+                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"client": conversation.members.lastObject}]
+                               success:^(id response) {
+                                   NSNumber *num = [NSNumber numberWithInteger:0];
+                                   if (response[@"status"][@"succeed"] != num) {
                                        
-                                       viewController.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
-                                       viewController.navigationController.navigationBar.translucent = YES;
-                                       [viewController.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:BoldFont(18),NSForegroundColorAttributeName:[UIColor whiteColor]}];
-                                       viewController.title = [(NSDictionary *)response[@"data"] safe_objectForKey:@"member_truename"];
+                                       LCCKConversationViewController *conversationViewController = [[LCCKConversationViewController alloc] initWithConversationId:conversation.conversationId];
+                                       conversationViewController.enableAutoJoin = YES;
+                                       conversationViewController.disableTitleAutoConfig = YES;
+                                       [controller.navigationController pushViewController:conversationViewController animated:YES];
                                        
-                                       UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                                       [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
-                                       [button sizeToFit];
-                                       [button addTarget:self
-                                                  action:@selector(naviRightAction:)
-                                        forControlEvents:UIControlEventTouchUpInside];
-                                       objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                                       UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-                                       viewController.navigationItem.leftBarButtonItem = editItem;
-                                   }];
-                               }
-                           } fail:^(NSError *error) {
-                               [YPC_Tools showSvpHudError:@"打开会话失败"];
-                           }];
+                                       [conversationViewController setViewDidLoadBlock:^(__kindof LCCKBaseViewController *viewController) {
+                                           
+                                           viewController.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
+                                           viewController.navigationController.navigationBar.translucent = YES;
+                                           [viewController.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:BoldFont(18),NSForegroundColorAttributeName:[UIColor whiteColor]}];
+                                           if ([response[@"data"][@"member_truename"] isEqual:[NSNull null]]) {
+                                               viewController.title = [(NSDictionary *)response[@"data"] safe_objectForKey:@"member_truename"];
+                                           }else {
+                                               viewController.title = conversation.members.lastObject;
+                                           }
+                                           
+                                           UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+                                           [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+                                           [button sizeToFit];
+                                           [button addTarget:self
+                                                      action:@selector(naviRightAction:)
+                                            forControlEvents:UIControlEventTouchUpInside];
+                                           objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+                                           UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
+                                           viewController.navigationItem.leftBarButtonItem = editItem;
+                                       }];
+                                   }
+                               } fail:^(NSError *error) {
+                                   [YPC_Tools showSvpHudError:@"打开会话失败"];
+                               }];
+        }else {
+            if ([[conversation.attributes safe_objectForKey:@"r_type"] integerValue] == 1) {
+                // 系统消息
+                LCPushMessageVC *pushMesVC = [LCPushMessageVC new];
+                pushMesVC.messageType = LCMessageTypeSystem;
+                [controller.navigationController pushViewController:pushMesVC animated:YES];
+                [[LCChatKit sharedInstance] updateUnreadCountToZeroWithConversationId:conversation.conversationId];
+            }
+            if ([[conversation.attributes safe_objectForKey:@"r_type"] integerValue] == 2) {
+                // 活动提醒
+                LCPushMessageVC *pushMesVC = [LCPushMessageVC new];
+                pushMesVC.messageType = LCMessageTypeActivity;
+                [controller.navigationController pushViewController:pushMesVC animated:YES];
+                [[LCChatKit sharedInstance] updateUnreadCountToZeroWithConversationId:conversation.conversationId];
+            }
+            if ([[conversation.attributes safe_objectForKey:@"r_type"] integerValue] == 4) {
+                // 订单消息
+                LCPushMessageVC *pushMesVC = [LCPushMessageVC new];
+                pushMesVC.messageType = LCMessageTypeOrder;
+                [controller.navigationController pushViewController:pushMesVC animated:YES];
+                [[LCChatKit sharedInstance] updateUnreadCountToZeroWithConversationId:conversation.conversationId];
+            }
+        }
     }];
 }
 - (void)naviRightAction:(UIButton *)sender
 {
      UIViewController *VC = objc_getAssociatedObject(sender, @"backObject");
     [VC.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)lcck_setupConversationEditActionForConversationList {
+    // 自定义Cell菜单
+    [[LCChatKit sharedInstance] setConversationEditActionBlock:^NSArray *(
+                                                                          NSIndexPath *indexPath, NSArray<UITableViewRowAction *> *editActions,
+                                                                          AVIMConversation *conversation, LCCKConversationListViewController *controller) {
+        return [self lcck_ConversationEditActionAtIndexPath:indexPath
+                                                      conversation:conversation
+                                                        controller:controller];
+    }];
+}
+
+- (NSArray *)lcck_ConversationEditActionAtIndexPath:(NSIndexPath *)indexPath
+                                              conversation:(AVIMConversation *)conversation
+                                                controller:(LCCKConversationListViewController *)controller {
+    // 如果需要自定义其他会话的菜单，在此编辑
+    return [self lcck_rightButtonsAtIndexPath:indexPath conversation:conversation controller:controller];
+}
+
+- (NSArray *)lcck_rightButtonsAtIndexPath:(NSIndexPath *)indexPath
+                             conversation:(AVIMConversation *)conversation
+                               controller:(LCCKConversationListViewController *)controller {
+    NSString *title = nil;
+    UITableViewRowActionHandler handler = nil;
+    [self lcck_markReadStatusAtIndexPath:indexPath
+                                   title:&title
+                                  handle:&handler
+                            conversation:conversation
+                              controller:controller];
+    UITableViewRowAction *actionItemMore =
+    [UITableViewRowAction rowActionWithStyle:UITableViewRowActionStyleDefault
+                                       title:title
+                                     handler:handler];
+    actionItemMore.backgroundColor = [UIColor colorWithRed:0.78f green:0.78f blue:0.8f alpha:1.0];
+    UITableViewRowAction *actionItemDelete = [UITableViewRowAction
+                                              rowActionWithStyle:UITableViewRowActionStyleDefault
+                                              title:LCCKLocalizedStrings(@"Delete")
+                                              handler:^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+                                                  [[LCChatKit sharedInstance] deleteRecentConversationWithConversationId:conversation.conversationId];
+                                              }];
+    return @[ actionItemDelete, actionItemMore];
+}
+
+typedef void (^UITableViewRowActionHandler)(UITableViewRowAction *action, NSIndexPath *indexPath);
+
+- (void)lcck_markReadStatusAtIndexPath:(NSIndexPath *)indexPath
+                                 title:(NSString **)title
+                                handle:(UITableViewRowActionHandler *)handler
+                          conversation:(AVIMConversation *)conversation
+                            controller:(LCCKConversationListViewController *)controller {
+    NSString *conversationId = conversation.conversationId;
+    if (conversation.lcck_unreadCount > 0) {
+        if (*title == nil) {
+            *title = @"标记为已读";
+        }
+        *handler = ^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+            [controller.tableView setEditing:NO animated:YES];
+            [[LCChatKit sharedInstance] updateUnreadCountToZeroWithConversationId:conversationId];
+        };
+    } else {
+        if (*title == nil) {
+            *title = @"标记为未读";
+        }
+        *handler = ^(UITableViewRowAction *action, NSIndexPath *indexPath) {
+            [controller.tableView setEditing:NO animated:YES];
+            [[LCChatKit sharedInstance] increaseUnreadCountWithConversationId:conversationId];
+        };
+    }
 }
 
 /**
@@ -338,13 +447,13 @@
     [[LCChatKit sharedInstance] setFilterMessagesBlock:^(AVIMConversation *conversation,
                                                          NSArray<AVIMTypedMessage *> *messages,
                                                          LCCKFilterMessagesCompletionHandler completionHandler) {
-        if (messages.lastObject.mediaType == 2) {
-            return;
+        
+        AVIMTypedMessage *message = messages.lastObject;
+        NSLog(@"%hhd", message.mediaType);
+        if (message.mediaType == LeanCloudCustomMessageDanmu || message.mediaType == LeanCloudCustomMessageLivingLike || message.mediaType == LeanCloudCustomMessageLivingLike || message.mediaType == LeanCloudCustomMessageGoodsTop || message.mediaType == LeanCloudCustomMessageGoodsIssue || message.mediaType == LeanCloudCustomMessageLivingPause || message.mediaType == LeanCloudCustomMessageLivingStop) {
+            return ;
         }
-        if (messages.lastObject.mediaType == 3) {
-            return;
-        }
-        if (conversation.lcck_type == LCCKConversationTypeSingle) {
+        if (conversation.lcck_type == LCCKConversationTypeSingle || conversation.lcck_type == LCCKConversationTypeGroup) {
             completionHandler(messages, nil);
             return;
         }
@@ -364,7 +473,7 @@
 /**
  *  设置badge角标
  */
-+ (void)getUnreadCountWithIineUnreadCount:(NSInteger)lineUnreadCount
++ (void)getUnreadCountWithIineUnreadCount:(NSInteger)lineUnreadCount AndCallBack:(LCCKBooleanResultBlock)callBack
 {
       [[LCCKConversationListService sharedInstance] findRecentConversationsWithBlock:^(NSArray *conversations, NSInteger totalUnreadCount, NSError *error) {
           if (!error) {
@@ -375,11 +484,12 @@
                       badgeValue = LCCKBadgeTextForNumberGreaterThanLimit;
                   }
                   [YPCRequestCenter shareInstance].kUnReadMesCount = badgeValue;
-                  [HomeVC shareInstance].unReadMesCount = badgeValue;
               } else {
-                  [HomeVC shareInstance].unReadMesCount = nil;
+                  [YPCRequestCenter shareInstance].kUnReadMesCount = @"";
               }
-              
+              !callBack ?: callBack(YES, nil);
+          }else {
+              !callBack ?: callBack(NO, error);
           }
       }];
 }
@@ -397,9 +507,10 @@
                 badgeValue = LCCKBadgeTextForNumberGreaterThanLimit;
             }
             [YPCRequestCenter shareInstance].kUnReadMesCount = badgeValue;
-            [HomeVC shareInstance].unReadMesCount = badgeValue;
+            [UIApplication sharedApplication].applicationIconBadgeNumber = badgeValue.integerValue;
         } else {
-            [HomeVC shareInstance].unReadMesCount = nil;
+            [YPCRequestCenter shareInstance].kUnReadMesCount = @"";
+            [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
         }
     }];
 }

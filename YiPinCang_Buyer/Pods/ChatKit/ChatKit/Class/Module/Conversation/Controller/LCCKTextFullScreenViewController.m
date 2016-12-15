@@ -2,7 +2,7 @@
 //  LCCKTextFullScreenViewController.m
 //  LeanCloudIMKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/23.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/23.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -28,7 +28,7 @@ static void * const LCCKTextFullScreenViewContentSizeContext = (void*)&LCCKTextF
     if (!_displayTextView) {
         UITextView *displayTextView = [[UITextView alloc] initWithFrame:self.view.frame];
         [displayTextView addObserver:self forKeyPath:@"contentSize" options:(NSKeyValueObservingOptionNew) context:LCCKTextFullScreenViewContentSizeContext];
-        __unsafe_unretained typeof(self) weakSelf = self;
+        __unsafe_unretained __typeof(self) weakSelf = self;
         [self lcck_executeAtDealloc:^{
             [displayTextView removeObserver:weakSelf forKeyPath:@"contentSize"];
         }];

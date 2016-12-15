@@ -1226,13 +1226,17 @@ static inline NSString *cachePath() {
 //获取七牛的token
 + (void)getQiniuUploadToken:(void (^)(NSString *))success failure:(void (^)())failure {
     
-    [YPCNetworking postWithUrl:@"merchant/activity/imguploadqiniutoken" refreshCache:YES params:[YPCRequestCenter getUserInfo] success:^(id response) {
-        NSLog(@"%@", response);
-        success(response[@"data"][@"upload_token"]);
-        
-    } fail:^(NSError *error) {
-        failure();
-    }];
+    [YPCNetworking postWithUrl:@"common/user/imguploadqiniutoken"
+                  refreshCache:YES
+                        params:[YPCRequestCenter getUserInfo]
+                       success:^(id response) {
+                           NSLog(@"%@", response);
+                           success(response[@"data"][@"upload_token"]);
+                           
+                       }
+                          fail:^(NSError *error) {
+                              failure();
+                          }];
 }
 
 

@@ -9,10 +9,12 @@
 #import "GoodsMessageCell.h"
 #import "GoodsMessage.h"
 #import "GoodsMessageView.h"
+#import "OrderDetailModel.h"
+#import "OrderDetailVC.h"
 
 @interface GoodsMessageCell ()
 @property (nonatomic, weak) GoodsMessageView *gmView;
-//@property (nonatomic, strong) OdModel *dataModel;
+@property (nonatomic, strong) OrderDetailModel *dataModel;
 @end
 
 static CGFloat LCCK_MSG_SPACE_TOP = 10;
@@ -33,26 +35,26 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
 
 - (CGSize)sizeThatFits:(CGSize)size {
     
-    return CGSizeMake(size.width, 170.f);
+    return CGSizeMake(size.width, 190.f);
 }
 
 - (void)configureCellWithData:(AVIMTypedMessage *)message {
     [super configureCellWithData:message];
     
-//    [YPCNetworking postWithUrl:[YPCRequestCenter RequestAppendWithUrlString:@"merchant/orders/detail"]
-//                  refreshCache:YES
-//                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-//                                                                               @"order_id" : [message.attributes valueForKey:@"orderID"]
-//                                                                               }]
-//                       success:^(id response) {
-//                           if ([YPC_Tools judgeRequestAvailable:response]) {
-//                               self.dataModel = [OdModel mj_objectWithKeyValues:response[@"data"][@"order_info"]];
-//                               [self.gmView configureWithOdModel:self.dataModel];
-//                           }
-//                       }
-//                          fail:^(NSError *error) {
-//                              [YPC_Tools showSvpHudError:@"订单信息发送失败"];
-//                          }];
+    [YPCNetworking postWithUrl:@"shop/orders/detail"
+                  refreshCache:YES
+                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                               @"order_id" : [message.attributes valueForKey:@"orderID"]
+                                                                               }]
+                       success:^(id response) {
+                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                               self.dataModel = [OrderDetailModel mj_objectWithKeyValues:response[@"data"]];
+                               [self.gmView configureWithModel:self.dataModel];
+                           }
+                       }
+                          fail:^(NSError *error) {
+                              [YPC_Tools showSvpHudError:@"订单信息发送失败"];
+                          }];
 }
 
 + (void)load {
@@ -60,8 +62,7 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
 }
 
 + (AVIMMessageMediaType)classMediaType {
-    
-    return AVIMGoodsMessageType;
+    return LeanCloudCustomMessageGoods;
 }
 
 - (GoodsMessageView *)gmView
@@ -76,10 +77,10 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
         while (![ob isKindOfClass:[UIViewController class]] && ob != nil) {
             ob = [ob nextResponder];
         }
-//        UIViewController *currentVC = (LCCKBaseConversationViewController *)ob;
-//        OrderDetailVC *detailVC = [OrderDetailVC new];
-//        detailVC.tempOrder_id = self.dataModel.order_id;
-//        [currentVC.navigationController pushViewController:detailVC animated:YES];
+        UIViewController *currentVC = (LCCKBaseConversationViewController *)ob;
+        OrderDetailVC *detailVC = [OrderDetailVC new];
+        detailVC.order_id = self.dataModel.order_id;
+        [currentVC.navigationController pushViewController:detailVC animated:YES];
         
     }];
     [self.contentView addSubview:(_gmView = gmV)];

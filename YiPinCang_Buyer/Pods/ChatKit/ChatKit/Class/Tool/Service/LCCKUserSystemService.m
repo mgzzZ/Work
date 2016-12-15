@@ -2,7 +2,7 @@
 //  LCCKUserSystemService.m
 //  ChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/22.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -307,7 +307,21 @@ NSString *const LCCKUserSystemServiceErrorDomain = @"LCCKUserSystemServiceErrorD
 - (void)cacheUsers:(NSArray<id<LCCKUserDelegate>> *)users {
     if (users.count > 0) {
         for (id<LCCKUserDelegate> user in users) {
-            [self setUser:user forClientId:user.clientId];
+            @try {
+                [self setUser:user forClientId:user.clientId];
+            } @catch (NSException *exception) {
+                NSString *formatString = @"\n\n\
+                ------ BEGIN NSException Log ---------------\n \
+                class name: %@                              \n \
+                ------line: %@                              \n \
+                ----reason: %@                              \n \
+                ------ END -------------------------------- \n\n";
+                NSString *errorReasonText = [NSString stringWithFormat:formatString,
+                                             @(__PRETTY_FUNCTION__),
+                                             @(__LINE__),
+                                             @"User's clientId can not be nil, please make sure when you set `setFetchProfilesBlock:`"];
+                LCCKLog(@"%@", errorReasonText);
+            }
         }
     }
 }

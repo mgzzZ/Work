@@ -2,7 +2,7 @@
 //  LCCKConversationListCell.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/22.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -17,18 +17,18 @@
 
 #import "UIImageView+LCCKExtension.h"
 
-static CGFloat LCCKImageSize = 45;
-static CGFloat LCCKVerticalSpacing = 8;
+static CGFloat LCCKImageSize = 46;
+static CGFloat LCCKVerticalSpacing = 11;
 static CGFloat LCCKHorizontalSpacing = 10;
 static CGFloat LCCKTimestampeLabelWidth = 100;
 static CGFloat LCCKAutoResizingDefaultScreenWidth = 320;
-static CGFloat LCCKNameLabelHeightProportion = 3.0 / 5;
+static CGFloat LCCKNameLabelHeightProportion = 3.0 / 6;
 static CGFloat LCCKNameLabelHeight;
 static CGFloat LCCKMessageLabelHeight;
 static CGFloat LCCKLittleBadgeSize = 10;
 static CGFloat LCCKRemindMuteSize = 18;
 
-CGFloat const LCCKConversationListCellDefaultHeight = 61; //LCCKImageSize + LCCKVerticalSpacing * 2;
+CGFloat const LCCKConversationListCellDefaultHeight = 68; //LCCKImageSize + LCCKVerticalSpacing * 2;
 
 @interface LCCKConversationListCell ()
 

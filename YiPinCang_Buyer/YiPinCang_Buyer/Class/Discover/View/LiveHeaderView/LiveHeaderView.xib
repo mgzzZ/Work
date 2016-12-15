@@ -29,11 +29,11 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="265"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="liveHearder" translatesAutoresizingMaskIntoConstraints="NO" id="0Ls-vD-sO8">
+                <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0Ls-vD-sO8">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="265"/>
                 </imageView>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="do7-ck-Qpe">
-                    <rect key="frame" x="125.5" y="41" width="70" height="70"/>
+                    <rect key="frame" x="125" y="41" width="70" height="70"/>
                     <constraints>
                         <constraint firstAttribute="width" constant="70" id="H3A-9h-w6w"/>
                         <constraint firstAttribute="height" constant="70" id="moG-2B-L8D"/>
@@ -168,7 +168,6 @@
         </view>
     </objects>
     <resources>
-        <image name="liveHearder" width="375" height="156"/>
         <image name="livemembers_follow_icon" width="15" height="15"/>
         <image name="livemembers_privateletter_icon" width="15" height="15"/>
     </resources>

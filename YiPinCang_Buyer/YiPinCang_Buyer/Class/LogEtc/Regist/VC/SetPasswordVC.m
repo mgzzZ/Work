@@ -7,7 +7,7 @@
 //
 
 #import "SetPasswordVC.h"
-#import "RegistModel.h"
+#import "UserModel.h"
 #import "JPUSHService.h"
 #import "LeanChatFactory.h"
 
@@ -44,29 +44,53 @@
     }else if (_oldTextField.text.length == 0){
         [YPC_Tools showSvpWithNoneImgHud:@"请输入密码"];
     }else{
-        [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-            [YPCNetworking postWithUrl:@"shop/user/signup"
-                          refreshCache:YES
-                                params:@{
-                                         @"token" : _token,
-                                         @"password":_oldTextField.text,
-                                         @"registration_id" : registrationID
-                                         }
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       [YPCRequestCenter setUserInfoWithResponse:response];
-                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                           [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                           [weakSelf dismissViewControllerAnimated:YES completion:nil];
-                                       } failed:^(NSError *error) {
-                                           YPCAppLog(@"%@", [error description]);
-                                       }];
+        if (weakSelf.setType == SetPasswordBinding) {
+            [YPC_Tools showSvpHud];
+            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+                [YPCNetworking postWithUrl:@"shop/user/setpassword"
+                              refreshCache:YES
+                                    params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"password":_oldTextField.text,}]
+                                   success:^(id response) {
+                                       if ([YPC_Tools judgeRequestAvailable:response]) {
+                                           [YPC_Tools showSvpWithNoneImgHud:@"绑定手机号成功"];
+                                           dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                               [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                           });
+                                       }
                                    }
-                               }
-                                  fail:^(NSError *error) {
-                                      YPCAppLog(@"%@", [error description]);
-                                  }];
-        }];
+                                      fail:^(NSError *error) {
+                                          YPCAppLog(@"%@", [error description]);
+                                      }];
+            }];
+        }else {
+            [YPC_Tools showSvpHud];
+            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+                [YPCNetworking postWithUrl:@"shop/user/signup"
+                              refreshCache:YES
+                                    params:@{
+                                             @"token" : _token,
+                                             @"password":_oldTextField.text,
+                                             @"registration_id" : registrationID
+                                             }
+                                   success:^(id response) {
+                                       if ([YPC_Tools judgeRequestAvailable:response]) {
+                                           [YPCRequestCenter setUserInfoWithResponse:response];
+                                           [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                               [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                               [YPC_Tools dismissHud];
+                                               [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                           } failed:^(NSError *error) {
+                                               YPCAppLog(@"%@", [error description]);
+                                               [YPC_Tools showSvpWithNoneImgHud:@"注册失败"];
+                                           }];
+                                       }
+                                   }
+                                      fail:^(NSError *error) {
+                                          YPCAppLog(@"%@", [error description]);
+                                          [YPC_Tools showSvpWithNoneImgHud:@"注册失败"];
+                                      }];
+            }];
+        }
     }
 }
 - (IBAction)oldBtnClick:(UIButton *)sender {

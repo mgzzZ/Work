@@ -15,8 +15,8 @@
     // Initialization code
 }
 - (void)setModel:(GuessModel *)model{
-    [self.bgImg sd_setImageWithURL:[NSURL URLWithString:model.goods_image] placeholderImage:YPCImagePlaceHolder];
-    self.titleLab.text = model.gc_name;
+    [self.bgImg sd_setImageWithURL:[NSURL URLWithString:model.goods_image] placeholderImage:IMAGE(@"zhanweitu_img")];
+    self.titleLab.text = model.goods_name;
     self.priceLab.text = [NSString stringWithFormat:@"¥%@",model.goods_price];
 }
 @end

@@ -25,6 +25,7 @@ typedef NS_ENUM(NSUInteger, PageSubViewType){
     PageSubViewHistory = 0, // 足迹
     PageSubViewCollect, // 收藏
 };
+
 /**
  *  当前网络类型
  */
@@ -56,6 +57,30 @@ typedef NS_ENUM(NSUInteger, HomeStyleType){
     homeStyleChildren, // 商品详情
     homeStyleHousehold // 居家
 };
+
+/*!
+ *
+ *    conversationList系统消息类型
+ *
+ */
+typedef enum : NSUInteger {
+    LCMessageTypeSystem = 1,
+    LCMessageTypeOrder = 4,
+    LCMessageTypeActivity = 2,
+} LCMessageType;
+
+
+typedef int8_t LeanCloudCustomMessageType;
+enum : LeanCloudCustomMessageType {
+    LeanCloudCustomMessageGoods             = 1, // 商品消息
+    LeanCloudCustomMessageDanmu             = 2, // 弹幕暂态消息
+    LeanCloudCustomMessageLivingLike        = 3, // 直播间点赞暂停消息
+    LeanCloudCustomMessageGoodsTop          = 4, // 直播间商品弹出推荐暂态消息
+    LeanCloudCustomMessageGoodsIssue        = 5, // 直播间商品发布暂态消息
+    LeanCloudCustomMessageLivingPause       = 6, // 直播暂停暂态消息
+    LeanCloudCustomMessageLivingStop        = 7, // 直播停止暂态消息
+};
+
 /*!
  *
  *    首页活动状态类型

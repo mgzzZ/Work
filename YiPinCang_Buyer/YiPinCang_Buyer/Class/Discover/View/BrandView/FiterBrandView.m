@@ -83,10 +83,29 @@
     self.keysArr = [oldArray sortedArrayUsingSelector:@selector(compare:)];
     [self.tableView reloadData];
 }
-- (NSString *)tableView:(UITableView *)tableView titleForHeaderInSection:(NSInteger)section{
-    
-    return self.keysArr[section];
+
+
+- (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
+    return 15;
 }
+
+- (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 15)];
+    view.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    UILabel *lab = [[UILabel alloc]init];
+    [view addSubview:lab];
+    lab.textColor = [Color colorWithHex:@"0x2c2c2c"];
+    lab.font = [UIFont systemFontOfSize:13];
+    lab.textAlignment = NSTextAlignmentLeft;
+    lab.text = self.keysArr[section];
+    lab.sd_layout
+    .leftSpaceToView(view,15)
+    .topEqualToView(view)
+    .rightEqualToView(view)
+    .bottomEqualToView(view);
+    return view;
+}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return self.keysArr.count;
 }
@@ -119,7 +138,13 @@
     
     cell.dataArr = [arr mutableCopy][indexPath.row];
     if (indexPath.row == 0) {
-        cell.type = @"brand";
+        if (self.type == Brand) {
+            cell.typeEnum = BrandCell;
+        }else{
+            cell.typeEnum = FindCell;
+            
+        }
+        
         cell.bgColor = [Color colorWithHex:@"0xf0f0f0"];
         cell.didseleteCell = ^(NSIndexPath *indexPath1){
            weakSelf.oldRow = indexPath1.row;
@@ -152,7 +177,7 @@
             [weakSelf deleteOldCell:indexPath];
         };
     }else{
-        cell.type = @"brandNext";
+        cell.typeEnum = BindCell;
         cell.bgColor = [UIColor whiteColor];
     }
     cell.backIdCell = ^(NSString *type,NSString *cid){
@@ -162,6 +187,11 @@
             weakSelf.bind = cid;
         }
     };
+    if (self.type == Find) {
+        if (self.backId) {
+            self.backId(self.brand,self.bind);
+        }
+    }
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     return cell;
 }

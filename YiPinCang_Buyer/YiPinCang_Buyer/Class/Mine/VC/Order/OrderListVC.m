@@ -13,12 +13,12 @@
 #import "OrderListModel.h"
 #import "DiscoverDetailVC.h"
 #import "ChoosePayVC.h"
-@interface OrderListVC ()<UITableViewDelegate,UITableViewDataSource>
+@interface OrderListVC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)UITableView *tableView;
 
 @property (nonatomic,copy)NSString *page;
 @property (nonatomic,strong)NSMutableArray *dataArr;
-
+@property (nonatomic,assign)BOOL ishave;
 @end
 
 @implementation OrderListVC
@@ -52,6 +52,7 @@
  */
 - (void)initVar{
     _page = @"1";
+    _ishave = NO;
     self.dataArr = [[NSMutableArray alloc]init];
     if (_orderType) {
         self.navigationItem.title = @"我的订单";
@@ -89,28 +90,29 @@
     self.tableView = [[UITableView alloc]init];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
+    self.tableView.emptyDataSetDelegate = self;
+    self.tableView.emptyDataSetSource = self;
     [self.view addSubview:self.tableView];
     self.tableView.tableFooterView = [UIView new];
     self.tableView.separatorStyle = NO;
     self.tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
     self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     WS(weakSelf);
-    _tableView.mj_header = [MJRefreshHeader headerWithRefreshingBlock:^{
+    [weakSelf addMjRefresh];
+
+   
+}
+#pragma mark - 刷新加载
+- (void)addMjRefresh
+{
+    WS(weakSelf);
+    self.tableView.mj_header = [YPCRefreshHeader headerWithRefreshingBlock:^{
         weakSelf.page = @"1";
-        [weakSelf.dataArr removeAllObjects];
         [weakSelf getDataWithType:weakSelf.orderType page:weakSelf.page];
-        [weakSelf.tableView.mj_header endRefreshing];
-    }];
-    _tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-        
-        weakSelf.page = [NSString stringWithFormat:@"%zd",weakSelf.page.integerValue + 1];
-        [weakSelf getDataWithType:weakSelf.orderType page:weakSelf.page];
-        [weakSelf.tableView.mj_footer endRefreshing];
-        
     }];
 }
-
 - (void)getDataWithType:(NSString *)type page:(NSString *)page{
+     WS(weakSelf);
     [YPCNetworking postWithUrl:@"shop/orders/list"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -121,14 +123,26 @@
                                                                                @"type":type
                                                                                }]
                        success:^(id response) {
-                           
-                           NSMutableArray *arr = [OrderListModel mj_objectArrayWithKeyValuesArray:response [@"data"]];
-                           [self.dataArr addObjectsFromArray:arr];
-                           if (!arr) {
-                               [self.tableView.mj_footer endRefreshingWithNoMoreData];
+                           if ([weakSelf.page isEqualToString:@"1"]) {
+                               [weakSelf.dataArr removeAllObjects];
                            }
-                           [self.tableView reloadData];
-                           
+                           NSMutableArray *arr = [OrderListModel mj_objectArrayWithKeyValuesArray:response [@"data"]];
+                           [weakSelf.dataArr addObjectsFromArray:arr];
+                           if (weakSelf.dataArr.count != 0 && _ishave == NO) {
+                               _ishave = YES;
+                               weakSelf.tableView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+                                   
+                                   weakSelf.page = [NSString stringWithFormat:@"%zd",weakSelf.page.integerValue + 1];
+                                   [weakSelf getDataWithType:weakSelf.orderType page:weakSelf.page];
+                                   [weakSelf.tableView.mj_footer endRefreshing];
+                                  
+                               }];
+                           }
+                           if (arr.count < 10) {
+                               [weakSelf.tableView.mj_footer endRefreshingWithNoMoreData];
+                           }
+                           [weakSelf.tableView reloadData];
+                            [weakSelf.tableView.mj_header endRefreshing];
                        }
                           fail:^(NSError *error) {
                               
@@ -195,6 +209,31 @@
     order.order_id = model.order_id;
     [self.navigationController pushViewController:order animated:YES];
 }
+
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_order_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"您还没有相关订单";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+}
+
 - (void)gotoOrderDetail{
     [self getDataWithType:@"state_pay" page:@"1"];
 
@@ -269,10 +308,9 @@
                                                                                @"order_id":model.order_id
                                                                                }]
                        success:^(id response) {
-                           
                            model.order_state = @"state_noeval";
+                           [weakself addMjRefresh];
                            [weakself.tableView reloadData];
-                           
                            
                        }
                           fail:^(NSError *error) {

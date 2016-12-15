@@ -14,7 +14,7 @@
 #import "DiscoverBrandLiskModel.h"
 #import "DiscoverLivegoodsModel.h"
 #import "BrandFlowLayout.h"
-@interface LiveSctivityView ()<UICollectionViewDelegate,UICollectionViewDataSource>
+@interface LiveSctivityView ()<UICollectionViewDelegate,UICollectionViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)FiterBrandView *fiterBrandView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,strong)TopView *topView;
@@ -32,18 +32,23 @@
 @property (nonatomic,copy)NSString *brand;
 @property (nonatomic,copy)NSString *bind;
 @property (nonatomic,copy)NSString *page;
+@property (nonatomic,assign)BOOL isHave;
 @end
 
 @implementation LiveSctivityView
 
 + (LiveSctivityView *)contentTableView{
     BrandFlowLayout * layout = [[BrandFlowLayout alloc]init];
+    layout.naviHeight = 50;
     layout.headerReferenceSize = CGSizeMake(ScreenWidth, 42);
     LiveSctivityView *contentTV = [[LiveSctivityView alloc]initWithFrame:CGRectZero collectionViewLayout:layout];
     contentTV.backgroundColor = [UIColor whiteColor];
     contentTV.dataSource = contentTV;
     contentTV.delegate = contentTV;
-
+    contentTV.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    contentTV.isHave = NO;
+    contentTV.emptyDataSetSource = contentTV;
+    contentTV.emptyDataSetDelegate = contentTV;
     [contentTV registerNib:[UINib nibWithNibName:NSStringFromClass([LiveDetailLiveActivityCell class]) bundle:nil] forCellWithReuseIdentifier:@"LiveDetailLiveActivityCell"];
     [contentTV registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
     return contentTV;
@@ -60,7 +65,7 @@
     self.page = @"1";
     self.listorder = @"0";
     [self getData:self.page isRefresh:YES];
-    [self upRefresh];
+    
     [self getDataOfBrand];
    
 }
@@ -80,19 +85,24 @@
                                  }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                               if (isRefresh) {
+                                   [weakSelf.dataArr removeAllObjects];
+                               }
+                               NSMutableArray *arr = [LiveActivityModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               [weakSelf.dataArr addObjectsFromArray:arr];
+                               if (weakSelf.dataArr.count != 0 && weakSelf.isHave == NO) {
+                                   [weakSelf upRefresh];
+                                   weakSelf.isHave = YES;
+                               }
+                               [weakSelf reloadData];
+                               if (arr.count < 10) {
+                                   [weakSelf.mj_footer endRefreshingWithNoMoreData];
+                               }else{
+                                   [weakSelf.mj_footer endRefreshing];
+                               }
+                               [weakSelf.mj_header endRefreshing];
                            }
-                           if (isRefresh) {
-                               [weakSelf.dataArr removeAllObjects];
-                           }
-                            NSMutableArray *arr = [LiveActivityModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                           [weakSelf.dataArr addObjectsFromArray:arr];
-                           [weakSelf reloadData];
-                           if (arr.count < 10) {
-                               [weakSelf.mj_footer endRefreshingWithNoMoreData];
-                           }else{
-                               [weakSelf.mj_footer endRefreshing];
-                           }
-                           [weakSelf.mj_header endRefreshing];
+                           
                            
                        }
                           fail:^(NSError *error) {
@@ -136,8 +146,9 @@
     WS(weakSelf);
     if (_fiterBrandView == nil) {
         _fiterBrandView = [[FiterBrandView alloc]init];
+        _fiterBrandView.type = Brand;
         [self addSubview:self.fiterBrandView];
-        self.fiterBrandView.sd_layout.topSpaceToView(self,42)
+        self.fiterBrandView.sd_layout.topSpaceToView(self,62)
         .leftEqualToView(self)
         .rightEqualToView(self)
         .heightIs(0);
@@ -211,12 +222,13 @@
     if (kind == UICollectionElementKindSectionHeader)
     {
         UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
-        self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 42)];
+        self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, -20, ScreenWidth, 42)];
         self.topView.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
         self.topView.bgView.layer.borderWidth = 1;
         [self.topView.priceBtn addTarget:self action:@selector(priceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.topView.brandBtn addTarget:self action:@selector(brandBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         [self.topView.otherBtn addTarget:self action:@selector(otherBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        [self.topView.recommendBtn addTarget:self action:@selector(recommendBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         if ([self.listorder isEqualToString:@"1"]) {
           
             [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
@@ -277,18 +289,29 @@
     }
 }
 #pragma mark- btn action
+- (void)recommendBtnClick:(UIButton *)sender{
+    sender.selected = NO;
+     [self chooseHiden];
+    self.listorder = @"0";
+    self.page = @"1";
+    [self getData:self.page isRefresh:YES];
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+}
 - (void)priceBtnClick:(UIButton *)sender{
     sender.selected = YES;
     self.topView.brandBtn.selected = NO;
     self.topView.otherBtn.selected = NO;
+    self.topView.recommendBtn.selected = YES;
     [self chooseHiden];
     [self segBrandViewHidenNo:self.sectionArr];
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
 }
 
 - (void)brandBtnClick:(UIButton *)sender{
     
     self.topView.priceBtn.selected = NO;
     self.topView.otherBtn.selected = NO;
+    self.topView.recommendBtn.selected = YES;
     if ([self.listorder isEqualToString:@"0"]) {
         self.listorder = @"1";
         [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
@@ -307,13 +330,16 @@
     if (sender.selected == NO) {
         self.listorder = @"3";
         sender.selected = YES;
+        self.topView.recommendBtn.selected = YES;
     }else{
         self.listorder = @"0";
         sender.selected = NO;
+        self.topView.recommendBtn.selected = NO;
     }
     [self chooseHiden];
     self.page = @"1";
     [self getData:self.page isRefresh:YES];
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
 }
 - (void)cancelClick:(UIGestureRecognizer *)sender{
     self.topView.otherBtn.selected = NO;
@@ -384,7 +410,12 @@
     self.btnType = @"2";
 }
 
-
+- (void)scrollViewDidScroll:(UIScrollView *)scrollView{
+    if (self.bgView.hidden == NO) {
+        [self segBrandViewHiden];
+    }
+    
+}
 #pragma mark - 懒加载
 
 
@@ -397,7 +428,7 @@
         
         _tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(cancelClick:)];
         _bgView.sd_layout
-        .topSpaceToView(self,42)
+        .topSpaceToView(self,62)
         .leftEqualToView(self)
         .rightEqualToView(self)
         .bottomEqualToView(self);
@@ -426,5 +457,28 @@
         _valueArr = [[NSMutableArray alloc]init];
     }
     return _valueArr;
+}
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_livememberinformation_activitygoods_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"暂未找到您想要的商品";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 @end

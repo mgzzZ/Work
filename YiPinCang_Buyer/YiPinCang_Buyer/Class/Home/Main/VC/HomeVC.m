@@ -19,7 +19,9 @@
 #import "IndexModel.h"
 #import "ShoppingCarVC.h"
 #import "TempHomePushModel.h"
-
+#import "DiscoverDetailVC.h"
+#import "LiveDetailHHHVC.h"
+#import "DiscoverDetailNewVC.h"
 /*
  * 滚动类型
  */
@@ -52,8 +54,9 @@ static BOOL Debug = NO;
 @property (nonatomic, strong) NSMutableArray *tableDataArr; // tableview主数据
 @property (nonatomic, strong) NSMutableArray *endActivityDataArr; // 结束活动推荐商品数据
 
+@property (nonatomic, strong) UILabel *naviTitleLbl;
 @property (nonatomic, strong) UIButton *naviShopCar;
-@property (nonatomic, strong) UIButton *naviMesCar;
+@property (nonatomic, strong) UIButton *naviMesBtn;
 
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) IBOutlet SDCycleScrollView *bannerView;
@@ -74,24 +77,6 @@ static NSString *LivingIdentifier =   @"livingCell";
 static NSString *PreHeartIdentifier = @"preheartCell";
 static NSString *EndIdentifier =      @"endCell";
 @implementation HomeVC
-
-#pragma mark - 单例Instance
-+ (instancetype)shareInstance
-{
-    static HomeVC* _instance = nil;
-    static dispatch_once_t onceToken;
-    dispatch_once(&onceToken, ^{
-        _instance = [[HomeVC alloc] init];
-    });
-    return _instance;
-}
-- (void)setUnReadMesCount:(NSString *)unReadMesCount
-{
-    _unReadMesCount = unReadMesCount;
-    if (self.naviMesCar) {
-        self.naviMesCar.badgeValue = _unReadMesCount;
-    }
-}
 
 #pragma mark - 懒加载
 - (NSMutableArray *)bannerDataArr
@@ -122,9 +107,11 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - VC生命周期周期
 - (void)viewDidLoad {
     [super viewDidLoad];
+    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleLightContent animated:YES];
     self.automaticallyAdjustsScrollViewInsets = NO;
-    self.navigationController.navigationBar.subviews.firstObject.alpha = 0.f;
-    self.title = @"壹品仓-品牌仓储特卖";
+    [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
+    [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
+    [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
     
     sectionHeight = 42.f;
     tvHeaderViewHeight = ScreenHeight / 100 * 29;
@@ -140,10 +127,11 @@ static NSString *EndIdentifier =      @"endCell";
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
-//    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
     [self.bannerView adjustWhenControllerViewWillAppera];
     if ([YPCRequestCenter isLogin]) {
+        self.naviMesBtn.littleRedBadgeValue = [YPCRequestCenter shareInstance].kUnReadMesCount;
         self.naviShopCar.badgeValue = [YPCRequestCenter shareInstance].kShopingCarCount;
+        [self getData];
     }
 }
 - (void)viewDidDisappear:(BOOL)animated
@@ -169,6 +157,14 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - Config
 - (void)setupNaviConfig
 {
+    self.naviTitleLbl = [UILabel new];
+    self.naviTitleLbl.alpha = 0;
+    self.naviTitleLbl.text = @"壹品仓-品牌仓储特卖";
+    self.naviTitleLbl.font = BoldFont(18);
+    self.naviTitleLbl.textColor = [UIColor whiteColor];
+    [self.naviTitleLbl sizeToFit];
+    self.navigationItem.titleView = self.naviTitleLbl;
+    
     self.naviShopCar = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.naviShopCar setImage:IMAGE(@"mine_icon_cart") forState:UIControlStateNormal];
     self.naviShopCar.acceptEventInterval = 1.f;
@@ -177,17 +173,16 @@ static NSString *EndIdentifier =      @"endCell";
                          action:@selector(shopCarClickAction)
                forControlEvents:UIControlEventTouchUpInside];
     
-    self.naviMesCar = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.naviMesCar setImage:IMAGE(@"mine_icon_inform") forState:UIControlStateNormal];
-    self.naviMesCar.acceptEventInterval = 1.f;
-    self.naviMesCar.badgeValue = self.unReadMesCount;
-    [self.naviMesCar sizeToFit];
-    [self.naviMesCar addTarget:self
+    self.naviMesBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.naviMesBtn setImage:IMAGE(@"mine_icon_inform") forState:UIControlStateNormal];
+    self.naviMesBtn.acceptEventInterval = 1.f;
+    [self.naviMesBtn sizeToFit];
+    [self.naviMesBtn addTarget:self
                         action:@selector(mesBtnClickAction)
               forControlEvents:UIControlEventTouchUpInside];
     
     UIBarButtonItem *shopCarItem = [[UIBarButtonItem alloc] initWithCustomView:self.naviShopCar];
-    UIBarButtonItem *mesItem = [[UIBarButtonItem alloc] initWithCustomView:self.naviMesCar];
+    UIBarButtonItem *mesItem = [[UIBarButtonItem alloc] initWithCustomView:self.naviMesBtn];
     self.navigationItem.rightBarButtonItem = shopCarItem;
     self.navigationItem.leftBarButtonItem = mesItem;
 }
@@ -200,7 +195,7 @@ static NSString *EndIdentifier =      @"endCell";
 //    self.bannerView.titlesGroup = titles;
     self.bannerView.autoScrollTimeInterval = 4.f;
     self.bannerView.currentPageDotColor = [UIColor yellowColor]; // 自定义分页控件小圆标颜色
-    self.bannerView.placeholderImage = YPCImagePlaceHolder;
+    self.bannerView.placeholderImage = IMAGE(@"homepage_banner_zhanweitu");
     [self.tableView setTableHeaderView:self.bannerView];
 }
 
@@ -208,7 +203,7 @@ static NSString *EndIdentifier =      @"endCell";
 - (void)addMjRefresh
 {
     WS(weakSelf);
-    self.tableView.mj_header = [MJRefreshNormalHeader headerWithRefreshingBlock:^{
+    self.tableView.mj_header = [YPCRefreshHeader headerWithRefreshingBlock:^{
         [weakSelf getDataWithBanner];
     }];
 }
@@ -216,9 +211,37 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - 数据获取
 - (void)getDataWithBanner
 {
+    NSString *type = @"";
+    switch ([YPCRequestCenter shareInstance].homeStyleType) {
+        case homeStyleFemale:
+        {
+            type = @"2";
+        }
+            break;
+        case homeStyleMale:
+        {
+            type = @"1";
+        }
+            break;
+        case homeStyleChildren:
+        {
+            type =@"3";
+        }
+            break;
+        case homeStyleHousehold:
+        {
+            type = @"4";
+        }
+            break;
+            
+        default:
+            break;
+    }
+
     WS(weakSelf);
     [YPCNetworking getWithUrl:@"shop/home/data"
                  refreshCache:YES
+                       params:@{@"type":type}
                       success:^(id response) {
                           if ([YPC_Tools judgeRequestAvailable:response]) {
                               weakSelf.bannerDataArr = [BannerModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"banners"]];
@@ -266,7 +289,26 @@ static NSString *EndIdentifier =      @"endCell";
                              YPCAppLog(@"%@", [error description]);
                          }];
 }
-
+// 购物车数量
+- (void)getData{
+    WS(weakSelf);
+    
+    [YPCNetworking postWithUrl:@"shop/user/notify"
+                  refreshCache:YES
+                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{}]
+                       success:^(id response) {
+                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                               NSString *cart = response[@"data"][@"cart_num"];
+                               
+                               weakSelf.naviShopCar.badgeValue = cart;
+                           }
+                           
+                           
+                       }
+                          fail:^(NSError *error) {
+                              YPCAppLog(@"%@", [error description]);
+                          }];
+}
 #pragma mark - 网络状态判断是否播放视频
 - (void)judgeCurrentNetworkIsAutoPlayVideos
 {
@@ -335,12 +377,14 @@ static NSString *EndIdentifier =      @"endCell";
     cell.videoPath = [self.tableDataArr[indexPath.row] video];
     cell.tempModel = self.tableDataArr[indexPath.row];
     cell.indexPath = indexPath;
-    if ([self.playingIndexPath isEqual:indexPath] && cell.autoPlayStyle != NotAutoPlayCellStyle) {
+//    if ([self.playingIndexPath isEqual:indexPath] && cell.autoPlayStyle != NotAutoPlayCellStyle) {
+    if ([self.playingIndexPath isEqual:indexPath]) {
         cell.isImgPHViewHidden = YES;
     }else {
         cell.isImgPHViewHidden = NO;
     }
-    if (self.networkType == CurrentNetWorkWifi && cell.autoPlayStyle != NotAutoPlayCellStyle) {
+//    if (self.networkType == CurrentNetWorkWifi && cell.autoPlayStyle != NotAutoPlayCellStyle) {
+    if (self.networkType == CurrentNetWorkWifi) {
         cell.playBtn.hidden = YES;
     }else {
         cell.playBtn.hidden = NO;
@@ -534,7 +578,8 @@ static NSString *EndIdentifier =      @"endCell";
         }
     }
     // 注意, 如果正在播放的cell和finnalCell是同一个cell, 不应该在播放
-    if (self.playingCell != finnalCell && finnalCell != nil && finnalCell.autoPlayStyle != NotAutoPlayCellStyle) {
+//    if (self.playingCell != finnalCell && finnalCell != nil && finnalCell.autoPlayStyle != NotAutoPlayCellStyle) {
+    if (self.playingCell != finnalCell && finnalCell != nil && finnalCell.autoPlayStyle) {
         self.playingCell.nowifiImgPHView.hidden = NO;
         [UIView animateWithDuration:.2f animations:^{
             self.playingCell.nowifiImgPHView.alpha = 1;
@@ -585,19 +630,25 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - BannerViewDelegate
 - (void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index
 {
-    switch ([YPC_Tools judgementUrlSechmeTypeWithUrlString:(NSString *)[self.bannerDataArr[index] url]]) {
+    BannerModel *model = self.bannerDataArr[index];
+    BannerDetailModel *detailModel = model.param;
+        switch ([YPC_Tools judgementUrlSechmeTypeWithUrlString:(NSString *)[self.bannerDataArr[index] url]]) {
         case urlSechmeWebView:
             [self pushWebViewAction:index]; // 加载网页
             break;
         case urlSechmeGoodsDetail:
-            [YPC_Tools customAlertViewWithTitle:@"Tip"
-                                        Message:@"商品详情"
-                                      BtnTitles:nil
-                                 CancelBtnTitle:nil
-                            DestructiveBtnTitle:@"确定"
-                                  actionHandler:nil
-                                  cancelHandler:nil
-                             destructiveHandler:nil];
+        {
+            DiscoverDetailVC *discoverDetail = [[DiscoverDetailVC alloc]init];
+            discoverDetail.strace_id = detailModel.data.strace_id;
+            discoverDetail.live_id = @"";
+            if ([detailModel.type isEqualToString:@"livegoods"]) {
+                discoverDetail.typeStr = @"淘好货";
+            }else{
+                discoverDetail.typeStr = @"品牌";
+            }
+            discoverDetail.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:discoverDetail animated:YES];
+        }
             
             break;
         case urlSechmeActivityDeatail:
@@ -611,24 +662,20 @@ static NSString *EndIdentifier =      @"endCell";
                              destructiveHandler:nil];
             break;
         case urlSechmeLivingGroupDetail:
-            [YPC_Tools customAlertViewWithTitle:@"Tip"
-                                        Message:@"直播组详情"
-                                      BtnTitles:nil
-                                 CancelBtnTitle:nil
-                            DestructiveBtnTitle:@"确定"
-                                  actionHandler:nil
-                                  cancelHandler:nil
-                             destructiveHandler:nil];
+        {
+            LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+            live.store_id = detailModel.data.store_id;
+            live.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:live animated:YES];
+        }
             break;
         case urlSechmeBrandDetail:
-            [YPC_Tools customAlertViewWithTitle:@"Tip"
-                                        Message:@"品牌详情"
-                                      BtnTitles:nil
-                                 CancelBtnTitle:nil
-                            DestructiveBtnTitle:@"确定"
-                                  actionHandler:nil
-                                  cancelHandler:nil
-                             destructiveHandler:nil];
+        {
+            DiscoverDetailNewVC *dis = [[DiscoverDetailNewVC alloc]init];
+            dis.live_id = detailModel.data.live_id;
+            dis.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:dis animated:YES];
+        }
             break;
             
         default:
@@ -641,8 +688,7 @@ static NSString *EndIdentifier =      @"endCell";
 {
     WebViewController *webVC = [WebViewController new];
     webVC.navTitle = [self.bannerDataArr[atIndex] adv_title];
-//    webVC.homeUrl = [NSURL URLWithString:(NSString *)[self.bannerDataArr[atIndex] url]];
-    webVC.homeUrl = @"http://www.baidu.com";
+    webVC.homeUrl = [NSString stringWithFormat:@"%@",[self.bannerDataArr[atIndex] url]];
     webVC.hidesBottomBarWhenPushed = YES;
     [self.navigationController pushViewController:webVC animated:YES];
 }
@@ -659,31 +705,8 @@ static NSString *EndIdentifier =      @"endCell";
 - (void)mesBtnClickAction
 {
     if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-        LCCKConversationListViewController *mesVC = [LCCKConversationListViewController new];
-        [UINavigationBar appearance].backIndicatorTransitionMaskImage = IMAGE(@"logon_icon_return");
-        [UINavigationBar appearance].backIndicatorImage = IMAGE(@"logon_icon_return");
-        [mesVC setViewDidLoadBlock:^(__kindof LCCKBaseViewController *viewController) {
-            viewController.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
-            viewController.navigationController.navigationBar.translucent = YES;
-            [viewController.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:BoldFont(18),NSForegroundColorAttributeName:[UIColor whiteColor]}];
-            viewController.title = @"消息中心";
-            
-            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-            [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
-            [button sizeToFit];
-            [button addTarget:self
-                       action:@selector(naviRightAction:)
-             forControlEvents:UIControlEventTouchUpInside];
-            UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-            viewController.navigationItem.leftBarButtonItem = editItem;
-        }];
-        mesVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:mesVC animated:YES];
+        [YPC_Tools pushConversationListViewController:self];
     }
-}
-- (void)naviRightAction:(UIButton *)sender
-{
-    [[YPC_Tools getControllerWithView:self].navigationController popViewControllerAnimated:YES];
 }
 - (void)sectionBtnClickAction:(UIButton *)btn
 {
@@ -747,7 +770,7 @@ static NSString *EndIdentifier =      @"endCell";
         return startCellHeight;
     }else if ([type isEqualToString:KEY_End_Activity]) {
         if (model.goods_data.count > 0) {
-            endCellHeight = ScreenWidth / 100 * 71 + 97.f + (ScreenWidth - 14) / 3 - 15 + 50;
+            endCellHeight = ScreenWidth / 100 * 71 + 97.f + (ScreenWidth - 14) / 3 - 15 + 40;
             return endCellHeight;
         }else {
             endCellHeight = ScreenWidth / 100 * 71 + 97.f;
@@ -839,13 +862,13 @@ static NSString *EndIdentifier =      @"endCell";
         self.sectionImgV = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 42.f)];
         self.sectionImgV.userInteractionEnabled = YES;
         if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleMale) {
-            self.sectionImgV.image = IMAGE(@"homepage_menubar_video playing_men");
+            self.sectionImgV.image = IMAGE(@"homepage_man_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleFemale) {
-            self.sectionImgV.image = IMAGE(@"homepage_menubar_video playing_women");
+            self.sectionImgV.image = IMAGE(@"homepage_woman_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            self.sectionImgV.image = IMAGE(@"homepage_meunbar_video playing_children");
+            self.sectionImgV.image = IMAGE(@"homepage_children_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleHousehold) {
-            self.sectionImgV.image = IMAGE(@"");
+            self.sectionImgV.image = IMAGE(@"homepage_home_live_button");
         }
         
         _button1 = [UIButton buttonWithType:UIButtonTypeCustom];
@@ -894,9 +917,11 @@ static NSString *EndIdentifier =      @"endCell";
 {
     if (point.y > tvHeaderViewHeight - 64) {
         CGFloat alpha = MIN(1, 1 - ((tvHeaderViewHeight - point.y) / 64));
-        self.navigationController.navigationBar.subviews.firstObject.alpha = alpha;
+        [self.navigationController.navigationBar mz_setBackgroundAlpha:alpha];
+        self.naviTitleLbl.alpha = alpha;
     }else{
-        self.navigationController.navigationBar.subviews.firstObject.alpha = 0;
+        [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+        self.naviTitleLbl.alpha = 0.f;
     }
     
     CGFloat h1 = [self getCellHeightWithIndexModel:_indexModel1];
@@ -915,9 +940,9 @@ static NSString *EndIdentifier =      @"endCell";
             _button1.titleLabel.font = BoldFont(16);
             _button2.titleLabel.font = LightFont(16);
             _button3.titleLabel.font = LightFont(16);
-            [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button2 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button3 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button2 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button3 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         }
     }else if (point.y > h1 && point.y < h1 + h2) {
         if (![[self getTypeImageWithIndexModel:_indexModel2] isEqual:self.sectionImgV.image]) {
@@ -931,9 +956,9 @@ static NSString *EndIdentifier =      @"endCell";
             _button1.titleLabel.font = LightFont(16);
             _button2.titleLabel.font = BoldFont(16);
             _button3.titleLabel.font = LightFont(16);
-            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         }
     }else{
         if (![[self getTypeImageWithIndexModel:_indexModel3] isEqual:self.sectionImgV.image]) {
@@ -947,9 +972,9 @@ static NSString *EndIdentifier =      @"endCell";
             _button1.titleLabel.font = LightFont(16);
             _button2.titleLabel.font = LightFont(16);
             _button3.titleLabel.font = BoldFont(16);
-            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         }
     }
 }
@@ -980,21 +1005,29 @@ static NSString *EndIdentifier =      @"endCell";
 - (UIImage *)getTypeImageWithIndexModel:(IndexModel *)model
 {
     if ([model.type isEqualToString:KEY_Will_Activity]) {
-        return IMAGE(@"homepage_menubar_advance notice");
+        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
+            return IMAGE(@"homepage_childen_advance_button");
+        }else {
+            return IMAGE(@"homepage_womanhome_advance_button");
+        }
     }else if ([model.type isEqualToString:KEY_Start_Activity]) {
         if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleMale) {
-            return IMAGE(@"homepage_menubar_video playing_men");
+            return IMAGE(@"homepage_man_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleFemale) {
-            return IMAGE(@"homepage_menubar_video playing_women");
+            return IMAGE(@"homepage_woman_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            return IMAGE(@"homepage_meunbar_video playing_children");
+            return IMAGE(@"homepage_children_live_button");
         }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleHousehold) {
-            return IMAGE(@"");
+            return IMAGE(@"homepage_home_live_button");
         }else {
             return nil;
         }
     }else if ([model.type isEqualToString:KEY_End_Activity]) {
-        return IMAGE(@"homepage_meunbar_endplaying");
+        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
+            return IMAGE(@"homepage_childen_over_button");
+        }else{
+            return IMAGE(@"homepage_home_over_button");
+        }
     }else {
         return nil;
     }

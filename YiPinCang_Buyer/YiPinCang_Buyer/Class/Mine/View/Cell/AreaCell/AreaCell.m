@@ -27,7 +27,7 @@
 
     }else{
         self.chooseBtn.selected = NO;
-        self.areaLab.text = model.address;
+        self.areaLab.text = [NSString stringWithFormat:@"%@%@",model.area_info,model.address];
     }
 }
 

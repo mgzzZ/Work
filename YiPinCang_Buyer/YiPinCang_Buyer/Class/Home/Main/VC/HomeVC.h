@@ -10,7 +10,4 @@
 
 @interface HomeVC : UIViewController
 
-+ (instancetype)shareInstance;
-@property (nonatomic, copy) NSString *unReadMesCount; // 未读消息数量
-
 @end

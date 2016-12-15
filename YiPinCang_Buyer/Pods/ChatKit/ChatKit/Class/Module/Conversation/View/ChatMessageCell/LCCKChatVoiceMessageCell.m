@@ -2,7 +2,7 @@
 //  LCCKChatVoiceMessageCell.m
 //  LCCKChatExample
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) ( https://github.com/leancloud/ChatKit-OC ) on 15/11/16.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) ( https://github.com/leancloud/ChatKit-OC ) on 15/11/16.
 //  Copyright © 2015年 https://LeanCloud.cn . All rights reserved.
 //
 
@@ -81,7 +81,7 @@ static void * const LCCKChatVoiceMessageCellVoiceMessageStateContext = (void*)&L
     [self addGeneralView];
     self.voiceMessageState = LCCKVoiceMessageStateNormal;
     [[LCCKAVAudioPlayer sharePlayer]  addObserver:self forKeyPath:@"audioPlayerState" options:NSKeyValueObservingOptionNew context:LCCKChatVoiceMessageCellVoiceMessageStateContext];
-    __unsafe_unretained typeof(self) weakSelf = self;
+    __unsafe_unretained __typeof(self) weakSelf = self;
     [self lcck_executeAtDealloc:^{
         [[LCCKAVAudioPlayer sharePlayer] removeObserver:weakSelf forKeyPath:@"audioPlayerState"];
     }];

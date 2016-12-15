@@ -27,7 +27,7 @@
     self.navigationItem.title = @"开具发票";
     self.InvTypeBtn.selected = YES;
     self.detailsBtn.selected = YES;
-    self.saveBrn.enabled = NO;
+    
     if ([self.str isEqualToString:@"个人"]) {
         self.personBtn.selected = YES;
     }else if ([self.str isEqualToString:@"不需要发票"]){
@@ -58,7 +58,7 @@
                                    self.backname(self.inv_title,inv_id);
                                }
                            }
-                           
+
                        }
                           fail:^(NSError *error) {
                               
@@ -92,7 +92,10 @@
         self.saveBrn.enabled = NO;
     }
 }
-
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [self.textField resignFirstResponder];
+    return YES;
+}
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

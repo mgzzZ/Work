@@ -27,7 +27,30 @@ static CGFloat badgeValue_height = 17;
         // 创建红点
         UIButton *redBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, rect.size.width > badgeValue_height ? rect.size.width + 6 : badgeValue_height, badgeValue_height)];
         redBtn.center = CGPointMake(self.frame.size.width, 0);
-        redBtn.tag = 1008611;
+        redBtn.tag = 451467999;
+        redBtn.layer.cornerRadius = badgeValue_height / 2;
+        redBtn.layer.masksToBounds = YES;
+        redBtn.titleLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+        
+        redBtn.backgroundColor = [UIColor redColor];
+        [redBtn setTitle:badgeValue forState:UIControlStateNormal];
+        [self addSubview:redBtn];
+    }
+}
+
+- (void)setWhiteLayerbadgeValue:(NSString *)WhiteLayerbadgeValue
+{
+    objc_setAssociatedObject(self, &badgeValue_static, WhiteLayerbadgeValue, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    if (WhiteLayerbadgeValue == nil || [WhiteLayerbadgeValue isEqualToString:@""] || WhiteLayerbadgeValue.integerValue <= 0) {
+        [self clearBadgeValue];
+    }
+    else{
+        NSAssert([self isAllNumber:WhiteLayerbadgeValue], @"字符串内容必须是数字");
+        CGRect rect = [WhiteLayerbadgeValue  boundingRectWithSize:CGSizeMake(MAXFLOAT, MAXFLOAT) options:NSStringDrawingUsesLineFragmentOrigin attributes:@{NSFontAttributeName : [UIFont systemFontOfSize:[UIFont smallSystemFontSize]]} context:nil];
+        // 创建红点
+        UIButton *redBtn = [[UIButton alloc] initWithFrame:CGRectMake(0, 0, rect.size.width > badgeValue_height ? rect.size.width + 6 : badgeValue_height, badgeValue_height)];
+        redBtn.center = CGPointMake(self.frame.size.width, 0);
+        redBtn.tag = 451467999;
         redBtn.layer.cornerRadius = badgeValue_height / 2;
         redBtn.layer.masksToBounds = YES;
         redBtn.layer.borderWidth = 1.f;
@@ -35,8 +58,27 @@ static CGFloat badgeValue_height = 17;
         redBtn.titleLabel.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
         
         redBtn.backgroundColor = [UIColor redColor];
-        [redBtn setTitle:badgeValue forState:UIControlStateNormal];
+        [redBtn setTitle:WhiteLayerbadgeValue forState:UIControlStateNormal];
         [self addSubview:redBtn];
+    }
+}
+
+- (void)setLittleRedBadgeValue:(NSString *)littleRedBadgeValue
+{
+    objc_setAssociatedObject(self, &badgeValue_static, littleRedBadgeValue, OBJC_ASSOCIATION_COPY_NONATOMIC);
+    if (littleRedBadgeValue == nil || [littleRedBadgeValue isEqualToString:@""] || littleRedBadgeValue.integerValue <= 0) {
+        [self clearBadgeValue];
+    }else{
+        //新建小红点
+        UIButton *badgeView = [UIButton buttonWithType:UIButtonTypeCustom];
+        badgeView.tag = 451467999;
+        [badgeView setBackgroundColor:[UIColor redColor]];
+        
+        badgeView.frame = CGRectMake(0, 0, 8, 8);
+        badgeView.center = CGPointMake(self.frame.size.width - 2, 4);
+        badgeView.layer.cornerRadius = badgeView.frame.size.width / 2;
+        
+        [self addSubview:badgeView];
     }
 }
 
@@ -51,9 +93,32 @@ static CGFloat badgeValue_height = 17;
     }
 }
 
+- (NSString *)WhiteLayerbadgeValue{
+    NSString *WhiteLayerbadgeValue = objc_getAssociatedObject(self, &badgeValue_static);
+    // 少于0 重置为0
+    if (WhiteLayerbadgeValue.integerValue < 0) {
+        return @"0";
+    }
+    else{
+        return WhiteLayerbadgeValue;
+    }
+}
+
+- (NSString *)littleRedBadgeValue
+{
+    NSString *littleRedBadgeValue = objc_getAssociatedObject(self, &badgeValue_static);
+    // 少于0 重置为0
+    if (littleRedBadgeValue.integerValue < 0) {
+        return @"0";
+    }
+    else{
+        return littleRedBadgeValue;
+    }
+}
+
 - (void)clearBadgeValue{
     for (UIView *view in self.subviews) {
-        if ([view isKindOfClass:[UIButton class]] && view.tag == 1008611) {
+        if ([view isKindOfClass:[UIButton class]] && view.tag == 451467999) {
             [view removeFromSuperview];
         }
     }

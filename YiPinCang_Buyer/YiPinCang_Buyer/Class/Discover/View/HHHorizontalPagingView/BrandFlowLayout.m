@@ -14,7 +14,7 @@
     self = [super init];
     if (self)
     {
-        _naviHeight = 0.0;
+        _naviHeight = 30;
     }
     return self;
 }

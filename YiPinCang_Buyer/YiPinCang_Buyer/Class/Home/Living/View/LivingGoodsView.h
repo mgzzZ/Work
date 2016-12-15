@@ -14,7 +14,9 @@ UITableViewDelegate,
 UITableViewDataSource,
 UICollectionViewDelegate,
 UICollectionViewDataSource,
-UICollectionViewDelegateFlowLayout
+UICollectionViewDelegateFlowLayout,
+DZNEmptyDataSetSource,
+DZNEmptyDataSetDelegate
 >
 
 @property (nonatomic, strong) NSMutableArray *commendDataArr; // 热销推荐数据容器

@@ -2,7 +2,7 @@
 //  LCCKConstants.h
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.0 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/19.
+//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/19.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //  Common typdef and constants, and so on.
 
@@ -221,6 +221,7 @@ static NSString *const LCCKCustomMessageTypeTitleKey = @"typeTitle";
 static NSString *const LCCKCustomMessageSummaryKey = @"summary";
 
 static NSString *const LCCKCustomMessageIsCustomKey = @"isCustom";
+
 static NSString *const LCCKCustomMessageOnlyVisiableForPartClientIds = @"OnlyVisiableForPartClientIds";
 
 /*!

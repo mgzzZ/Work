@@ -7,7 +7,11 @@
 //
 
 #import <UIKit/UIKit.h>
-
+typedef NS_ENUM(NSUInteger, BrandViewType){
+    Brand = 0, // 直播组详情分类
+    Find, // 发现详情分类
+    
+};
 typedef void(^BackIdBlock)(NSString *brand,NSString *bind);
 
 @interface FiterBrandView : UIView<UITableViewDelegate,UITableViewDataSource>
@@ -22,4 +26,5 @@ typedef void(^BackIdBlock)(NSString *brand,NSString *bind);
 @property (nonatomic,strong)UIButton *resetBtn;
 @property (nonatomic,strong)UIButton *finishBtn;
 @property (nonatomic,copy)BackIdBlock backId;
+@property (nonatomic,assign)BrandViewType type;
 @end

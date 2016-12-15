@@ -44,7 +44,11 @@
     [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeNone];
     [SVProgressHUD show];
 }
-
++ (void)showSvpWithPercentWithProgress:(CGFloat)progress
+{
+    [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
+    [SVProgressHUD showProgress:progress];
+}
 + (void)showSvpWithNoneImgHud:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
@@ -112,7 +116,74 @@
                                                destructiveHandler(alertView);
                                            }
                                        }];
-    alertV.coverColor = RGB(0, 0, 0, .4);
+    alertV.coverColor = RGB(0, 0, 0, .6f);
+    alertV.backgroundColor = [UIColor whiteColor];
+    alertV.tintColor = [UIColor whiteColor];
+    
+    alertV.titleFont = LightFont(16);
+    alertV.titleTextColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.titleTextAlignment = NSTextAlignmentCenter;
+    
+    alertV.messageFont = LightFont(16);
+    alertV.messageTextColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.messageTextAlignment = NSTextAlignmentCenter;
+    
+    alertV.buttonsFont = LightFont(16);
+    alertV.buttonsHeight = 60.f;
+    alertV.buttonsTitleColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.buttonsTitleColorHighlighted = [UIColor whiteColor];
+    alertV.buttonsBackgroundColor = [UIColor whiteColor];
+    alertV.buttonsBackgroundColorHighlighted = [Color colorWithHex:@"#3B3B3B"];
+    alertV.buttonsTextAlignment = NSTextAlignmentCenter;
+    
+    alertV.cancelButtonFont = LightFont(16);
+    alertV.cancelButtonTitleColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.cancelButtonTitleColorHighlighted = [UIColor whiteColor];
+    alertV.cancelButtonBackgroundColor = [UIColor whiteColor];
+    alertV.cancelButtonBackgroundColorHighlighted = [Color colorWithHex:@"#3B3B3B"];
+    alertV.cancelButtonTextAlignment = NSTextAlignmentCenter;
+    
+    alertV.destructiveButtonFont = LightFont(16);
+    alertV.destructiveButtonTitleColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.destructiveButtonTitleColorHighlighted = [UIColor whiteColor];
+    alertV.destructiveButtonBackgroundColor = [UIColor whiteColor];
+    alertV.destructiveButtonBackgroundColorHighlighted = [Color colorWithHex:@"#3B3B3B"];
+    alertV.destructiveButtonTextAlignment = NSTextAlignmentCenter;
+    
+    [alertV showAnimated:YES completionHandler:nil];
+}
+
++ (void)customSheetViewWithTitle:(NSString *)title
+                         Message:(NSString *)message
+                       BtnTitles:(NSArray *)btnTitles
+                  CancelBtnTitle:(NSString *)cancelBtnTitle
+             DestructiveBtnTitle:(NSString *)destructiveBtnTitle
+                   actionHandler:(void(^)(LGAlertView *alertView, NSString *title, NSUInteger index))actionHandler
+                   cancelHandler:(void(^)(LGAlertView *alertView))cancelHandler
+              destructiveHandler:(void(^)(LGAlertView *alertView))destructiveHandler
+{
+    LGAlertView *alertV = [LGAlertView alertViewWithTitle:title
+                                                  message:message
+                                                    style:LGAlertViewStyleActionSheet
+                                             buttonTitles:btnTitles
+                                        cancelButtonTitle:cancelBtnTitle
+                                   destructiveButtonTitle:destructiveBtnTitle
+                                            actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+                                                if (actionHandler) {
+                                                    actionHandler(alertView, title, index);
+                                                }
+                                            }
+                                            cancelHandler:^(LGAlertView *alertView) {
+                                                if (cancelHandler) {
+                                                    cancelHandler(alertView);
+                                                }
+                                            }
+                                       destructiveHandler:^(LGAlertView *alertView) {
+                                           if (destructiveHandler) {
+                                               destructiveHandler(alertView);
+                                           }
+                                       }];
+    alertV.coverColor = RGB(0, 0, 0, .6f);
     alertV.backgroundColor = [UIColor whiteColor];
     alertV.tintColor = [UIColor whiteColor];
     
@@ -173,12 +244,7 @@
     [childItemsArray enumerateObjectsUsingBlock:^(NSDictionary *dict, NSUInteger idx, BOOL *stop) {
         UIViewController *vc = nil;
         RTRootNavigationController *nav = nil;
-        if (idx == 0) {
-            vc = [HomeVC shareInstance];
-            nav = [[RTRootNavigationController alloc] initWithRootViewController:vc];
-        }else {
-            vc = [NSClassFromString(dict[ClassKey]) new];
-        }
+        vc = [NSClassFromString(dict[ClassKey]) new];
         nav = [[RTRootNavigationController alloc] initWithRootViewController:vc];
         vc.title = dict[TitleKey];
         vc.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
@@ -217,7 +283,10 @@
             }
             return NO;
         }
-        [YPC_Tools showSvpWithNoneImgHud:response[@"status"][@"error_desc"]];
+        if (![response[@"status"][@"error_desc"] isEqual:[NSNull null]]) {
+            [YPC_Tools showSvpWithNoneImgHud:response[@"status"][@"error_desc"]];
+        }
+        
         return NO;
     }
 }
@@ -340,7 +409,7 @@
     }else if ([urlString hasPrefix:@"ypcang://"]) {
         NSRange range = [urlString rangeOfString:@"ypcang://"];
         NSString *subStr = [urlString substringFromIndex:range.length];
-        if ([subStr hasPrefix:@"goods"]) {
+        if ([subStr hasPrefix:@"livegoods"]) {
             return urlSechmeGoodsDetail;
         }else if ([subStr hasPrefix:@"activity"]) {
             return urlSechmeActivityDeatail;
@@ -348,12 +417,49 @@
             return urlSechmeLivingGroupDetail;
         }else if ([subStr hasPrefix:@"brand"]) {
             return urlSechmeBrandDetail;
+        }else if ([subStr hasPrefix:@"stracegoods"]) {
+            return urlSechmeGoodsDetail;
         }else {
             return urlSechmeNone;
         }
     }else {
         return urlSechmeNone;
     }
+}
+
++ (void)pushConversationListViewController:(UIViewController *)vc
+{
+    LCCKConversationListViewController *mesVC = [LCCKConversationListViewController new];
+    __weak __typeof(mesVC) weakMesVC = mesVC;
+    [mesVC setViewDidLoadBlock:^(__kindof LCCKBaseViewController *viewController) {
+        // 无数据代理设置
+        weakMesVC.tableView.emptyDataSetSource = [YPC_Tools shareInstance];
+        weakMesVC.tableView.emptyDataSetDelegate = [YPC_Tools shareInstance];
+        // 刷新替换
+        weakMesVC.tableView.mj_header = [YPCRefreshHeader headerWithRefreshingBlock:^{
+            [weakMesVC refresh];
+            [weakMesVC.tableView.mj_header endRefreshing];
+        }];
+        viewController.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
+        viewController.navigationController.navigationBar.translucent = YES;
+        [viewController.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:BoldFont(18),NSForegroundColorAttributeName:[UIColor whiteColor]}];
+        viewController.title = @"消息中心";
+        
+        UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
+        [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+        [button sizeToFit];
+        [button addTarget:self
+                   action:@selector(naviRightAction:)
+         forControlEvents:UIControlEventTouchUpInside];
+        objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
+        viewController.navigationItem.leftBarButtonItem = editItem;
+    }];
+    [mesVC setViewWillAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
+        [weakMesVC refresh];
+    }];
+    mesVC.hidesBottomBarWhenPushed = YES;
+    [vc.navigationController pushViewController:mesVC animated:YES];
 }
 
 + (void)openConversationWithCilentId:(NSString *)clientId andViewController:(UIViewController *)vc
@@ -405,6 +511,29 @@
         object = [object nextResponder];
     }
     return (UIViewController*)object;
+}
+
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    return [UIImage imageNamed:@"blankpage_informations_icon"];
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView
+{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView
+{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"您还没有任何消息呢~";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 
 @end

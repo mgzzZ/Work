@@ -9,10 +9,8 @@
 #import <UIKit/UIKit.h>
 
 @interface AccountMangerCell : UITableViewCell
-@property (weak, nonatomic) IBOutlet UIButton *leftBtn;
-@property (weak, nonatomic) IBOutlet UIButton *rightBtn;
-@property (strong, nonatomic) IBOutlet UIImageView *txImg;
-@property (strong, nonatomic) IBOutlet UILabel *nameLab;
-@property (strong, nonatomic) IBOutlet UILabel *titleLab;
+
+@property (nonatomic, strong) NSIndexPath *indexPath;
+@property (nonatomic, copy) NSString *tempStr;
 
 @end

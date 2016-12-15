@@ -12,5 +12,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *typeLab;
 @property (strong, nonatomic) IBOutlet UILabel *phoneLab;
 @property (strong, nonatomic) IBOutlet UILabel *areaLab;
+@property (strong, nonatomic) IBOutlet UILabel *nameLab;
 
 @end

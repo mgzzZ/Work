@@ -16,7 +16,7 @@
     AVIMClient *client = [LCChatKit sharedInstance].client;
     [client openWithCallback:^(BOOL succeeded, NSError *error) {
         AVIMConversationQuery *query = [client conversationQuery];
-        [query getConversationById:@"582be824da2f600063d5c28d" callback:^(AVIMConversation *conversation, NSError *error) {
+        [query getConversationById:conversationId callback:^(AVIMConversation *conversation, NSError *error) {
             if (succeeded) {
                 [conversation joinWithCallback:^(BOOL succeeded, NSError *error) {
                     if (succeeded) {

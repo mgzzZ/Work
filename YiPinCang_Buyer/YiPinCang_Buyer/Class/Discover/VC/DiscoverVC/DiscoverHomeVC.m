@@ -35,6 +35,7 @@
 @property (nonatomic,copy)NSString *brand;
 @property (nonatomic,copy)NSString *bind;
 @property (nonatomic,copy)NSString *page;
+@property (nonatomic,assign)BOOL isHave;
 @end
 
 @implementation DiscoverHomeVC
@@ -48,14 +49,14 @@
     self.page = @"1";
     // Do any additional setup after loading the view.
     self.view.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
-    self.navigationController.navigationBar.translucent = YES;
     self.dataArr = [[NSMutableArray alloc]init];
     self.brandListArr = [[NSMutableArray alloc]init];
     self.sectionArr = [[NSMutableArray alloc]init];
+    self.isHave = NO;
     self.listorder = @"0";
     [self setTopView];
     [self getData:self.listorder brand_id:self.brand bind:self.bind page:self.page isRefresh:NO];
-    [self upRefresh];
+    
     [self getDataOfBrand];
     
 }
@@ -74,7 +75,7 @@
     [self.topView.priceBtn addTarget:self action:@selector(priceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView.brandBtn addTarget:self action:@selector(brandBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView.otherBtn addTarget:self action:@selector(otherBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    
+    [self.topView.recommendBtn addTarget:self action:@selector(recommentBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     self.tableView = [[UITableView alloc]init];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -187,6 +188,10 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                NSMutableArray *arr = [DiscoverLivegoodsModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                [weakSelf.dataArr addObjectsFromArray:arr];
+                               if (weakSelf.isHave == NO && weakSelf.dataArr.count == 0) {
+                                   [weakSelf upRefresh];
+                                   weakSelf.isHave = YES;
+                               }
                                if (arr.count < 10) {
                                    [weakSelf.tableView.mj_footer endRefreshingWithNoMoreData];
                                }else{
@@ -289,10 +294,16 @@
 }
 
 #pragma mark- btn action
+- (void)recommentBtnClick:(UIButton *)sender{
+    sender.selected = NO;
+     [self chooseHiden];
+    self.listorder = @"0";
+}
 - (void)priceBtnClick:(UIButton *)sender{
     sender.selected = YES;
     self.topView.brandBtn.selected = NO;
     self.topView.otherBtn.selected = NO;
+    self.topView.recommendBtn.selected = YES;
     [self chooseHiden];
     [self segBrandViewHidenNo:self.sectionArr];
 }
@@ -301,6 +312,7 @@
     sender.selected = YES;
     self.topView.priceBtn.selected = NO;
     self.topView.otherBtn.selected = NO;
+    self.topView.recommendBtn.selected = YES;
     [self chooseHiden];
     NSArray *arr = @[@"从低到高",@"从高到低"];
     [self segViewHidenNo:arr];
@@ -310,9 +322,11 @@
     if (sender.selected == NO) {
         self.listorder = @"3";
         sender.selected = YES;
+        self.topView.recommendBtn.selected = YES;
     }else{
         self.listorder = @"0";
         sender.selected = NO;
+        self.topView.recommendBtn.selected = NO;
     }
     [self chooseHiden];
     

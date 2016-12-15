@@ -10,7 +10,7 @@
 #import "LogisticsCell.h"
 #import "LoginsticsHeaderView.h"
 #import "LogisticsinModel.h"
-@interface LogisticsVC ()<UITableViewDelegate,UITableViewDataSource>
+@interface LogisticsVC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)LoginsticsHeaderView *headerView;
 @property (nonatomic,strong)LogisticsinModel *model;
@@ -32,6 +32,8 @@
         [self.view addSubview:_tableView];
         _tableView.delegate =self;
         _tableView.dataSource = self;
+        _tableView.emptyDataSetSource = self;
+        _tableView.emptyDataSetDelegate = self;
         _tableView.tableFooterView = [UIView new];
         [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
         _headerView = [[LoginsticsHeaderView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 77)];
@@ -62,7 +64,29 @@
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     return cell;
 }
-
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+        return [UIImage imageNamed:@"viewlogistics_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"暂时没有物流信息";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+}
 
 - (void)getData{
     WS(weakSelf);

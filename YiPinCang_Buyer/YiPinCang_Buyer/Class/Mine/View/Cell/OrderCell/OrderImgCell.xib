@@ -18,7 +18,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="67" height="67"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ucw-Aa-wgm">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ucw-Aa-wgm">
                         <rect key="frame" x="0.0" y="0.0" width="67" height="67"/>
                     </imageView>
                 </subviews>

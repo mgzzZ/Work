@@ -92,12 +92,14 @@
         [self.view addSubview:self.orderDetailView];
     }else if ([self.model.state_desc isEqualToString:@"待发货"]){
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 210)];
-        _headerView.payViewHeight.constant = 82 + 30;
-        _headerView.sendtimeLabHeight.constant = 13;
+        _headerView.payViewHeight.constant = 82 + 30 ;
+        _headerView.sendtimeLabHeight.constant = 0;
         _headerView.timeLabHeight.constant = 0;
-        _headerView.paytimeLabHeight.constant = 0;
+        _headerView.paytimeLabHeight.constant = 13;
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfState_sent];
+        self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
+        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     }else{
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 171)];
         _headerView.payViewHeight.constant = 82;
@@ -105,7 +107,9 @@
         _headerView.timeLabHeight.constant = 0;
         _headerView.paytimeLabHeight.constant = 0;
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfFinish];
+        self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
+        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     }
     _headerView.nameLab.text = [NSString stringWithFormat:@"收货人:%@ %@",self.model.reciver_info.reciver_name,self.model.reciver_info.mob_phone];
     _headerView.areaLab.text = [NSString stringWithFormat:@"详细地址:%@",self.model.reciver_info.address];

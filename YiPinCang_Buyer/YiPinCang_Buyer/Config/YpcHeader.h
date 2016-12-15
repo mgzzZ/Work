@@ -12,7 +12,10 @@
 //===================== frame
 #define ScreenWidth                [UIScreen mainScreen].bounds.size.width
 #define ScreenHeight               [UIScreen mainScreen].bounds.size.height
-
+#define iPhone4 ([UIScreen mainScreen].bounds.size.height == 480)
+#define kWidth(R) (R)*(ScreenWidth)/375
+#define kHeight(R) (iPhone4?((R)*(ScreenHeight)/480):((R)*(ScreenHeight)/667))
+#define kScreen [UIScreen mainScreen].bounds
 //===================== 代码简化
 #define NotificationCenter [NSNotificationCenter defaultCenter]
 #define UserDefaults [NSUserDefaults standardUserDefaults]
@@ -54,6 +57,8 @@
 #import <YYText.h>
 #import <YYWebImage.h>
 #import <RTRootNavigationController.h>
+#import "UINavigationBar+BackgroundColor.h"
+#import "YPCRefreshHeader.h"
 
 //Documents文件夹的路径
 #define kDocPath NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject
@@ -63,8 +68,12 @@
 #define LeanCloudAppKey @"lOrkWTAg8IqCEsrL4s8tM212"
 
 //=================== NotificationCenter
-#define DidReceiveDanmakuFormLeanCloudCusstomMessage        @"didReceiveDanmakuFormLeanCloudCusstomMessage" // 收到弹幕消息通知
-#define DidReceiveLivingLikeFormLeanCloudCusstomMessage        @"didReceiveLivingLikeFormLeanCloudCusstomMessage" // 收到leancloud点赞通知
+#define DidReceiveDanmakuFormLeanCloudCusstomMessage                @"didReceiveDanmakuFormLeanCloudCusstomMessage" // 收到弹幕消息通知
+#define DidReceiveLivingLikeFormLeanCloudCusstomMessage             @"didReceiveLivingLikeFormLeanCloudCusstomMessage" // 收到leancloud点赞通知
+#define DidReceiveLivingGoodsTopFormLeanCloudCusstomMessage         @"didReceiveLivingGoodsTopFormLeanCloudCusstomMessage" // 收到leancloud点赞通知
+#define DidReceiveLivingGoodsIssueLeanCloudCusstomMessage           @"didReceiveLivingGoodsIssueLeanCloudCusstomMessage" // 收到leancloud点赞通知
+#define DidReceiveLivingLivingPauseLeanCloudCusstomMessage          @"didReceiveLivingLivingPauseLeanCloudCusstomMessage" // 收到直播暂停通知
+#define DidReceiveLivingLivingStopLeanCloudCusstomMessage           @"didReceiveLivingLivingStopLeanCloudCusstomMessage" // 收到直播停止通知
 
 //通知宏定义
 #define PaySuccess @"PaySuccess"
@@ -74,8 +83,12 @@
 #define kUserIsLogin        @"kUserIsLogin"
 
 //=================== 占位图
-#define YPCImagePlaceHolder [UIImage imageNamed:@"NoneImgePlaceHoldS"]
-#define YPCImagePlaceHolderBig [UIImage imageNamed:@"NoneImgePlaceHoldB"]
+#define YPCImagePlaceMainHomeHolder                 [UIImage imageNamed:@"homepage_live_zhanweitu"]
+#define YPCImagePlaceHolder                         [UIImage imageNamed:@"live_zhanweitu"]
+#define YPCImagePlaceHolderBig                      [UIImage imageNamed:@"NoneImgePlaceHoldB"]
+#define YPCImagePlaceHolderSquare                   [UIImage imageNamed:@"cart_zhanweit-"]
+#define YPCImagePlaceHolderBigSquare                [UIImage imageNamed:@"live_zhanweitu2"]
+
 
 //===================== 友盟
 #define kUMAppKey @"58199627aed179695e002ce9"
@@ -88,6 +101,6 @@
 #define kUMSinaAppSecret @"99dd08e9f7de660cb81ddc8f90e67e7c"
 #define kUMSinaCallBackURL @"http://sns.whalecloud.com/sina2/callback"
 //===================== 极光
-#define kJPushAppKey @"01304d05939f3805e3ea0c0a"
+#define kJPushAppKey @"830808eb0ee65458c952891c"
 
 #endif /* YpcHeader_h */

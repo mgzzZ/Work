@@ -106,11 +106,11 @@ static NSString *Identifier = @"endActivityGoodsCVCell";
 - (void)setTempModel:(HomeTVDetailModel *)tempModel
 {
     _tempModel = tempModel;
-    [self.logoImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.brand.brand_pic] placeholderImage:YPCImagePlaceHolder];
+    [self.logoImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.brand.brand_pic] placeholderImage:IMAGE(@"find_logo_placeholder")];
     self.brandNameL.text = _tempModel.brand.brand_name;
     self.audienceNumL.text = _tempModel.brand.attentions;
     self.desL.text = _tempModel.name;
-    [self.bgImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.activity_pic] placeholderImage:YPCImagePlaceHolder];
+    [self.bgImgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.activity_pic] placeholderImage:IMAGE(@"homepage_banner_zhanweitu")];
     self.timeL.text = [NSString stringWithFormat:@"%@-%@", [YPC_Tools timeWithTimeIntervalString:_tempModel.start Format:@"MM月dd日"], [YPC_Tools timeWithTimeIntervalString:_tempModel.end Format:@"MM月dd日"]];
     self.adressL.text = _tempModel.address;
     
@@ -133,9 +133,7 @@ static NSString *Identifier = @"endActivityGoodsCVCell";
         self.statusBtn.enabled = NO;
         
     }else{ // 已结束
-        
-        [self.statusBtn setImage:nil forState:UIControlStateNormal];
-        [self.statusBtn setTitle:@"已结束" forState:UIControlStateNormal];
+        self.statusBtn.enabled = NO;
         if (_tempModel.goods_data.count > 0) {
             self.endCollectionView.hidden = NO;
             self.cvDataArr = [CommendModel mj_objectArrayWithKeyValuesArray:_tempModel.goods_data];

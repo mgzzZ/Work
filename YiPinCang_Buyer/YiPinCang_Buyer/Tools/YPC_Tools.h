@@ -9,8 +9,9 @@
 #import <Foundation/Foundation.h>
 #import <LGAlertView.h>
 #import "Constants.h"
+#import <UIScrollView+EmptyDataSet.h>
 
-@interface YPC_Tools : NSObject
+@interface YPC_Tools : NSObject <DZNEmptyDataSetSource, DZNEmptyDataSetDelegate>
 
 + (instancetype)shareInstance;
 @property (nonatomic, strong) LGAlertView *alertView;
@@ -25,6 +26,7 @@
  */
 + (void)showSvpHud;
 + (void)showSvpHudWithNoneMask;
++ (void)showSvpWithPercentWithProgress:(CGFloat)progress;
 + (void)showSvpWithNoneImgHud:(NSString *)str;
 + (void)showSvpHud:(NSString *)str;
 + (void)showSvpHudWarning:(NSString *)str;
@@ -38,6 +40,20 @@
  *
  */
 + (void)customAlertViewWithTitle:(NSString *)title
+                         Message:(NSString *)message
+                       BtnTitles:(NSArray *)btnTitles
+                  CancelBtnTitle:(NSString *)cancelBtnTitle
+             DestructiveBtnTitle:(NSString *)destructiveBtnTitle
+                   actionHandler:(void(^)(LGAlertView *alertView, NSString *title, NSUInteger index))actionHandler
+                   cancelHandler:(void(^)(LGAlertView *alertView))cancelHandler
+              destructiveHandler:(void(^)(LGAlertView *alertView))destructiveHandler;
+
+/*!
+ *
+ *    customSheet
+ *
+ */
++ (void)customSheetViewWithTitle:(NSString *)title
                          Message:(NSString *)message
                        BtnTitles:(NSArray *)btnTitles
                   CancelBtnTitle:(NSString *)cancelBtnTitle
@@ -103,6 +119,13 @@
  *
  */
 + (UrlSechmeType)judgementUrlSechmeTypeWithUrlString:(NSString *)urlString;
+
+/*!
+ *
+ *    跳转到最近会话列表页面
+ *
+ */
++ (void)pushConversationListViewController:(UIViewController *)vc;
 
 /*!
  *

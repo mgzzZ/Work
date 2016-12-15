@@ -21,6 +21,7 @@
     static dispatch_once_t onceToken;
     dispatch_once(&onceToken, ^{
         _instance = [[YPCRequestCenter alloc] init];
+         [NotificationCenter addObserver:self selector:@selector(networkDidReceiveMessage:) name:kJPFNetworkDidReceiveMessageNotification object:nil];
     });
     return _instance;
 }
@@ -108,6 +109,12 @@
 {
     [SAMKeychain deletePasswordForService:KEY_KEYCHAIN_SERVICE account:KEY_KEYCHAIN_NAME];
     [self setUserLogout];
+    [YPCRequestCenter shareInstance].model = nil;
+    [YPCRequestCenter shareInstance].uID = nil;
+    [YPCRequestCenter shareInstance].sID = nil;
+    [YPCRequestCenter shareInstance].kUnReadMesCount = nil;
+    [YPCRequestCenter shareInstance].kShopingCarCount = nil;
+    [UIApplication sharedApplication].applicationIconBadgeNumber = 0;
     [UserDefaults synchronize];
 }
 
@@ -115,7 +122,7 @@
 {
     [YPCRequestCenter shareInstance].sID = [response valueForKeyPath:@"data.session.sid"];
     [YPCRequestCenter shareInstance].uID = [response valueForKeyPath:@"data.session.uid"];
-    [YPCRequestCenter shareInstance].model = [RegistModel mj_objectWithKeyValues:response[@"data"][@"user"]];
+    [YPCRequestCenter shareInstance].model = [UserModel mj_objectWithKeyValues:response[@"data"][@"user"]];
 }
 
 + (BOOL)isLogin
@@ -133,7 +140,7 @@
         LoginVC *login = [LoginVC new];
         UINavigationController *loginNav = [[UINavigationController alloc]initWithRootViewController:login];
         login.navigationController.navigationBar.hidden = YES;
-        [vc.navigationController presentViewController:loginNav animated:YES completion:nil];
+        [vc presentViewController:loginNav animated:YES completion:nil];
         return NO;
     }else {
         return YES;
@@ -151,4 +158,31 @@
     [UserDefaults setObject:@0 forKey:kUserIsLogin];
 }
 
++ (void)networkDidReceiveMessage:(NSNotification *)notification
+{
+    NSDictionary *dic = [notification userInfo];
+    
+    switch ([dic[@"content_type"] integerValue]) {
+        case 0:
+            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
+            break;
+        case 1:
+            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
+            break;
+        case 2:
+            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
+            break;
+        case 3:
+          
+            break;
+        case 4:
+          
+            break;
+        case 5:
+         
+            break;
+        default:
+            break;
+    }
+}
 @end

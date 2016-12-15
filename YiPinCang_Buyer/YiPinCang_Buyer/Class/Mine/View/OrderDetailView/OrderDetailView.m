@@ -100,6 +100,13 @@
                 break;
                 
             default:
+            {
+                self.leftBtn.hidden = YES;
+                self.titleLab.hidden = YES;
+                self.timeLab.hidden = YES;
+                self.timeImg.hidden = YES;
+                self.rightBtn.hidden = YES;
+            }
                 break;
         }
     }

@@ -7,13 +7,11 @@
 //
 
 #import <AVOSCloudIM/AVOSCloudIM.h>
-//#import "OrdersModel.h"
-
-static AVIMMessageMediaType const AVIMGoodsMessageType = 1;  // 1为订单消息 2为弹幕消息 //3为直播间点赞消息
+#import "OrderDetailModel.h"
 
 @interface GoodsMessage : AVIMTypedMessage <AVIMTypedMessageSubclassing>
 
-//- (instancetype)initWithOrderModel:(OrdersModel *)orderModel conversationType:(LCCKConversationType)conversationType;
-//+ (instancetype)GoodsMessageWithOrderModel:(OrdersModel *)orderModel conversationType:(LCCKConversationType)conversationType;
+- (instancetype)initWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType;
++ (instancetype)GoodsMessageWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType;
 
 @end

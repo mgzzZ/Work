@@ -11,9 +11,10 @@
 #import "LiveDetailLiveNoteOfImgCell.h"
 #import "LiveDetailLiveVideoCell.h"
 #import "LiveDetailLiveVideoCell.h"
-@interface LiveNoteView ()<UITableViewDelegate,UITableViewDataSource>
+@interface LiveNoteView ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,strong)NSString *page;
+@property (nonatomic,assign)BOOL isHave;
 @end
 
 @implementation LiveNoteView
@@ -22,7 +23,11 @@
     LiveNoteView *contentTV = [[LiveNoteView alloc] initWithFrame:CGRectZero style:UITableViewStylePlain];
     contentTV.backgroundColor = [UIColor clearColor];
     contentTV.separatorStyle = NO;
+    contentTV.isHave = NO;
+    contentTV.backgroundColor = [Color colorWithHex:@"0xefefef"];
     contentTV.dataSource = contentTV;
+    contentTV.emptyDataSetDelegate = contentTV;
+    contentTV.emptyDataSetSource =contentTV;
     contentTV.delegate = contentTV;
     contentTV.tableFooterView = [UIView new];
     return contentTV;
@@ -83,7 +88,7 @@
     }
     self.page = @"1";
     [self getData:self.page isRefresh:YES];
-    [self upRefresh];
+   
     
 }
 - (NSMutableArray *)dataArr{
@@ -105,25 +110,30 @@
                                  }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                           }
-                           
-                           NSMutableArray *arr = [LiveNoteModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                           
-                           
-                           if (arr.count < 10) {
-                               [weakSelf.mj_footer endRefreshingWithNoMoreData];
-                           }else{
-                               [weakSelf.mj_footer endRefreshing];
-                           }
-                           [weakSelf.mj_header endRefreshing];
-                           if (isRefresh) {
-                               [weakSelf.dataArr removeAllObjects];
+                               NSMutableArray *arr = [LiveNoteModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                [weakSelf.dataArr addObjectsFromArray:arr];
-                               [weakSelf reloadData];
-                           }else{
-                               [weakSelf.dataArr addObjectsFromArray:arr];
-                               [weakSelf reloadDataWithExistedHeightCache];
+                               if (weakSelf.dataArr.count != 0 && weakSelf.isHave == NO) {
+                                   [weakSelf upRefresh];
+                                   weakSelf.isHave = YES;
+                               }
+                               
+                               if (arr.count < 10) {
+                                   [weakSelf.mj_footer endRefreshingWithNoMoreData];
+                               }else{
+                                   [weakSelf.mj_footer endRefreshing];
+                               }
+                               [weakSelf.mj_header endRefreshing];
+                               if (isRefresh) {
+                                   [weakSelf.dataArr removeAllObjects];
+                                   [weakSelf.dataArr addObjectsFromArray:arr];
+                                   [weakSelf reloadData];
+                               }else{
+                                   [weakSelf.dataArr addObjectsFromArray:arr];
+                                   [weakSelf reloadDataWithExistedHeightCache];
+                               }
                            }
+                           
+                           
                            
                        }
                           fail:^(NSError *error) {
@@ -150,5 +160,27 @@
     }
     return width;
 }
-
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_livememberinformation_notes_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"直播组暂未发表笔记";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+}
 @end

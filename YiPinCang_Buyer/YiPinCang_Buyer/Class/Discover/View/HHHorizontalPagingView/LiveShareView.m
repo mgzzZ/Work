@@ -9,9 +9,10 @@
 #import "LiveShareView.h"
 #import "LiveDetailLiveShareCell.h"
 #import "LiveShareModel.h"
-@interface LiveShareView ()<UITableViewDataSource,UITableViewDelegate>
+@interface LiveShareView ()<UITableViewDataSource,UITableViewDelegate,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,copy)NSString *page;
+@property (nonatomic,assign)BOOL isHave;
 @end
 
 @implementation LiveShareView
@@ -22,6 +23,10 @@
     contentTV.separatorStyle = NO;
     contentTV.dataSource = contentTV;
     contentTV.delegate = contentTV;
+    contentTV.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    contentTV.isHave = NO;
+    contentTV.emptyDataSetDelegate = contentTV;
+    contentTV.emptyDataSetSource = contentTV;
     contentTV.tableFooterView = [UIView new];
     return contentTV;
 }
@@ -37,7 +42,7 @@
     self.page = @"1";
     [self getData:self.page isRefresh:YES];
     
-    [self upRefresh];
+    
 }
 
 
@@ -60,22 +65,28 @@
                                  }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                           }
-                           if (isRefresh) {
-                               [weakSelf.dataArr removeAllObjects];
+                               if (isRefresh) {
+                                   [weakSelf.dataArr removeAllObjects];
+                                   [weakSelf reloadData];
+                               }else{
+                                   [weakSelf reloadDataWithExistedHeightCache];
+                               }
+                               NSMutableArray *arr = [LiveShareModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               
+                               [weakSelf.dataArr addObjectsFromArray:arr];
+                               if (weakSelf.dataArr.count != 0 && weakSelf.isHave == NO ) {
+                                   [weakSelf upRefresh];
+                                   weakSelf.isHave = YES;
+                               }
                                [weakSelf reloadData];
-                           }else{
-                               [weakSelf reloadDataWithExistedHeightCache];
+                               if (arr.count < 10) {
+                                   [weakSelf.mj_footer endRefreshingWithNoMoreData];
+                               }else{
+                                   [weakSelf.mj_footer endRefreshing];
+                               }
+                               [weakSelf.mj_header endRefreshing];
                            }
-                           NSMutableArray *arr = [LiveShareModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                           [weakSelf.dataArr addObjectsFromArray:arr];
-                           [weakSelf reloadData];
-                           if (arr.count < 10) {
-                               [weakSelf.mj_footer endRefreshingWithNoMoreData];
-                           }else{
-                               [weakSelf.mj_footer endRefreshing];
-                           }
-                           [weakSelf.mj_header endRefreshing];
+                          
                        }
                           fail:^(NSError *error) {
                               
@@ -139,5 +150,28 @@
         width = [UIScreen mainScreen].bounds.size.height;
     }
     return width;
+}
+-(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
+    
+    return scrollView.frame.origin.y - 50.f;
+}
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
+{
+    
+    return [UIImage imageNamed:@"blankpage_livememberinformation_goodsshare_icon"];
+    
+    
+}
+- (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
+    return YES;
+}
+- (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
+    return YES;
+}
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+{
+    NSString *text = @"直播组暂未分享好货,敬请期待吧";
+    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
 @end

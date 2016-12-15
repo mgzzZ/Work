@@ -423,20 +423,12 @@
 - (void)collectionView:(UICollectionView *)collectionView didDeselectItemAtIndexPath:(NSIndexPath *)indexPath{
 
     if (self.model.group.count == 1) {
-//        ChooseSize_groupModel *model = self.model.group[indexPath.section];
-//        Choose_spModel *titleModel = model.data[indexPath.row];
-//        
-//        NSString *str = [self returnPaystring:self.didDataArr];
-//        if (str.length == 0) {
-//            self.titleLab.text = @"请选择规格";
-//        }else{
-//            self.titleLab.text = str;
-//        }
+
         ChooseSizeCell *cell = (ChooseSizeCell *)[collectionView cellForItemAtIndexPath:indexPath];
         cell.bgView.backgroundColor = [UIColor whiteColor];
         cell.titleLab.textColor = [UIColor blackColor];
         cell.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
-        //
+        
     }
     
     
@@ -504,10 +496,13 @@
     }
 }
 - (void)nextBtnClick{
-
-    if (self.didDataArr.count == self.model.group.count) {
-
-        
+    if (self.model.group.count == 0) {
+        [self.chooseDataArr removeAllObjects];;
+        [self.indexPathArr removeAllObjects];
+        self.isDelete = NO;
+        ChooseSize_dataModel *dataModel = self.model.info[0];
+        self.did(dataModel.goods_id,[NSString stringWithFormat:@"%zd",_count],@"");
+    }else if (self.didDataArr.count == self.model.group.count) {
         if (self.did && ![_goods_id isEqualToString:@"A"]) {
             NSString *str = [self returnPaystring:self.didDataArr];
             [self.chooseDataArr removeAllObjects];;

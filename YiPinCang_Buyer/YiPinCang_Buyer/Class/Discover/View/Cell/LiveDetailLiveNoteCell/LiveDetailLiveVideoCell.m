@@ -114,7 +114,7 @@
     self.timeLab.sd_layout.widthIs(self.timeLab.frame.size.width);
     self.likeLab.text = model.strace_cool;
     self.commentLab.text = model.strace_comment;
-   [self.bgImg sd_setImageWithURL:[NSURL URLWithString:model.video_img] placeholderImage:YPCImagePlaceHolder];
+   [self.bgImg sd_setImageWithURL:[NSURL URLWithString:model.video_img] placeholderImage:YPCImagePlaceHolderBigSquare];
     [self.commentLab sizeToFit];
     
     self.commentLab.sd_layout.widthIs(self.commentLab.size.width);

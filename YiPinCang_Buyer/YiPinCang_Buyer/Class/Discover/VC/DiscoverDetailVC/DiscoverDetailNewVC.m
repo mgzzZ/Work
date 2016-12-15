@@ -14,30 +14,36 @@
 #import "BrandDetailModel.h"
 #import "LiveDetailHHHVC.h"
 #import "DiscoverDetailVC.h"
+#import "WebViewController.h"
+#import "LivingVC.h"
+#import "PreheatingVC.h"
+#import "VideoPlayerVC.h"
 
 @interface DiscoverDetailNewVC ()
 @property (nonatomic,strong)BrandDetailHeaderView *headerView;
 @property (nonatomic,strong)HHHorizontalPagingView *pagingView;
 @property (nonatomic,strong)BrandDetailNewView *activityColl;
 @property (nonatomic,strong)BrandDetailModel *model;
+
+@property (nonatomic, strong) dispatch_source_t timer;
+
 @end
 
 @implementation DiscoverDetailNewVC
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    self.navigationController.navigationBar.subviews.firstObject.alpha = 0;
-    [[UIApplication sharedApplication] setStatusBarStyle:UIStatusBarStyleDefault animated:YES];
+
+- (void)dealloc
+{
+    [self stopTimer];
 }
 
-
-- (void)viewDidDisappear:(BOOL)animated{
-    [super viewDidDisappear:animated];
-    self.automaticallyAdjustsScrollViewInsets = NO;
-    self.navigationController.navigationBar.subviews.firstObject.alpha = 1;
-}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    
+    [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
+    [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
+    [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+    
     self.navigationItem.title = @"品牌商品";
     [self getData:@"1" isRefresh:YES];
     [self pagingDelegate];
@@ -51,27 +57,55 @@
         switch (eventView.tag) {
             case BrandBtnTag:
             {
-                YPCAppLog(@"直播组详情");
-                LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
-                live.store_id = weakself.model.brand.brandstore_id;
-                [weakself.navigationController pushViewController:live animated:YES];
+                WebViewController *web = [[WebViewController alloc]init];
+                web.homeUrl =[NSString stringWithFormat: @"http://api.gongchangtemai.com/index.php?url=shop/showstore/brandinfo/%@",weakself.model.brand.brandstore_id];
+                web.navTitle = @"品牌简介";
+                [weakself.navigationController pushViewController:web animated:YES];
                 
             }
                 break;
             case BrandFllowBtnTag:{
-                YPCAppLog(@"私信");
-                if ([weakself.model.brand.isfavor isEqualToString:@"1"]) {
-                    [weakself followstore_cancel];
-                    weakself.headerView.fllowBtn.selected = NO;
-                }else{
-                    [weakself followstore_add];
-                    weakself.headerView.fllowBtn.selected = YES;
-                }
-                
+                 if ([YPCRequestCenter isLoginAndPresentLoginVC:weakself]) {
+                     if ([weakself.model.brand.isfavor isEqualToString:@"1"]) {
+                         [weakself followstore_cancel];
+                         weakself.headerView.fllowBtn.selected = NO;
+                     }else{
+                         [weakself followstore_add];
+                         weakself.headerView.fllowBtn.selected = YES;
+                     }
+                 }
             }
                 break;
             case BrandDetailBtnTag:{
-                YPCAppLog(@"私信");
+                if ([YPCRequestCenter isLoginAndPresentLoginVC:weakself]) {
+                    if ([weakself.type isEqualToString:@"直播中"]) {
+                        LivingVC *live= [[LivingVC alloc]init];
+                        live.tempModel = weakself.tempModel;
+                        
+                        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:weakself.livingshowinitimg] options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                            if (finished && !error) {
+                                dispatch_async(dispatch_get_main_queue(), ^{
+                                    live.playerPHImg = image;
+                                    [weakself.navigationController pushViewController:live animated:YES];
+                                    [YPC_Tools dismissHud];
+                                });
+                            }else{
+                                [YPC_Tools showSvpHudError:@"图片未下载成功"];
+                            }
+                            
+                        }];
+                        
+                    }else if ([weakself.type isEqualToString:@"预告"]){
+                        PreheatingVC *preheat = [[PreheatingVC alloc]init];
+                        preheat.tempModel = weakself.tempModel;
+                        [weakself.navigationController pushViewController:preheat animated:YES];
+                        
+                    }else{
+                        VideoPlayerVC *video = [[VideoPlayerVC alloc]init];
+                        video.tempModel = weakself.tempModel;
+                        [weakself.navigationController pushViewController:video animated:YES];
+                    }
+                }
                 
             }
                 break;
@@ -79,6 +113,15 @@
                 break;
         }
         
+    };
+    self.pagingView.scrollViewDidScrollBlock = ^(CGFloat offset){
+        YPCAppLog(@"%.2f",offset);
+        if (offset > -66) {
+            CGFloat alpha = MIN(1, 1 - ((-66 - 64.f - offset) / 64));
+            [[YPC_Tools getControllerWithView:weakself.view].navigationController.navigationBar mz_setBackgroundAlpha:alpha];
+        }else{
+            [[YPC_Tools getControllerWithView:weakself.view].navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+        }
     };
 }
 
@@ -98,10 +141,10 @@
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.model = [BrandDetailModel mj_objectWithKeyValues:response[@"data"]];
-                               [weakSelf.headerView.bgimg sd_setImageWithURL:[NSURL URLWithString:weakSelf.model.brand.bgurl] placeholderImage:YPCImagePlaceHolder];
+                               [weakSelf.headerView.bgimg sd_setImageWithURL:[NSURL URLWithString:weakSelf.model.brand.bgurl] placeholderImage:IMAGE(@"find_logo_placeholder")];
                                [weakSelf.headerView.brandBtn setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:weakSelf.model.brand.store_avatar]]] forState:UIControlStateNormal];
                                weakSelf.headerView.brandNameLab.text = weakSelf.model.brand.brand_name;
-                               weakSelf.headerView.BrandTitleLab.text = weakSelf.model.brand.store_description;
+                               weakSelf.headerView.BrandTitleLab.text = weakSelf.message;
                                weakSelf.headerView.brandBtn.tag = BrandBtnTag;
                                weakSelf.headerView.fllowBtn.tag = BrandFllowBtnTag;
                                weakSelf.headerView.titleBtn.tag = BrandDetailBtnTag;
@@ -168,10 +211,11 @@
 
 
 - (HHHorizontalPagingView *)pagingView{
+    
     if (_pagingView == nil) {
         NSMutableArray *buttonArray = [NSMutableArray array];
         _pagingView = [HHHorizontalPagingView pagingViewWithHeaderView:self.headerView headerHeight:325 segmentButtons:buttonArray segmentHeight:-60 contentViews:@[self.activityColl]];
-        _pagingView.segmentTopSpace = 0;
+        _pagingView.segmentTopSpace = 64;
         [self.view addSubview:_pagingView];
     }
     return _pagingView;
@@ -184,8 +228,6 @@
     }
     return _headerView;
 }
-
-
 
 - (BrandDetailNewView *)activityColl{
     WS(weakself);
@@ -209,19 +251,33 @@
 
 #pragma mark - 动画开始
 - (void)animationsStart{
+    WS(weakSelf);
+    dispatch_queue_t queue = dispatch_get_main_queue();
+    self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
+    dispatch_time_t start = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC));
+    uint64_t interval = (uint64_t)(1.5f * NSEC_PER_SEC);
+    dispatch_source_set_timer(self.timer, start, interval, 0);
+    dispatch_source_set_event_handler(self.timer, ^{
+        [weakSelf start];
+    });
+    dispatch_resume(self.timer);
+}
+
+- (void)start
+{
     POPBasicAnimation *animation = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
     animation.toValue = [NSNumber numberWithFloat:0.2];
     animation.fromValue = [NSNumber numberWithFloat:1];
     animation.duration= 1.5;
-    animation.completionBlock = ^(POPAnimation *anim, BOOL finished){
-        if (finished) {
-            [self animationsStart];
-        }
-    };
     [self.headerView.liveView pop_addAnimation:animation forKey:@"live"];
 }
 
-
+-(void)stopTimer{
+    if(_timer){
+        dispatch_source_cancel(_timer);
+        _timer = nil;
+    }
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

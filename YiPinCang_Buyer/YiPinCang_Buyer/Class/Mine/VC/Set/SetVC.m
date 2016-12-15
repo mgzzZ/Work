@@ -8,16 +8,41 @@
 
 #import "SetVC.h"
 #import "SetCell.h"
+#import "LeanChatFactory.h"
+#import "WebViewController.h"
 @interface SetVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)UITableView *tableView;
+
+@property (nonatomic, strong) NSArray *imgArr;
+@property (nonatomic, strong) NSArray *nameArr;
 @end
 
 @implementation SetVC
+{
+    NSInteger sectionCount;
+}
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationItem.title = @"设置";
     self.view.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
+    
+    self.imgArr = @[
+                    @[@"mine_set_icon_delete"],
+                    @[@"mine_set_icon_about"],
+                    [YPCRequestCenter isLogin] ? @[@"mine_set_icon_close"] : @""
+                    ];
+    self.nameArr = @[
+                     @[@"清除本地缓存"],
+                     @[@"关于我们"],
+                     [YPCRequestCenter isLogin] ? @[@"退出登录"] : @""
+                     ];
+    if ([YPCRequestCenter isLogin]) {
+        sectionCount = 3;
+    }else {
+        sectionCount = 2;
+    }
+    
     [self setUp];
 }
 - (void)setUp{
@@ -25,34 +50,17 @@
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
+    self.tableView.scrollEnabled = NO;
     self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     self.tableView.tableFooterView = [UIView new];
     self.tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
 }
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 3;
+    return sectionCount;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    switch (section) {
-        case 0:
-        {
-            return 4;
-        }
-            break;
-            case 1:
-        {
-            return 1;
-        }
-            break;
-            case 2:
-        {
-            return 1;
-        }
-            break;
-        default:
-            break;
-    }
-    return 0;
+    NSArray *arr = self.nameArr[section];
+    return arr.count;
 }
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
     UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 7)];
@@ -71,34 +79,18 @@
     if (!cell) {
         cell = [[SetCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
     }
-    NSArray *imgArr = @[
-                    @[@"mine_set_icon_news",@"mine_set_icon_pic",@"mine_set_icon_delete",@"mine_set_icon_touchid"],
-                        @[@"mine_set_icon_about"],
-                        @[@"mine_set_icon_close"]
-                        ];
-    NSArray *nameArr = @[
-                         @[@"推送消息设置",@"非WiFi环境下手动下载图片",@"清除本地缓存",@"使用Touch ID登录"],
-                         @[@"关于我们"],
-                         @[@"退出登录"]
-                         ];
-    [cell.icon setImage:[UIImage imageNamed:imgArr[indexPath.section][indexPath.row]]];
-    cell.nameLab.text = nameArr[indexPath.section][indexPath.row];
+    
+    [cell.icon setImage:[UIImage imageNamed:self.imgArr[indexPath.section][indexPath.row]]];
+    cell.nameLab.text = self.nameArr[indexPath.section][indexPath.row];
     switch (indexPath.section) {
         case 0:
         {
             cell.nameLab.textColor = [UIColor blackColor];
-            if (indexPath.row == 0) {
-                cell.nextImg.hidden = NO;
-            }else{
-                cell.nextImg.hidden = YES;
-                if (indexPath.row == 1 || indexPath.row == 3) {
-                    cell.switchBtn.hidden = NO;
-                }else{
-                    cell.countLab.hidden = NO;
-                    cell.countLab.text = @"5.6M";
-                }
-            }
-            
+            cell.nextImg.hidden = YES;
+            cell.countLab.hidden = NO;
+            CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
+            NSString *message = size > 1 ? [NSString stringWithFormat:@"%.2fM", size] : [NSString stringWithFormat:@"%.2fK", size * 1024.0];
+            cell.countLab.text = message;
         }
             break;
             case 1:
@@ -120,10 +112,30 @@
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+   
     switch (indexPath.section) {
         case 0:
         {
             if (indexPath.row == 0) {
+                
+                CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
+                
+                NSString *message = size > 1 ? [NSString stringWithFormat:@"确定要清理手机中的缓存%.2fM?", size] : [NSString stringWithFormat:@"确定要清理手机中的缓存%.2fK?", size * 1024.0];
+                
+                UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:(UIAlertControllerStyleAlert)];
+                
+                UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+                    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject];
+                    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject];
+                    [self cleanCaches:NSTemporaryDirectory()];
+                    SetCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+                    cell.countLab.text = [NSString stringWithFormat:@"%.2fk",0.00];
+                }];
+                
+                UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+                [alert addAction:action];
+                [alert addAction:cancel];  
+                [self showDetailViewController:alert sender:nil];
                 
             }else if (indexPath.row == 2)
             {
@@ -134,38 +146,72 @@
         }
             break;
         case 1:{
-            
+            //关于我们
+            WebViewController *web = [[WebViewController alloc]init];
+            web.navTitle = @"关于我们";
+            web.homeUrl = @"http://api.gongchangtemai.com/index.php?url=shop/help/aboutus";
+            [self.navigationController pushViewController:web animated:YES];
         }
             break;
         case 2:
         {
-            
+            WS(weakSelf);
+            [YPCNetworking postWithUrl:@"shop/user/signout"
+                          refreshCache:YES
+                                params:[YPCRequestCenter getUserInfo]
+                               success:^(id response) {
+                                   if ([YPC_Tools judgeRequestAvailable:response]) {
+                                       [LeanChatFactory invokeThisMethodBeforeLogoutSuccess:^{
+                                           [YPC_Tools showSvpWithNoneImgHud:@"退出成功"];
+                                           [YPCRequestCenter removeCacheUserKeychain];
+                                           dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                               [weakSelf.navigationController popToRootViewControllerAnimated:YES];
+                                           });
+                                       } failed:nil];
+                                   }
+                               } fail:^(NSError *error) {
+                                   
+                               }];
         }
             break;
         default:
             break;
     }
 }
--(void)viewDidLayoutSubviews
-{
-    if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
-        [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
+// 计算目录大小
+- (CGFloat)folderSizeAtPath:(NSString *)path{
+    // 利用NSFileManager实现对文件的管理
+    NSFileManager *manager = [NSFileManager defaultManager];
+    CGFloat size = 0;
+    if ([manager fileExistsAtPath:path]) {
+        // 获取该目录下的文件，计算其大小
+        NSArray *childrenFile = [manager subpathsAtPath:path];
+        for (NSString *fileName in childrenFile) {
+            NSString *absolutePath = [path stringByAppendingPathComponent:fileName];
+            size += [manager attributesOfItemAtPath:absolutePath error:nil].fileSize;
+        }
+        size+=[[SDImageCache sharedImageCache] getSize]/1024.0/1024.0;
+        size+=[YPCNetworking totalCacheSize];
+        // 将大小转化为M
+        return size / 1024.0 / 1024.0;
     }
-    
-    if ([self.tableView respondsToSelector:@selector(setLayoutMargins:)]) {
-        [self.tableView setLayoutMargins:UIEdgeInsetsMake(0,0,0,0)];
-    }
-    
+    return 0;
 }
-
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
-    if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
-        [cell setSeparatorInset:UIEdgeInsetsZero];
-    }
-    
-    if ([cell respondsToSelector:@selector(setLayoutMargins:)]) {
-        [cell setLayoutMargins:UIEdgeInsetsZero];
+// 根据路径删除文件
+- (void)cleanCaches:(NSString *)path{
+    // 利用NSFileManager实现对文件的管理
+    NSFileManager *fileManager = [NSFileManager defaultManager];
+    if ([fileManager fileExistsAtPath:path]) {
+        // 获取该路径下面的文件名
+        NSArray *childrenFiles = [fileManager subpathsAtPath:path];
+        for (NSString *fileName in childrenFiles) {
+            // 拼接路径
+            NSString *absolutePath = [path stringByAppendingPathComponent:fileName];
+            // 将文件删除
+            [fileManager removeItemAtPath:absolutePath error:nil];
+        }
+        [[SDImageCache sharedImageCache] cleanDisk];
+        [YPCNetworking clearCaches];
     }
 }
 - (void)didReceiveMemoryWarning {
