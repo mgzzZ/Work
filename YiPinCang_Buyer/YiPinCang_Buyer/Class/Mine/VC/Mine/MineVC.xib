@@ -39,6 +39,9 @@
                         <subviews>
                             <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_bj" translatesAutoresizingMaskIntoConstraints="NO" id="ezg-Nh-k7L">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="188"/>
+                                <constraints>
+                                    <constraint firstAttribute="height" constant="188" id="mms-vF-Pa6"/>
+                                </constraints>
                             </imageView>
                             <button opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="hik-pD-fFe">
                                 <rect key="frame" x="132" y="87" width="112" height="42"/>
@@ -327,21 +330,6 @@
                                     <constraint firstItem="vFj-rR-vj4" firstAttribute="top" secondItem="Y5A-UZ-MA4" secondAttribute="top" id="vXk-Os-sHq"/>
                                 </constraints>
                             </view>
-                            <button hidden="YES" opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" buttonType="roundedRect" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="f9l-c1-J8R">
-                                <rect key="frame" x="255" y="52" width="100" height="100"/>
-                                <color key="backgroundColor" red="0.96078431369999995" green="0.47843137250000001" blue="0.098039215690000001" alpha="1" colorSpace="calibratedRGB"/>
-                                <constraints>
-                                    <constraint firstAttribute="width" constant="100" id="ATE-3J-Wnw"/>
-                                    <constraint firstAttribute="height" constant="100" id="E2j-4T-3uS"/>
-                                </constraints>
-                                <fontDescription key="fontDescription" type="boldSystem" pointSize="23"/>
-                                <state key="normal" title="切换API">
-                                    <color key="titleColor" red="0.99607843139999996" green="0.99607843139999996" blue="0.99607843139999996" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
-                                </state>
-                                <connections>
-                                    <action selector="ChangeApi:" destination="-1" eventType="touchUpInside" id="fHf-r9-OyR"/>
-                                </connections>
-                            </button>
                         </subviews>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
@@ -357,11 +345,8 @@
                             <constraint firstItem="iLY-v3-7ai" firstAttribute="leading" secondItem="kn3-f5-YXz" secondAttribute="leading" constant="20" id="FIZ-zI-5ph"/>
                             <constraint firstAttribute="trailing" secondItem="z00-9h-p7z" secondAttribute="trailing" id="HBz-rb-pCR"/>
                             <constraint firstAttribute="bottom" secondItem="Y5A-UZ-MA4" secondAttribute="bottom" id="L40-GY-dkH"/>
-                            <constraint firstAttribute="trailing" secondItem="f9l-c1-J8R" secondAttribute="trailing" constant="20" id="Vf2-bX-eb6"/>
                             <constraint firstItem="Y5A-UZ-MA4" firstAttribute="top" secondItem="z00-9h-p7z" secondAttribute="bottom" id="XfS-ps-AL9"/>
                             <constraint firstItem="ezg-Nh-k7L" firstAttribute="top" secondItem="kn3-f5-YXz" secondAttribute="top" id="fJO-hl-YAT"/>
-                            <constraint firstItem="f9l-c1-J8R" firstAttribute="centerY" secondItem="ixm-Fr-VPG" secondAttribute="centerY" id="gG6-gb-FwW"/>
-                            <constraint firstItem="ezg-Nh-k7L" firstAttribute="height" secondItem="kn3-f5-YXz" secondAttribute="height" multiplier="249:400" id="lxg-Jp-AQg"/>
                             <constraint firstItem="z00-9h-p7z" firstAttribute="leading" secondItem="kn3-f5-YXz" secondAttribute="leading" id="tm0-N6-CuO"/>
                             <constraint firstAttribute="trailing" secondItem="iLY-v3-7ai" secondAttribute="trailing" constant="20" id="veo-ad-Ejs"/>
                         </constraints>

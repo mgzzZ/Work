@@ -24,6 +24,10 @@
 @property (strong, nonatomic) IBOutlet UITextField *pwdTF;
 @property (strong, nonatomic) IBOutlet UIButton *LoginBtn;
 @property (strong, nonatomic) IBOutlet UIActivityIndicatorView *actitityV;
+@property (strong, nonatomic) IBOutlet UIButton *wechatLoginBtn;
+@property (strong, nonatomic) IBOutlet UILabel *otherLoginLbl;
+@property (strong, nonatomic) IBOutlet UIView *lineView1;
+@property (strong, nonatomic) IBOutlet UIView *lineView2;
 
 @end
 
@@ -35,8 +39,18 @@
     self.navigationController.navigationBar.subviews.firstObject.alpha = 0;
     [self.phoneTF addTarget:self action:@selector(textFieldChanged) forControlEvents:UIControlEventEditingChanged];
     [self.pwdTF addTarget:self action:@selector(textFieldChanged) forControlEvents:UIControlEventEditingChanged];
-    _pwdTF.text = @"111111";
-    _phoneTF.text = @"h008";
+    
+    if ([[UMSocialManager defaultManager] isInstall:UMSocialPlatformType_WechatSession]) {
+        self.wechatLoginBtn.hidden = NO;
+        self.otherLoginLbl.hidden = NO;
+        self.lineView1.hidden = NO;
+        self.lineView2.hidden = NO;
+    }else {
+        self.wechatLoginBtn.hidden = YES;
+        self.otherLoginLbl.hidden = YES;
+        self.lineView1.hidden = YES;
+        self.lineView2.hidden = YES;
+    }
 }
 
 #pragma mark - textFieldDelegate
@@ -120,10 +134,10 @@
     if (self.phoneTF.isFirstResponder || self.pwdTF.isFirstResponder) {
         [self.view endEditing:YES];
     }
-    //    if (![self.phoneTF.text isValidPhone]) {
-    //        [YPC_Tools showSvpWithNoneImgHud:@"请输入正确手机号"];
-    //        return;
-    //    }
+    if (![self.phoneTF.text isValidPhone]) {
+        [YPC_Tools showSvpWithNoneImgHud:@"请输入正确手机号"];
+        return;
+    }
     [self startLoging];
     WS(weakSelf);
     [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
@@ -253,8 +267,8 @@
                                            [YPC_Tools dismissHud];
                                        }
                                    } fail:^(NSError *error) {
-                                       YPCAppLog(@"%@", [error description]);
                                        [weakSelf failedLogin];
+                                       [YPC_Tools showSvpHudError:[error description]];
                                    }];
             }];
         }else {

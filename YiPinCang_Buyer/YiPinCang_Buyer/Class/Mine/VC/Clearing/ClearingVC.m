@@ -363,27 +363,18 @@ static NSString *DistributioncellId = @"Distribution";
                 cell.textField.text = str;
                 weakself.invoice_id = inv_id;
             };
+            inv.str = cell.textField.text;
             [self.navigationController pushViewController:inv animated:YES];
         }else if (indexPath.row == 0){
             //地址管理
             AreaManagerVC *areaManager = [[AreaManagerVC alloc]init];
+            areaManager.from = @"结算";
             areaManager.backArea = ^(NSString *name,NSString *area,NSString *isDefault,NSString *address_id,NSString *area_id,NSString *city_id){
-                MineClearingAreaCell *cell = (MineClearingAreaCell *)[tableView cellForRowAtIndexPath:indexPath];
-                if ([isDefault isEqualToString:@"1"]) {
-                    cell.typeLab.hidden = NO;
-                }else{
-                    cell.typeLab.hidden = YES;
-                }
-                cell.nameLab.hidden = YES;
-                cell.phoneLab.text = name;
-                cell.areaLab.text = area;
-                weakself.model.address_info.address_id = address_id;
-                [weakself changeAddress:city_id area_id:area_id];
-                if (address_id.length == 0) {
-                    weakself.address_id = @"";
-                }else{
-                    weakself.address_id = address_id;
-                }
+                
+                [weakself changeAddress:city_id area_id:area_id name:name area:area isDefault:isDefault address_id:address_id];
+                
+                
+                
                 
                 
             };
@@ -432,7 +423,10 @@ static NSString *DistributioncellId = @"Distribution";
     if (self.address_id.length == 0) {
         [YPC_Tools showSvpWithNoneImgHud:@"请选择收货地址"];
     }else{
+        NSIndexPath *index = [NSIndexPath indexPathForRow:5 inSection:self.model.store_cart_list.count];
         
+        MineClearingOtherCell *cell = [self.tableView cellForRowAtIndexPath:index];
+        self.text = cell.textField.text;
         [YPCNetworking postWithUrl:@"shop/flow/createorder"
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -456,9 +450,10 @@ static NSString *DistributioncellId = @"Distribution";
                               }];
     }
 }
-- (void)changeAddress:(NSString *)city_id area_id:(NSString *)area_id{
+- (void)changeAddress:(NSString *)city_id area_id:(NSString *)area_id name:(NSString *)name area:(NSString *)area isDefault:(NSString *)isDefault address_id:(NSString *)address_id{
     
     WS(weakself);
+    
     [YPCNetworking postWithUrl:@"shop/flow/changeaddr"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -469,7 +464,29 @@ static NSString *DistributioncellId = @"Distribution";
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                        
                                weakself.freight = response[@"data"][@"freight"];
+                               
+                               NSIndexPath *indexone = [NSIndexPath indexPathForRow:0 inSection:weakself.model.store_cart_list.count];
+                               MineClearingAreaCell *cell = (MineClearingAreaCell *)[weakself.tableView cellForRowAtIndexPath:indexone];
+                               
+                               if ([isDefault isEqualToString:@"1"]) {
+                                   cell.typeLab.hidden = NO;
+                               }else{
+                                   cell.typeLab.hidden = YES;
+                               }
+                               cell.nameLab.hidden = YES;
+                               cell.phoneLab.text = name;
+                               cell.areaLab.text = area;
+                               cell.phoneLab.hidden = NO;
+                               cell.areaLab.hidden = NO;
+                               weakself.model.address_info.address_id = address_id;
+                               
+                               if (address_id.length == 0) {
+                                   weakself.address_id = @"";
+                               }else{
+                                   weakself.address_id = address_id;
+                               }
                                NSIndexPath *index = [NSIndexPath indexPathForRow:1 inSection:weakself.model.store_cart_list.count];
                                MineClearingDistributionCell *cell1 = [weakself.tableView cellForRowAtIndexPath:index];
                                cell1.areaLab.text = [NSString stringWithFormat:@"运费¥%@",weakself.freight];
@@ -483,6 +500,7 @@ static NSString *DistributioncellId = @"Distribution";
                                    NSString *str = [NSString stringWithFormat:@"合计:¥%.2f",price];
                                    [weakself priceLabtext:str];
                                    weakself.model.total_price = [NSString stringWithFormat:@"%.2f",price];
+                                   
                                }else{
                                    MineClearingOtherCell *cell4 = [weakself.tableView cellForRowAtIndexPath:index4];
                                    cell4.typeImg.hidden = YES;
@@ -497,8 +515,9 @@ static NSString *DistributioncellId = @"Distribution";
                            }
                        }
                           fail:^(NSError *error) {
-                              
+                            
                           }];
+
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

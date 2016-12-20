@@ -60,7 +60,7 @@
     _collectView = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:layout];
     _collectView.delegate = self;
     _collectView.dataSource = self;
-    _collectView.scrollEnabled = NO;
+    _collectView.scrollEnabled = YES;
     _collectView.backgroundColor = [UIColor whiteColor];
     [self addSubview:_collectView];
     _collectView.sd_layout
@@ -69,6 +69,13 @@
     .rightEqualToView(self)
     .bottomEqualToView(self);
     [self.collectView registerNib:[UINib nibWithNibName:NSStringFromClass([GuessLikeCell class]) bundle:nil] forCellWithReuseIdentifier:@"GuessLikeCell"];
+    WS(weakself);
+    self.collectView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+        if (weakself.refresh) {
+            weakself.refresh();
+        }
+    }];
+
 }
 
 - (void)setDataArr:(NSMutableArray *)dataArr{

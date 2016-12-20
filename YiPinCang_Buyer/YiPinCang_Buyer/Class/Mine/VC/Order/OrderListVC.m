@@ -27,6 +27,10 @@
     [[NSNotificationCenter defaultCenter]removeObserver:self];
     
 }
+- (void)viewWillAppear:(BOOL)animated{
+    [super viewWillAppear:animated];
+     [self getDataWithType:_orderType page:_page];
+}
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -44,7 +48,7 @@
                action:@selector(backClick)
      forControlEvents:UIControlEventTouchUpInside];
     button.frame = CGRectMake(0, 0, 44, 44);
-    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:button];
+    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:button];
 }
 
 /**
@@ -99,8 +103,7 @@
     self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
     WS(weakSelf);
     [weakSelf addMjRefresh];
-
-   
+ 
 }
 #pragma mark - 刷新加载
 - (void)addMjRefresh
@@ -137,6 +140,10 @@
                                    [weakSelf.tableView.mj_footer endRefreshing];
                                   
                                }];
+                           }else if (weakSelf.dataArr == 0){
+                               weakSelf.tableView.mj_footer.hidden = YES;
+                           }else{
+                               weakSelf.tableView.mj_footer.hidden = NO;
                            }
                            if (arr.count < 10) {
                                [weakSelf.tableView.mj_footer endRefreshingWithNoMoreData];
@@ -262,60 +269,95 @@
 #pragma mark- 取消
 
 - (void)cancelOrder:(OrderListModel *)model{
-    WS(weakself);
-    [YPCNetworking postWithUrl:@"shop/orders/cancel"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"order_id":model.order_id
-                                                                               }]
-                       success:^(id response) {
-                           model.order_state = @"state_cancel";
-                           [weakself.tableView reloadData];
-                           
-                           
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/cancel"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":model.order_id
+                                                                                   }]
+                           success:^(id response) {
+                               model.order_state = @"state_cancel";
+                               [weakself.dataArr removeObject:model];
+                               [weakself.tableView reloadData];
+                               
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+
 }
 
 #pragma mark- 删除
 
 - (void)deleteOrder:(OrderListModel *)model{
-    WS(weakself);
-    [YPCNetworking postWithUrl:@"shop/orders/delete"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"order_id":model.order_id
-                                                                               }]
-                       success:^(id response) {
-                           [weakself.dataArr removeObject:model];
-                           [weakself.tableView reloadData];
-                           
-                           
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认删除该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/delete"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":model.order_id
+                                                                                   }]
+                           success:^(id response) {
+                               [weakself.dataArr removeObject:model];
+                               [weakself.tableView reloadData];
+                               
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
+   
 }
 
 //确认收货
 - (void)receiveOrder:(OrderListModel *)model{
-    WS(weakself);
-    [YPCNetworking postWithUrl:@"shop/orders/receive"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"order_id":model.order_id
-                                                                               }]
-                       success:^(id response) {
-                           model.order_state = @"state_noeval";
-                           [weakself addMjRefresh];
-                           [weakself.tableView reloadData];
-                           
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定对该订单进行确认收货?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/receive"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":model.order_id
+                                                                                   }]
+                           success:^(id response) {
+                               model.order_state = @"state_noeval";
+                               [weakself addMjRefresh];
+                               [weakself.tableView reloadData];
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

@@ -20,6 +20,8 @@ typedef void(^DidBlock)(NSString *goods_id,NSString *count,NSString *typeStr);
 
 typedef void(^CancelBlock)();
 
+typedef void(^PushSizeHelpBlock)();
+
 @interface ChooseSize : UIView
 
 - (instancetype)initWithFrame:(CGRect)frame count:(NSInteger)count maxCount:(NSInteger)maxCount;
@@ -30,4 +32,5 @@ typedef void(^CancelBlock)();
 @property (nonatomic,copy)DidBlock did;
 @property (nonatomic,copy)CancelBlock cancel;
 @property (nonatomic,strong)ChooseSizeModel *model;
+@property (nonatomic,copy)PushSizeHelpBlock push;
 @end

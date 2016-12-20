@@ -7,9 +7,9 @@
 //
 
 #import "DiscoverDetailNewVC.h"
-#import "BrandDetailHeaderView.h"
 #import "HHHorizontalPagingView.h"
 #import "LiveSctivityView.h"
+#import "BrandDetailHeaderView.h"
 #import "BrandDetailNewView.h"
 #import "BrandDetailModel.h"
 #import "LiveDetailHHHVC.h"
@@ -18,11 +18,11 @@
 #import "LivingVC.h"
 #import "PreheatingVC.h"
 #import "VideoPlayerVC.h"
-
+#import "BrandTableView.h"
 @interface DiscoverDetailNewVC ()
 @property (nonatomic,strong)BrandDetailHeaderView *headerView;
 @property (nonatomic,strong)HHHorizontalPagingView *pagingView;
-@property (nonatomic,strong)BrandDetailNewView *activityColl;
+@property (nonatomic,strong)BrandTableView *brandView;
 @property (nonatomic,strong)BrandDetailModel *model;
 
 @property (nonatomic, strong) dispatch_source_t timer;
@@ -68,10 +68,14 @@
                  if ([YPCRequestCenter isLoginAndPresentLoginVC:weakself]) {
                      if ([weakself.model.brand.isfavor isEqualToString:@"1"]) {
                          [weakself followstore_cancel];
+                         weakself.model.brand.isfavor = @"0";
                          weakself.headerView.fllowBtn.selected = NO;
+                         weakself.headerView.fllowBtn.backgroundColor = [UIColor redColor];
                      }else{
                          [weakself followstore_add];
+                         weakself.model.brand.isfavor = @"1";
                          weakself.headerView.fllowBtn.selected = YES;
+                         weakself.headerView.fllowBtn.backgroundColor = [UIColor clearColor];
                      }
                  }
             }
@@ -128,7 +132,7 @@
 - (void)getData:(NSString *)page isRefresh:(BOOL)isRefresh{
     WS(weakSelf);
     
-    [YPCNetworking postWithUrl:@"shop/showstore/brandgoods"
+    [YPCNetworking postWithUrl:@"shop/showstore/brandgoodsv2"
                   refreshCache:YES
                         params:@{@"live_id":weakSelf.live_id,
                                  @"listorder":@"0",
@@ -214,8 +218,8 @@
     
     if (_pagingView == nil) {
         NSMutableArray *buttonArray = [NSMutableArray array];
-        _pagingView = [HHHorizontalPagingView pagingViewWithHeaderView:self.headerView headerHeight:325 segmentButtons:buttonArray segmentHeight:-60 contentViews:@[self.activityColl]];
-        _pagingView.segmentTopSpace = 64;
+        _pagingView = [HHHorizontalPagingView pagingViewWithHeaderView:self.headerView headerHeight:325 segmentButtons:buttonArray segmentHeight:-42 contentViews:@[self.brandView]];
+        _pagingView.segmentTopSpace = 104;
         [self.view addSubview:_pagingView];
     }
     return _pagingView;
@@ -228,25 +232,20 @@
     }
     return _headerView;
 }
-
-- (BrandDetailNewView *)activityColl{
-    WS(weakself);
-    if (_activityColl == nil) {
-        _activityColl = [BrandDetailNewView contentTableView];
-        _activityColl.live_id = weakself.live_id;
-        _activityColl.didcell = ^(NSIndexPath *index,LiveActivityModel *model){
+- (BrandTableView *)brandView{
+    WS(weakSelf);
+    if (_brandView == nil) {
+        _brandView = [BrandTableView contentTableView];
+        _brandView.live_id = weakSelf.live_id;
+        _brandView.didcell = ^(NSIndexPath *index,LiveActivityModel *model){
             DiscoverDetailVC *dic = [[DiscoverDetailVC alloc]init];
             dic.strace_id = model.strace_id;
-            dic.live_id = model.live_id;
             dic.typeStr = @"淘好货";
-            [weakself.navigationController pushViewController:dic animated:YES];
+            [weakSelf.navigationController pushViewController:dic animated:YES];
         };
-        
     }
-    return _activityColl;
+    return _brandView;
 }
-
-
 
 
 #pragma mark - 动画开始

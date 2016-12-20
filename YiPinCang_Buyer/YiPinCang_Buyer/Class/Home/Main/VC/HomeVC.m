@@ -22,6 +22,7 @@
 #import "DiscoverDetailVC.h"
 #import "LiveDetailHHHVC.h"
 #import "DiscoverDetailNewVC.h"
+#import "ChooseVC.h"
 /*
  * 滚动类型
  */
@@ -30,7 +31,7 @@ typedef NS_ENUM(NSUInteger, ScrollDerection) {
     ScrollDerectionDown = 2 // 向下滚动
 };
 static BOOL Debug = NO;
-@interface HomeVC () <UITableViewDelegate, UITableViewDataSource, SDCycleScrollViewDelegate>
+@interface HomeVC () <UITableViewDelegate, UITableViewDataSource, SDCycleScrollViewDelegate, UITabBarControllerDelegate>
 {
     CGFloat rowHeight;
     CGFloat sectionHeight;
@@ -112,6 +113,7 @@ static NSString *EndIdentifier =      @"endCell";
     [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
     [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
     [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+    self.tabBarController.delegate = self;
     
     sectionHeight = 42.f;
     tvHeaderViewHeight = ScreenHeight / 100 * 29;
@@ -194,7 +196,7 @@ static NSString *EndIdentifier =      @"endCell";
     self.bannerView.delegate = self;
 //    self.bannerView.titlesGroup = titles;
     self.bannerView.autoScrollTimeInterval = 4.f;
-    self.bannerView.currentPageDotColor = [UIColor yellowColor]; // 自定义分页控件小圆标颜色
+    self.bannerView.currentPageDotColor = [UIColor whiteColor]; // 自定义分页控件小圆标颜色
     self.bannerView.placeholderImage = IMAGE(@"homepage_banner_zhanweitu");
     [self.tableView setTableHeaderView:self.bannerView];
 }
@@ -770,7 +772,7 @@ static NSString *EndIdentifier =      @"endCell";
         return startCellHeight;
     }else if ([type isEqualToString:KEY_End_Activity]) {
         if (model.goods_data.count > 0) {
-            endCellHeight = ScreenWidth / 100 * 71 + 97.f + (ScreenWidth - 14) / 3 - 15 + 40;
+            endCellHeight = ScreenWidth / 100 * 71 + 97.f + 160.f;
             return endCellHeight;
         }else {
             endCellHeight = ScreenWidth / 100 * 71 + 97.f;
@@ -875,7 +877,8 @@ static NSString *EndIdentifier =      @"endCell";
         _button1.acceptEventInterval = 1.f;
         _button1.frame = CGRectMake(0, 0, ScreenWidth / 3, 42.f);
         _button1.titleLabel.font = BoldFont(16);
-        [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+//        [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+         [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         [_button1 setTitle:_indexModel1.name forState:UIControlStateNormal];
         [_button1 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.sectionImgV addSubview:_button1];
@@ -885,7 +888,7 @@ static NSString *EndIdentifier =      @"endCell";
         _button2.acceptEventInterval = 1.f;
         _button2.frame = CGRectMake(ScreenWidth / 3, 0, ScreenWidth / 3, 42.f);
         _button2.titleLabel.font = LightFont(16);
-        [_button2 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+        [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         [_button2 setTitle:_indexModel2.name forState:UIControlStateNormal];
         [_button2 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.sectionImgV addSubview:_button2];
@@ -895,7 +898,7 @@ static NSString *EndIdentifier =      @"endCell";
         _button3.acceptEventInterval = 1.f;
         _button3.frame = CGRectMake(ScreenWidth / 3 * 2, 0, ScreenWidth / 3, 42.f);
         _button3.titleLabel.font = LightFont(16);
-        [_button3 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
+        [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
         [_button3 setTitle:_indexModel3.name forState:UIControlStateNormal];
         [_button3 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
         [self.sectionImgV addSubview:_button3];
@@ -930,12 +933,12 @@ static NSString *EndIdentifier =      @"endCell";
     
     if (point.y < h1) {
         if (![[self getTypeImageWithIndexModel:_indexModel1] isEqual:self.sectionImgV.image]) {
-            CATransition *transition = [CATransition animation];
-            transition.type = @"cube";
-            transition.duration = .3f;
-            transition.repeatCount = 1;
-            transition.subtype = kCATransitionFromTop;
-            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
+//            CATransition *transition = [CATransition animation];
+//            transition.type = @"cube";
+//            transition.duration = .3f;
+//            transition.repeatCount = 1;
+//            transition.subtype = kCATransitionFromTop;
+//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
             self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel1];
             _button1.titleLabel.font = BoldFont(16);
             _button2.titleLabel.font = LightFont(16);
@@ -946,12 +949,12 @@ static NSString *EndIdentifier =      @"endCell";
         }
     }else if (point.y > h1 && point.y < h1 + h2) {
         if (![[self getTypeImageWithIndexModel:_indexModel2] isEqual:self.sectionImgV.image]) {
-            CATransition *transition = [CATransition animation];
-            transition.type = @"cube";
-            transition.duration = .3f;
-            transition.repeatCount = 1;
-            transition.subtype = kCATransitionFromTop;
-            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
+//            CATransition *transition = [CATransition animation];
+//            transition.type = @"cube";
+//            transition.duration = .3f;
+//            transition.repeatCount = 1;
+//            transition.subtype = kCATransitionFromTop;
+//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
             self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel2];
             _button1.titleLabel.font = LightFont(16);
             _button2.titleLabel.font = BoldFont(16);
@@ -962,12 +965,12 @@ static NSString *EndIdentifier =      @"endCell";
         }
     }else{
         if (![[self getTypeImageWithIndexModel:_indexModel3] isEqual:self.sectionImgV.image]) {
-            CATransition *transition = [CATransition animation];
-            transition.type = @"cube";
-            transition.duration = .3f;
-            transition.repeatCount = 1;
-            transition.subtype = kCATransitionFromTop;
-            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
+//            CATransition *transition = [CATransition animation];
+//            transition.type = @"cube";
+//            transition.duration = .3f;
+//            transition.repeatCount = 1;
+//            transition.subtype = kCATransitionFromTop;
+//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
             self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel3];
             _button1.titleLabel.font = LightFont(16);
             _button2.titleLabel.font = LightFont(16);
@@ -1079,25 +1082,40 @@ static NSString *EndIdentifier =      @"endCell";
 - (void)animationWithButton
 {
     [_button1 setImage:IMAGE(@"homepage_icon_live1_children") forState:UIControlStateNormal];
-    
+    [_button1 setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 10)];
     NSArray *images = [[NSArray alloc] init];
-    if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-        images = [NSArray arrayWithObjects:
-                  IMAGE(@"homepage_icon_live1_children"),
-                  IMAGE(@"homepage_icon_live2_children"),
-                  IMAGE(@"homepage_icon_live3_children"),
-                  nil];
-    }else{
-        images = [NSArray arrayWithObjects:
-                  IMAGE(@"homepage_icon_live1"),
-                  IMAGE(@"homepage_icon_live2"),
-                  IMAGE(@"homepage_icon_live3"),
-                  nil];
-    }
+//    if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
+    //        images = [NSArray arrayWithObjects:
+    //                  IMAGE(@"homepage_icon_live1_children"),
+    //                  IMAGE(@"homepage_icon_live2_children"),
+    //                  IMAGE(@"homepage_icon_live3_children"),
+    //                  nil];
+    //    }else{
+    images = [NSArray arrayWithObjects:
+              IMAGE(@"homepage_icon_live1"),
+              IMAGE(@"homepage_icon_live2"),
+              IMAGE(@"homepage_icon_live3"),
+              nil];
+//    }
     _button1.imageView.animationImages = images;
     _button1.imageView.animationDuration = .5f;
     _button1.imageView.animationRepeatCount = 0;
     [_button1.imageView startAnimating];
+}
+
+- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
+{
+    UIViewController *selectTab = tabBarController.selectedViewController;
+    if ([selectTab isEqual:viewController] && tabBarController.selectedIndex == 0) {
+        WS(weakSelf);
+        ChooseVC *cVC = [ChooseVC new];
+        cVC.isChangeHomeStyle = YES;
+        [cVC setChangeStyleBlock:^{
+            [weakSelf.tableView.mj_header beginRefreshing];
+        }];
+        [self presentViewController:cVC animated:YES completion:nil];
+    }
+    return YES;
 }
 
 @end

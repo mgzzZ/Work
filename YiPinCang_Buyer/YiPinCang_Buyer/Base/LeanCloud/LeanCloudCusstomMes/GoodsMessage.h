@@ -11,7 +11,7 @@
 
 @interface GoodsMessage : AVIMTypedMessage <AVIMTypedMessageSubclassing>
 
-- (instancetype)initWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType;
-+ (instancetype)GoodsMessageWithOrderModel:(OrderDetailModel *)orderModel conversationType:(LCCKConversationType)conversationType;
+- (instancetype)initWithOrderId:(NSString *)orderId index:(NSString *)index conversationType:(LCCKConversationType)conversationType;
++ (instancetype)GoodsMessageWithOrderId:(NSString *)orderId index:(NSString *)index conversationType:(LCCKConversationType)conversationType;
 
 @end

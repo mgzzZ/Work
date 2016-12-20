@@ -33,7 +33,7 @@
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if (string.length + textField.text.length > 20) {
+    if (string.length + textField.text.length > 16) {
         [YPC_Tools showSvpWithNoneImgHud:@"昵称不能超过16个字"];
         return NO;
     }else {

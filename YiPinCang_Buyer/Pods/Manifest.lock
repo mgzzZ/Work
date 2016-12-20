@@ -56,16 +56,18 @@ PODS:
     - DACircularProgress (~> 2.3)
     - MBProgressHUD (~> 0.9)
     - SDWebImage (!= 3.7.2, ~> 3.7)
-  - pili-ffmpeg (3.1.0)
-  - pili-librtmp (1.0.5)
-  - PLPlayerKit (2.3.0):
+  - PLPlayerKit (2.4.0):
     - HappyDNS (~> 0.3.10)
-    - pili-ffmpeg (~> 3.1.0)
-    - pili-librtmp (~> 1.0.5)
   - pop (1.0.9)
   - Qiniu (7.0.20):
     - AFNetworking (~> 3)
     - HappyDNS (~> 0.3)
+  - ReactiveCocoa (2.1.8):
+    - ReactiveCocoa/Core (= 2.1.8)
+    - ReactiveCocoa/no-arc (= 2.1.8)
+  - ReactiveCocoa/Core (2.1.8):
+    - ReactiveCocoa/no-arc
+  - ReactiveCocoa/no-arc (2.1.8)
   - RTRootNavigationController (0.5.22)
   - SAMKeychain (1.5.2)
   - SDAutoLayout (2.1.7)
@@ -74,20 +76,20 @@ PODS:
   - SDWebImage (3.8.2):
     - SDWebImage/Core (= 3.8.2)
   - SDWebImage/Core (3.8.2)
-  - SVProgressHUD (2.0.3)
+  - SVProgressHUD (2.1.2)
   - UITableView+FDTemplateLayoutCell (1.5.beta)
-  - UMengUShare/Core (6.0.1):
+  - UMengUShare/Core (6.1.1):
     - UMengUShare/Network
-  - UMengUShare/Network (6.0.1)
-  - UMengUShare/Social/QQ (6.0.1):
+  - UMengUShare/Network (6.1.1)
+  - UMengUShare/Social/QQ (6.1.1):
     - UMengUShare/Core
-  - UMengUShare/Social/Sina (6.0.1):
+  - UMengUShare/Social/Sina (6.1.1):
     - UMengUShare/Core
-  - UMengUShare/Social/WeChat (6.0.1):
+  - UMengUShare/Social/WeChat (6.1.1):
     - UMengUShare/Core
-  - UMengUShare/UI (6.0.1):
+  - UMengUShare/UI (6.1.1):
     - UMengUShare/Core
-  - WMPageController (2.0.2)
+  - WMPageController (2.1.5)
   - YYCache (1.0.4)
   - YYImage (1.0.4):
     - YYImage/Core (= 1.0.4)
@@ -109,12 +111,13 @@ DEPENDENCIES:
   - MJRefresh (~> 3.1.12)
   - PLPlayerKit
   - Qiniu (from `https://github.com/qiniu/objc-sdk.git`, branch `AFNetworking-3.x`)
+  - ReactiveCocoa (~> 2.1.8)
   - RTRootNavigationController (~> 0.5.22)
   - SAMKeychain
   - SDAutoLayout (~> 2.1.3)
   - SDCycleScrollView (~> 1.64)
   - SDWebImage (~> 3.8.1)
-  - SVProgressHUD (~> 2.0.3)
+  - SVProgressHUD (~> 2.1.2)
   - UMengUShare/Social/QQ
   - UMengUShare/Social/Sina
   - UMengUShare/Social/WeChat
@@ -152,25 +155,24 @@ SPEC CHECKSUMS:
   MJRefresh: b96cdb21c4aa75a7b07654311ab2f315c497e806
   MLLabel: df58127ce0bd1f87890ecc3232db77a85ce4cd97
   MWPhotoBrowser: 5836d7aa041dc05a13de380c246826578adc5ea5
-  pili-ffmpeg: b76de7e6b730723497d79508be8e8efdcba31a69
-  pili-librtmp: 65a6e10f7c314bd1f407ba24bd074c57cba79d0c
-  PLPlayerKit: 1473253ee2d7863d8a78dbb3b965161245c51ad5
+  PLPlayerKit: 4a206aa6e620fea4a93ca36b44bf736a025346d3
   pop: f667631a5108a2e60d9e8797c9b32ddaf2080bce
   Qiniu: 4dbf1e6acb3236c4d7251046a17d08b16d21fcfe
+  ReactiveCocoa: f89f2e009a87951b50321bf9feb958823fcc617e
   RTRootNavigationController: cf134c044a8ce14d97fc668847ed4567efc53f91
   SAMKeychain: 1865333198217411f35327e8da61b43de79b635b
   SDAutoLayout: e9b36d04b8c0b504762a04d76fbbe5108944297a
   SDCycleScrollView: f72904c77698a7f93a41bcbbc2d78b073bf7326c
   SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c
-  SVProgressHUD: b0830714205bea1317ea1a2ebc71e5633af334d4
+  SVProgressHUD: c404a55d78acbeb7ebb78b76d3faf986475a6994
   UITableView+FDTemplateLayoutCell: 02b508ab1cb4cea16a8c17ac83d2cd1fd72124f9
-  UMengUShare: 418c2eaf7d8ba939916111d622bf5ea86c86285a
-  WMPageController: 2267f3b40620eb0a74abb19ee2a46ce1d7c61754
+  UMengUShare: 0a80f54ee06f71f3de7c57764c36339e8bf9b7e7
+  WMPageController: e10e3ada7c3d8965fabf2716a04560a189d18f33
   YYCache: 8105b6638f5e849296c71f331ff83891a4942952
   YYImage: 1e1b62a9997399593e4b9c4ecfbbabbf1d3f3b54
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
   YYWebImage: 5f7f36aee2ae293f016d418c7d6ba05c4863e928
 
-PODFILE CHECKSUM: 5a1eb773ca57e53524ef34d907ee565377d1afc4
+PODFILE CHECKSUM: b1e2b2eecf380f8ae7db5d38daebd91199394f44
 
-COCOAPODS: 1.0.0
+COCOAPODS: 1.1.1

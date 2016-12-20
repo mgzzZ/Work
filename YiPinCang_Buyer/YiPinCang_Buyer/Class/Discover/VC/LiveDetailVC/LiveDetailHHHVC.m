@@ -82,7 +82,7 @@
                 break;
             case MessageTag:{
                 YPCAppLog(@"私信");
-                [YPC_Tools openConversationWithCilentId:weakself.model.info.hx_uname andViewController:weakself];
+                [YPC_Tools openConversationWithCilentId:weakself.model.info.hx_uname ViewController:weakself andOrderId:nil andOrderIndex:nil];
             }
                 break;
             default:
@@ -277,7 +277,7 @@
         _activityColl.didcell = ^(NSIndexPath *index,LiveActivityModel *model){
             DiscoverDetailVC *detail = [[DiscoverDetailVC alloc]init];
             detail.strace_id = model.strace_id;
-            detail.live_id = model.live_id;
+       
             detail.typeStr = @"淘好货";
             [weakself.navigationController pushViewController:detail animated:YES];
         };

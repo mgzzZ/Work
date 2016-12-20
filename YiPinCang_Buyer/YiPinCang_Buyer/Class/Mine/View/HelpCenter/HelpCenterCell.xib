@@ -32,10 +32,10 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="qzE-YD-Dvk">
-                        <rect key="frame" x="15" y="14.5" width="16" height="14.5"/>
+                        <rect key="frame" x="15" y="12" width="20" height="20"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="16" id="FrA-Ft-MOl"/>
-                            <constraint firstAttribute="height" constant="14.5" id="Xe5-zy-w0O"/>
+                            <constraint firstAttribute="width" constant="20" id="FrA-Ft-MOl"/>
+                            <constraint firstAttribute="height" constant="20" id="Xe5-zy-w0O"/>
                         </constraints>
                     </imageView>
                 </subviews>

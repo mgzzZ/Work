@@ -187,29 +187,40 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-    // 从列表中删除
-    ActivitySubscribeModel *model = self.dataArr[indexPath.row];
-   
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消订阅该活动?" preferredStyle:(UIAlertControllerStyleAlert)];
     
-    [YPCNetworking postWithUrl:@"shop/activity/rssactivitycancel"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id":model.live_id
-                                                                               }]
-                       success:^(id response) {
-                           if ([YPC_Tools judgeRequestAvailable:response]) {
-                               
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        // 从列表中删除
+        ActivitySubscribeModel *model = self.dataArr[indexPath.row];
+        
+        
+        [YPCNetworking postWithUrl:@"shop/activity/rssactivitycancel"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"live_id":model.live_id
+                                                                                   }]
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   
+                                   
+                               }
                                
                            }
-                           
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
-    // 从数据源中删除
-    [self.dataArr removeObjectAtIndex:indexPath.row];
-    [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
-}
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        // 从数据源中删除
+        [self.dataArr removeObjectAtIndex:indexPath.row];
+        [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
+    }
 
 - (NSMutableArray *)dataArr{
     if (_dataArr == nil) {

@@ -273,7 +273,8 @@
 - (BOOL)growingTextViewShouldReturn:(GrowingTextView *)growingTextView
 {
     if (textView.text.length > 0) {
-        self.ButtonClickedBlock(textView.text);
+        NSString *utf8Text = [textView.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        self.ButtonClickedBlock(utf8Text);
         textView.text = @"";
     }
     if (textView.internalTextView.isFirstResponder) {
@@ -301,7 +302,8 @@
 - (void)sendMesAcition:(UIButton *)sender
 {
     if (textView.text.length > 0) {
-        self.ButtonClickedBlock(textView.text);
+        NSString *utf8Text = [textView.text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+        self.ButtonClickedBlock(utf8Text);
         textView.text = @"";
     }
     if (textView.internalTextView.isFirstResponder) {

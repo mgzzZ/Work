@@ -34,4 +34,5 @@
 @property (nonatomic,strong)NSArray *strace_content;
 @property (nonatomic,strong)NSMutableArray *commentlist;
 @property (nonatomic,strong)NSString *total_storage;
+@property (nonatomic,strong)NSString *store_id;
 @end

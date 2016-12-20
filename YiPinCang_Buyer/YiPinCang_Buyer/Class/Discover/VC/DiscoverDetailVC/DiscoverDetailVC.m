@@ -17,8 +17,8 @@
 #import "KeyboardTextView.h"
 #import "ClearingVC.h"
 #import "PushModel.h"
-
-
+#import "WebViewController.h"
+#import "LiveDetailHHHVC.h"
 
 @interface DiscoverDetailVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)UITableView *tableView;
@@ -86,7 +86,7 @@
     self.keyboardView = [[KeyboardTextView alloc] initWithTextViewFrame:CGRectMake(0, ScreenHeight - 58 , ScreenWidth ,58)];
     
     [self.keyboardView setButtonClickedBlock:^(NSString *message) {
-        [YPCNetworking postWithUrl:@"shop/explore/livecomment"
+        [YPCNetworking postWithUrl:@"shop/activity/sendcomment"
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
                                                                                    @"strace_id":weakSelf.strace_id,
@@ -97,7 +97,7 @@
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
                                    CommentListModel *model = [[CommentListModel alloc]init];
-                                   model.scomm_content = message;
+                                   model.scomm_content = [message stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
                                    model.scomm_memberid = [YPCRequestCenter shareInstance].model.user_id;
                                    model.scomm_memberavatar = [YPCRequestCenter shareInstance].model.member_avatar;
                                    model.comment_type = weakSelf.comment_type;
@@ -196,6 +196,12 @@
         [weakSelf chooseSizeHide];
     };
     
+    self.chooseSize.push = ^{
+        WebViewController *web = [[WebViewController alloc]init];
+        web.navTitle = @"尺码助手";
+        web.homeUrl = weakSelf.chooseModel.specdesc_url;
+        [weakSelf.navigationController pushViewController:web animated:YES];
+    };
 
 }
 - (ChooseSize *)chooseSize{
@@ -245,12 +251,12 @@
     commentLab.textAlignment = NSTextAlignmentRight;
     commentLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
     commentLab.font = [UIFont systemFontOfSize:13];
-    UIImageView *commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_commentnumber")];
+    UIImageView *commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_commentnumber_dis")];
     self.likeCountLab = [[UILabel alloc]init];
     self.likeCountLab.textAlignment = NSTextAlignmentRight;
     self.likeCountLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
     self.likeCountLab.font = [UIFont systemFontOfSize:13];
-    UIImageView *likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_likes")];
+    UIImageView *likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_likes_dis")];
     likeImg.tag = 10000;
     UILabel *guding = [[UILabel alloc]init];
     guding.text = @"选择尺码,颜色分类";
@@ -541,7 +547,7 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.chooseModel = [ChooseSizeModel mj_objectWithKeyValues:response[@"data"]];
                                NSInteger maxcount = weakSelf.model.total_storage.integerValue;
-                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goods_price img:weakSelf.model.strace_storelogo chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
+                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goods_price img:weakSelf.model.strace_content[0] chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
                            }
                            
                        }
@@ -565,6 +571,8 @@
         cell = [[DiscoverCommentCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
     }
     cell.model = self.model.commentlist[indexPath.row];
+    cell.txBtn.tag = indexPath.row;
+    [cell.txBtn addTarget:self action:@selector(txBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     return cell;
 }
@@ -701,6 +709,11 @@
     }
     
 
+}
+- (void)txBtnClick:(UIButton *)sender{
+    LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+    live.store_id = self.model.store_id;
+    [self.navigationController pushViewController:live animated:YES];
 }
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

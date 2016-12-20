@@ -19,7 +19,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="177" height="263"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_img2" translatesAutoresizingMaskIntoConstraints="NO" id="g47-ZI-bcv">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="g47-ZI-bcv">
                         <rect key="frame" x="0.0" y="10" width="177" height="177"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="g47-ZI-bcv" secondAttribute="height" multiplier="1:1" id="0qw-6o-alr"/>
@@ -113,7 +113,4 @@
             <point key="canvasLocation" x="97.5" y="160.5"/>
         </collectionViewCell>
     </objects>
-    <resources>
-        <image name="mine_img2" width="137" height="182"/>
-    </resources>
 </document>

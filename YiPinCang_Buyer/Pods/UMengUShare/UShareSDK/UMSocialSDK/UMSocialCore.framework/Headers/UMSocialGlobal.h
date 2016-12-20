@@ -41,7 +41,7 @@
  *  type字符串
  *  @discuss type是新加入的字段，目前默认值为@"native"
  */
-@property(atomic,readwrite, strong)NSString* type;
+@property(atomic,readwrite, copy)NSString* type;
 
 
 /**
@@ -50,6 +50,37 @@
  *  @return 返回当前的版本号
  */
 +(NSString*)umSocialSDKVersion;
+
+
+/**
+ *  thumblr平台需要作为标示的字段 tag
+ *  @discuss 默认的tag是UMSocial_ThumblrTag，用户可以自己设置自己的tag
+ */
+@property(atomic,readwrite,copy)NSString* thumblr_Tag;
+
+
+/**
+ *  对平台的分享文本的时候，做规定的截断，默认开启
+ *  @discuss 针对特定平台(比如:微信，qq,sina等)对当前的分享信息中的文本截断到合理的位置从而能成功分享
+ */
+@property(atomic,readwrite,assign)BOOL isTruncateShareText;
+
+/**
+ *  当前网络请求是否用https
+ *  @discuss 针对ios9系统以后强制使用https的网络请求，针对分享的网络图片都必须是https的网络图片(此为苹果官方要求)
+ *  @discuss 该函数默认开启https请求
+ *  @discuss 如果开启ios9的请求后，自动会过滤ios的http的请求，并返回错误。
+ *
+ */
+@property(atomic,readwrite,assign)BOOL isUsingHttpsWhenShareContent;
+
+
+/**
+ *  是否清除缓存在获得用户资料的时候
+ *  默认设置为YES,代表请求用户的时候需要请求缓存
+ *  NO,代表不清楚缓存，用缓存的数据请求用户数据
+ */
+@property(atomic,readwrite,assign)BOOL isClearCacheWhenGetUserInfo;
 
 @end
 

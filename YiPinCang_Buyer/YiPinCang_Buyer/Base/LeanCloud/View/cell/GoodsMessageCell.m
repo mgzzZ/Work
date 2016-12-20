@@ -15,6 +15,7 @@
 @interface GoodsMessageCell ()
 @property (nonatomic, weak) GoodsMessageView *gmView;
 @property (nonatomic, strong) OrderDetailModel *dataModel;
+@property (nonatomic, copy) NSString *index;
 @end
 
 static CGFloat LCCK_MSG_SPACE_TOP = 10;
@@ -25,9 +26,12 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
 @implementation GoodsMessageCell
 
 - (void)setup {
+    WS(weakSelf);
     self.fd_enforceFrameLayout = YES;
+    self.contentView.layer.cornerRadius = 10.f;
+    self.contentView.clipsToBounds = YES;
     [self.gmView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.edges.equalTo(self.contentView).with.insets(UIEdgeInsetsMake(LCCK_MSG_SPACE_TOP, LCCK_MSG_SPACE_LEFT, LCCK_MSG_SPACE_BTM, LCCK_MSG_SPACE_RIGHT));
+        make.edges.equalTo(weakSelf.contentView).with.insets(UIEdgeInsetsMake(LCCK_MSG_SPACE_TOP, LCCK_MSG_SPACE_LEFT, LCCK_MSG_SPACE_BTM, LCCK_MSG_SPACE_RIGHT));
     }];
     [self updateConstraintsIfNeeded];
     [super setup];
@@ -35,12 +39,13 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
 
 - (CGSize)sizeThatFits:(CGSize)size {
     
-    return CGSizeMake(size.width, 190.f);
+    return CGSizeMake(size.width, 180.f);
 }
 
-- (void)configureCellWithData:(AVIMTypedMessage *)message {
+- (void)configureCellWithData:(AVIMTypedMessage *)message{
     [super configureCellWithData:message];
     
+    WS(weakSelf);
     [YPCNetworking postWithUrl:@"shop/orders/detail"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -48,8 +53,9 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               self.dataModel = [OrderDetailModel mj_objectWithKeyValues:response[@"data"]];
-                               [self.gmView configureWithModel:self.dataModel];
+                               weakSelf.dataModel = [OrderDetailModel mj_objectWithKeyValues:response[@"data"]];
+                               weakSelf.index = [message.attributes valueForKey:@"index"];
+                               [weakSelf.gmView configureWithModel:weakSelf.dataModel andDataIndex:weakSelf.index];
                            }
                        }
                           fail:^(NSError *error) {
@@ -70,20 +76,21 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
     if (_gmView) {
         return _gmView;
     }
+    WS(weakSelf);
     GoodsMessageView *gmV = [GoodsMessageView GoodsMessageView];
     [gmV setGoodsMesViewClickBlock:^(id object) {
         
-        id ob = [self nextResponder];
+        id ob = [weakSelf nextResponder];
         while (![ob isKindOfClass:[UIViewController class]] && ob != nil) {
             ob = [ob nextResponder];
         }
         UIViewController *currentVC = (LCCKBaseConversationViewController *)ob;
         OrderDetailVC *detailVC = [OrderDetailVC new];
-        detailVC.order_id = self.dataModel.order_id;
+        detailVC.order_id = [weakSelf.dataModel.goodsinfo[weakSelf.index.integerValue] store].order_id;
         [currentVC.navigationController pushViewController:detailVC animated:YES];
         
     }];
-    [self.contentView addSubview:(_gmView = gmV)];
+    [weakSelf.contentView addSubview:(_gmView = gmV)];
     return _gmView;
 }
 

@@ -54,11 +54,11 @@ static NSString *Identifier = @"identifier";
     _keyboardView = [[KeyboardTextView alloc] initWithTextViewFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49)];
     WS(weakSelf);
     [_keyboardView setButtonClickedBlock:^(NSString *text) {
-        [YPCNetworking postWithUrl:weakSelf.detailType == detailStylePerhearting ? @"shop/explore/livecomment" : @"shop/usercircle/storecirclecomment"
+        [YPCNetworking postWithUrl:weakSelf.detailType == detailStylePerhearting ? @"shop/activity/sendcomment" : @"shop/usercircle/storecirclecomment"
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
                                                                                    @"strace_id" : weakSelf.tempModel.strace_id,
-                                                                                   @"message" : [text stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding]
+                                                                                   @"message" : text
                                                                                    }]
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {

@@ -18,6 +18,7 @@
 @property (nonatomic,strong)UICollectionView *collection;
 @property (nonatomic,strong)UIButton *closeBtn;
 @property (nonatomic,strong)UIButton *nextBtn;
+@property (nonatomic,strong)UIButton *sizeHelpBtn;
 @property (nonatomic,strong)UILabel *priceLab;
 @property (nonatomic,strong)UILabel *countLab;//库存
 @property (nonatomic,strong)UILabel *titleLab;//提示选择的尺码和颜色
@@ -44,6 +45,8 @@
     self = [super init];
     if (self) {
         self.backgroundColor = [UIColor whiteColor];
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(keyboredHiden)];
+        [self addGestureRecognizer:tap];
         [self setup];
     }
     return self;
@@ -148,6 +151,16 @@
     .leftEqualToView(self.priceLab)
     .widthRatioToView(self.priceLab,1)
     .heightIs(15);
+    
+    self.sizeHelpBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self addSubview:self.sizeHelpBtn];
+    [self.sizeHelpBtn setImage:IMAGE(@"chimazhushou_button") forState:UIControlStateNormal];
+    [self.sizeHelpBtn addTarget:self action:@selector(sizeHelpBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    self.sizeHelpBtn.sd_layout
+    .topSpaceToView(self.titleLab,15)
+    .leftEqualToView(self.titleLab)
+    .widthIs(74)
+    .heightIs(21);
     UIView *lineView = [[UIView alloc]init];
     lineView.backgroundColor = [Color colorWithHex:@"0xefefef"];
     [self addSubview:lineView];
@@ -494,6 +507,7 @@
         
         self.cancel();
     }
+    [self keyboredHiden];
 }
 - (void)nextBtnClick{
     if (self.model.group.count == 0) {
@@ -512,6 +526,12 @@
         }
     }
     
+}
+
+- (void)sizeHelpBtnClick{
+    if (self.push) {
+        self.push();
+    }
 }
 
 - (NSArray *)contrast:(NSMutableArray *)arrA arrb:(NSMutableArray *)arrB{
@@ -599,7 +619,9 @@
     return 0;
 }
 
-
+- (void)keyboredHiden{
+    [self endEditing:YES];
+}
 
 
 /*

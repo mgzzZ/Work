@@ -132,6 +132,6 @@
  *    通过leancloud打开聊天页面
  *
  */
-+ (void)openConversationWithCilentId:(NSString *)clientId andViewController:(UIViewController *)vc;
++ (void)openConversationWithCilentId:(NSString *)clientId ViewController:(UIViewController *)vc andOrderId:(NSString *)orderId andOrderIndex:(NSString *)index;
 
 @end

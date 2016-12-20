@@ -16,6 +16,7 @@
 #import "LoginVC.h"
 #import "DiscoverDetailVC.h"
 #import "WebViewController.h"
+#import "DiscoverDetailV2VC.h"
 @interface DiscoverNewVC ()
 @property (nonatomic,strong)UIButton *leftBtn;
 @property (nonatomic,strong)UIView *topView;
@@ -26,6 +27,7 @@
 @end
 
 @implementation DiscoverNewVC
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
@@ -67,7 +69,7 @@
    
     [self.view addSubview:self.leftView];
     self.leftView.didcell = ^(NSIndexPath *index,LiveDetailListDataModel *model,NSString *type,TempHomePushModel *tempModel,NSString *livingshowinitimg){
-        DiscoverDetailNewVC *diccover = [[DiscoverDetailNewVC alloc]init];
+        DiscoverDetailV2VC *diccover = [[DiscoverDetailV2VC alloc]init];
         diccover.live_id = model.live_id;
         diccover.hidesBottomBarWhenPushed = YES;
         diccover.tempModel = tempModel;
@@ -77,8 +79,9 @@
         [weakSelf.navigationController pushViewController:diccover animated:YES];
     };
     self.leftView.didlike = ^(NSIndexPath *index,GuessModel *model){
-        ShoppingCarDetailVC *shopping = [[ShoppingCarDetailVC alloc]init];
-        shopping.goods_id = model.goods_commonid;
+        DiscoverDetailVC *shopping = [[DiscoverDetailVC alloc]init];
+        shopping.strace_id = model.strace_id;
+        shopping.typeStr = @"淘好货";
         shopping.hidesBottomBarWhenPushed = YES;
         [weakSelf.navigationController pushViewController:shopping animated:YES];
     };

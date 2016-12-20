@@ -6,8 +6,6 @@
     <dependencies>
         <deployment identifier="iOS"/>
         <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
-        <capability name="Alignment constraints to the first baseline" minToolsVersion="6.0"/>
-        <capability name="Alignment constraints with different attributes" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -32,6 +30,10 @@
                 <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="0Ls-vD-sO8">
                     <rect key="frame" x="0.0" y="0.0" width="320" height="265"/>
                 </imageView>
+                <view alpha="0.29999999999999999" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="brX-rh-GHT">
+                    <rect key="frame" x="0.0" y="0.0" width="320" height="265"/>
+                    <color key="backgroundColor" red="0.2470588235" green="0.2470588235" blue="0.2470588235" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
+                </view>
                 <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="do7-ck-Qpe">
                     <rect key="frame" x="125" y="41" width="70" height="70"/>
                     <constraints>
@@ -54,26 +56,26 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="个性签名：当我知道昵称不能为空 其实 我是拒绝的" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uyA-vh-8NL">
-                    <rect key="frame" x="50" y="151" width="220" height="31.5"/>
+                    <rect key="frame" x="39" y="151" width="242" height="31.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fbr-Ko-KVv">
-                    <rect key="frame" x="79" y="200" width="163" height="24"/>
+                    <rect key="frame" x="68.5" y="198" width="184" height="26"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c8r-G9-BUc">
-                            <rect key="frame" x="0.0" y="0.0" width="76" height="24"/>
+                            <rect key="frame" x="0.0" y="0.0" width="74" height="26"/>
                             <constraints>
-                                <constraint firstAttribute="width" constant="76" id="W4H-h8-tz4"/>
+                                <constraint firstAttribute="height" constant="26" id="TGt-M9-hJh"/>
+                                <constraint firstAttribute="width" constant="74" id="ig8-jB-eyD"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                            <inset key="titleEdgeInsets" minX="0.0" minY="0.0" maxX="-4" maxY="0.0"/>
-                            <inset key="imageEdgeInsets" minX="-4" minY="0.0" maxX="0.0" maxY="0.0"/>
-                            <state key="normal" title="求关注" image="livemembers_follow_icon">
+                            <inset key="titleEdgeInsets" minX="0.0" minY="0.0" maxX="-2" maxY="0.0"/>
+                            <state key="normal" image="livememberdetails_follow_button">
                                 <color key="titleColor" red="0.87058823529999996" green="0.1215686275" blue="0.16078431369999999" alpha="1" colorSpace="calibratedRGB"/>
                             </state>
-                            <state key="selected" title="已关注" image="livemembers_follow_icon"/>
+                            <state key="selected" image="livememberdetails_follow_button_clicked"/>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColorFromUIColor">
                                     <color key="value" red="0.89411764709999997" green="0.22352941179999999" blue="0.23529411759999999" alpha="1" colorSpace="calibratedRGB"/>
@@ -87,14 +89,13 @@
                             </userDefinedRuntimeAttributes>
                         </button>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="I0Y-gc-mkX">
-                            <rect key="frame" x="96" y="0.0" width="67" height="24"/>
+                            <rect key="frame" x="110" y="0.0" width="74" height="26"/>
                             <constraints>
-                                <constraint firstAttribute="width" constant="67" id="DUf-FK-Ufe"/>
+                                <constraint firstAttribute="height" constant="26" id="NbE-o3-Nfp"/>
+                                <constraint firstAttribute="width" constant="74" id="qu3-fp-vK9"/>
                             </constraints>
                             <fontDescription key="fontDescription" type="system" pointSize="13"/>
-                            <inset key="titleEdgeInsets" minX="0.0" minY="0.0" maxX="-3" maxY="0.0"/>
-                            <inset key="imageEdgeInsets" minX="-6" minY="0.0" maxX="0.0" maxY="0.0"/>
-                            <state key="normal" title="私信" image="livemembers_privateletter_icon"/>
+                            <state key="normal" image="livememberdetails_privateletter_button"/>
                             <userDefinedRuntimeAttributes>
                                 <userDefinedRuntimeAttribute type="color" keyPath="layer.borderColorFromUIColor">
                                     <color key="value" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
@@ -110,19 +111,19 @@
                     </subviews>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <constraints>
-                        <constraint firstItem="I0Y-gc-mkX" firstAttribute="leading" secondItem="c8r-G9-BUc" secondAttribute="trailing" constant="20" id="0I4-lX-Tfy"/>
-                        <constraint firstItem="I0Y-gc-mkX" firstAttribute="top" secondItem="c8r-G9-BUc" secondAttribute="top" id="5DF-XC-Fsw"/>
                         <constraint firstAttribute="trailing" secondItem="I0Y-gc-mkX" secondAttribute="trailing" id="AKG-gm-mtE"/>
-                        <constraint firstItem="I0Y-gc-mkX" firstAttribute="baseline" secondItem="c8r-G9-BUc" secondAttribute="firstBaseline" id="DSW-IO-4mZ"/>
-                        <constraint firstItem="I0Y-gc-mkX" firstAttribute="firstBaseline" secondItem="c8r-G9-BUc" secondAttribute="baseline" id="FAI-bV-KTh"/>
+                        <constraint firstItem="c8r-G9-BUc" firstAttribute="top" secondItem="Fbr-Ko-KVv" secondAttribute="top" id="Cqh-LA-Ykm"/>
                         <constraint firstItem="I0Y-gc-mkX" firstAttribute="top" secondItem="Fbr-Ko-KVv" secondAttribute="top" id="Jcn-yE-3gc"/>
                         <constraint firstAttribute="bottom" secondItem="I0Y-gc-mkX" secondAttribute="bottom" id="Ths-QQ-HUG"/>
-                        <constraint firstAttribute="height" constant="24" id="gEp-qb-bal"/>
-                        <constraint firstAttribute="width" constant="163" id="sQa-AR-o6j"/>
+                        <constraint firstAttribute="trailing" secondItem="I0Y-gc-mkX" secondAttribute="trailing" id="be3-ud-TD2"/>
+                        <constraint firstAttribute="height" constant="26" id="gEp-qb-bal"/>
+                        <constraint firstItem="c8r-G9-BUc" firstAttribute="leading" secondItem="Fbr-Ko-KVv" secondAttribute="leading" id="lty-az-SPf"/>
+                        <constraint firstItem="I0Y-gc-mkX" firstAttribute="top" secondItem="Fbr-Ko-KVv" secondAttribute="top" id="mQ0-vV-7Vq"/>
+                        <constraint firstAttribute="width" constant="184" id="sQa-AR-o6j"/>
                     </constraints>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收到赞65万" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="maT-Od-C5Q">
-                    <rect key="frame" x="15" y="235" width="140" height="20"/>
+                    <rect key="frame" x="15" y="225" width="127.5" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="TiP-Cl-AA3"/>
                     </constraints>
@@ -131,7 +132,7 @@
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="粉丝1651人" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uDK-TG-nD3">
-                    <rect key="frame" x="175" y="235" width="130" height="20"/>
+                    <rect key="frame" x="178.5" y="225" width="126.5" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="Aoo-Wt-E95"/>
                     </constraints>
@@ -142,23 +143,27 @@
             </subviews>
             <color key="backgroundColor" red="1" green="1" blue="1" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
             <constraints>
+                <constraint firstItem="brX-rh-GHT" firstAttribute="leading" secondItem="0Ls-vD-sO8" secondAttribute="leading" id="3Qu-Hi-VvL"/>
                 <constraint firstItem="do7-ck-Qpe" firstAttribute="top" secondItem="WDd-mR-CsF" secondAttribute="top" constant="41" id="5ZM-Pt-guM"/>
                 <constraint firstAttribute="bottom" secondItem="Fbr-Ko-KVv" secondAttribute="bottom" constant="41" id="6bo-79-cMb"/>
                 <constraint firstItem="Y7S-S8-4Qy" firstAttribute="top" secondItem="do7-ck-Qpe" secondAttribute="bottom" constant="10" id="72l-ER-zSw"/>
+                <constraint firstItem="brX-rh-GHT" firstAttribute="height" secondItem="0Ls-vD-sO8" secondAttribute="height" id="Al7-4M-wlg"/>
                 <constraint firstAttribute="trailing" secondItem="0Ls-vD-sO8" secondAttribute="trailing" id="Djf-st-z11"/>
+                <constraint firstItem="brX-rh-GHT" firstAttribute="width" secondItem="0Ls-vD-sO8" secondAttribute="width" id="F3o-0J-LlP"/>
+                <constraint firstItem="brX-rh-GHT" firstAttribute="top" secondItem="0Ls-vD-sO8" secondAttribute="top" id="GIU-qB-HVT"/>
                 <constraint firstItem="uDK-TG-nD3" firstAttribute="leading" secondItem="I0Y-gc-mkX" secondAttribute="leading" id="HVw-wn-jcC"/>
-                <constraint firstAttribute="bottom" secondItem="maT-Od-C5Q" secondAttribute="bottom" constant="10" id="Ikh-tI-6vA"/>
-                <constraint firstAttribute="bottom" secondItem="uDK-TG-nD3" secondAttribute="bottom" constant="10" id="LEY-CY-kBG"/>
+                <constraint firstAttribute="bottom" secondItem="maT-Od-C5Q" secondAttribute="bottom" constant="20" id="Ikh-tI-6vA"/>
+                <constraint firstAttribute="bottom" secondItem="uDK-TG-nD3" secondAttribute="bottom" constant="20" id="LEY-CY-kBG"/>
                 <constraint firstItem="uyA-vh-8NL" firstAttribute="top" secondItem="Y7S-S8-4Qy" secondAttribute="bottom" constant="10" id="LS7-Tk-QbS"/>
                 <constraint firstItem="0Ls-vD-sO8" firstAttribute="leading" secondItem="WDd-mR-CsF" secondAttribute="leading" id="MLc-GZ-A1L"/>
                 <constraint firstAttribute="trailing" secondItem="uDK-TG-nD3" secondAttribute="trailing" constant="15" id="WTP-4X-AjE"/>
                 <constraint firstAttribute="bottom" secondItem="0Ls-vD-sO8" secondAttribute="bottom" id="Wip-rF-DcH"/>
-                <constraint firstAttribute="trailing" secondItem="uyA-vh-8NL" secondAttribute="trailing" constant="50" id="Wx1-u5-IFp"/>
-                <constraint firstItem="uyA-vh-8NL" firstAttribute="leading" secondItem="WDd-mR-CsF" secondAttribute="leading" constant="50" id="awI-Y6-rJe"/>
+                <constraint firstAttribute="trailing" secondItem="uyA-vh-8NL" secondAttribute="trailing" constant="39" id="Wx1-u5-IFp"/>
+                <constraint firstItem="uyA-vh-8NL" firstAttribute="leading" secondItem="WDd-mR-CsF" secondAttribute="leading" constant="39" id="awI-Y6-rJe"/>
                 <constraint firstAttribute="trailing" secondItem="Y7S-S8-4Qy" secondAttribute="trailing" constant="15" id="dIk-5r-IBm"/>
                 <constraint firstItem="Fbr-Ko-KVv" firstAttribute="centerX" secondItem="WDd-mR-CsF" secondAttribute="centerX" id="g99-Y7-4qM"/>
+                <constraint firstItem="maT-Od-C5Q" firstAttribute="trailing" secondItem="c8r-G9-BUc" secondAttribute="trailing" id="j5z-gl-RSx"/>
                 <constraint firstItem="Y7S-S8-4Qy" firstAttribute="leading" secondItem="WDd-mR-CsF" secondAttribute="leading" constant="15" id="ot6-nW-axg"/>
-                <constraint firstItem="maT-Od-C5Q" firstAttribute="trailing" secondItem="c8r-G9-BUc" secondAttribute="trailing" id="rjd-o1-lew"/>
                 <constraint firstItem="maT-Od-C5Q" firstAttribute="leading" secondItem="WDd-mR-CsF" secondAttribute="leading" constant="15" id="rvZ-gq-hT3"/>
                 <constraint firstItem="do7-ck-Qpe" firstAttribute="centerX" secondItem="0Ls-vD-sO8" secondAttribute="centerX" id="t1D-gM-ksZ"/>
                 <constraint firstItem="0Ls-vD-sO8" firstAttribute="top" secondItem="WDd-mR-CsF" secondAttribute="top" id="xgS-DC-LaI"/>
@@ -168,7 +173,8 @@
         </view>
     </objects>
     <resources>
-        <image name="livemembers_follow_icon" width="15" height="15"/>
-        <image name="livemembers_privateletter_icon" width="15" height="15"/>
+        <image name="livememberdetails_follow_button" width="74" height="26"/>
+        <image name="livememberdetails_follow_button_clicked" width="74" height="26"/>
+        <image name="livememberdetails_privateletter_button" width="74" height="26"/>
     </resources>
 </document>

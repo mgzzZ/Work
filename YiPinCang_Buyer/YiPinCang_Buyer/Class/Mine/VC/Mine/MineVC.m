@@ -111,7 +111,7 @@ static NSString *Identifier = @"identifier";
 }
 - (void)viewConfig
 {
-    [self.tvHeaderView setHeight:ScreenHeight / 20 * 9];
+    [self.tvHeaderView setHeight:302.f];
     [self.tableView setTableHeaderView:self.tvHeaderView];
     
     [self.tableView registerClass:[UITableViewCell class] forCellReuseIdentifier:Identifier];
@@ -394,25 +394,6 @@ static NSString *Identifier = @"identifier";
     }
 }
 #endif
-
-#pragma mark - Debug
-- (IBAction)ChangeApi:(UIButton *)sender {
-    [YPC_Tools customAlertViewWithTitle:nil
-                                Message:nil
-                              BtnTitles:@[@"54", @"56", @"线上"]
-                         CancelBtnTitle:@"取消"
-                    DestructiveBtnTitle:nil
-                          actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
-                              if (index == 0) {
-                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.54/ypcang-api/api/ecapi/index.php?url="];
-                              }else if (index == 1) {
-                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url="];
-                              }else {
-                                  [YPCNetworking updateBaseUrl:@"http://api.gongchangtemai.com/index.php?url="];
-                              }
-                          } cancelHandler:nil
-                     destructiveHandler:nil];
-}
 
 
 

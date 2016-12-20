@@ -14,4 +14,7 @@ typedef void(^BackAreaBlock)(NSString *name,NSString *area,NSString *isDefault,N
 
 @property (nonatomic,copy)BackAreaBlock backArea;
 
+@property (nonatomic,copy)NSString *from;
+
+
 @end

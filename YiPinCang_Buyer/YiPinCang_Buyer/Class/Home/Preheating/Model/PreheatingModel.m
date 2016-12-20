@@ -12,14 +12,6 @@
 
 @end
 
-@implementation PreBrandModel
-
-@end
-
-@implementation Store_infoModel
-
-@end
-
 @implementation Live_infoModel
 
 @end

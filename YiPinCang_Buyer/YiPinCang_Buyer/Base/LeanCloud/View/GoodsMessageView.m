@@ -9,9 +9,10 @@
 #import "GoodsMessageView.h"
 #import "GoodsImgCell.h"
 #import "OrderGoodsModel.h"
+#import "GoodsModel.h"
 
 @interface GoodsMessageView () <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
-
+@property (strong, nonatomic) IBOutlet UIImageView *avatarImgV;
 @property (nonatomic, strong) IBOutlet UILabel *storeNameL;
 @property (nonatomic, strong) IBOutlet UILabel *stateL;
 @property (nonatomic, strong) IBOutlet UILabel *endPriceL;
@@ -40,15 +41,48 @@
 
 - (void)gMesClicked
 {
-    !self.GoodsMesViewClickBlock ?: self.GoodsMesViewClickBlock(self.dataModel);
+    WS(weakSelf);
+    !self.GoodsMesViewClickBlock ?: self.GoodsMesViewClickBlock(weakSelf.dataModel);
 }
 
-- (void)configureWithModel:(OrderDetailModel *)model
+- (void)configureWithModel:(OrderDetailModel *)model andDataIndex:(NSString *)index
 {
     self.dataModel = model;
-    self.storeNameL.text = self.dataModel.store_name;
-    self.stateL.text = self.dataModel.state_desc;
-    self.endPriceL.text = [NSString stringWithFormat:@"共%ld件商品 已付款: ¥%@ (含运费: ¥%@)", (unsigned long)[self.dataModel.goodsinfo.firstObject goods].count, model.goods_amount, self.dataModel.shipping_fee];
+    [self.avatarImgV sd_setImageWithURL:[NSURL URLWithString:[model.goodsinfo[index.integerValue] store].store_avatar] placeholderImage:nil];
+    self.storeNameL.text = [model.goodsinfo[index.integerValue] store].store_name;
+    
+//    CGFloat totalPrice;
+//    for (GoodsModel *gm in model.goodsinfo) {
+//        <#statements#>
+//    }
+    
+    if ([model.state_desc isEqualToString:@"已取消"] ||[model.state_desc isEqualToString:@"待付款"]) {
+        self.endPriceL.text = [NSString stringWithFormat:@"需付款: ¥%@ (含运费: ¥%@)", model.order_amount, model.shipping_fee];
+    }else {
+        self.endPriceL.text = [NSString stringWithFormat:@"已付款: ¥%@ (含运费: ¥%@)", model.order_amount, model.shipping_fee];
+    }
+    
+    if (self.dataModel.order_state.integerValue == 0) {
+        // 已取消
+        self.stateL.text = @"已取消";
+        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+    }else if (self.dataModel.order_state.integerValue == 10) {
+        // 待付款
+        self.stateL.text = @"待付款";
+        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+    }else if (self.dataModel.order_state.integerValue == 20) {
+        // 待发货
+        self.stateL.text = @"待发货";
+        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+    }else if (self.dataModel.order_state.integerValue == 30) {
+        // 已发货
+        self.stateL.text = @"已发货";
+        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+    }else if (self.dataModel.order_state.integerValue == 40) {
+        // 已完成
+        self.stateL.text = @"已完成";
+        self.stateL.textColor = [Color colorWithHex:@"#36A74D"];
+    }
     [self configTempCell];
 }
 

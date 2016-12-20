@@ -161,11 +161,12 @@
     LiveDetailSectionModel *model = self.model.list[indexPath.section];
     LiveDetailListDataModel *listModel = model.data[indexPath.row];
     cell.model = listModel;
+    cell.playImg.hidden = NO;
     if ([model.type isEqualToString:@"start_activity"]) {
         //直播中
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_live")];
-        [cell.leftImg setImage:IMAGE(@"homepage_yure_live_icon")];
-        [cell.rightImg setImage:IMAGE(@"find_productdetails_icon_likes")];
+        [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
+        [cell.rightImg setImage:IMAGE(@"livememberdetails_list_zan_icon")];
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看中",listModel.live_users];
         cell.rightLab.text = listModel.live_like;
         cell.titleLab.text = listModel.name;
@@ -175,7 +176,7 @@
         //预告
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_trailer")];
         [cell.leftImg setImage:IMAGE(@"homepage_yure_hot_icon")];
-        [cell.rightImg setImage:IMAGE(@"homepage_follow_icon")];
+        [cell.rightImg setImage:IMAGE(@"livememberdetails_list_follow_icon")];
         cell.leftLab.text = [NSString stringWithFormat:@"%@热度",listModel.live_users];
         cell.rightLab.text = [NSString stringWithFormat:@"%@人关注",listModel.live_like];
         cell.titleLab.text = [NSString stringWithFormat:@" %@",listModel.name];
@@ -184,7 +185,7 @@
     }else if ([model.type isEqualToString:@"end_activity"]){
         //回放
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_playback")];
-        [cell.leftImg setImage:IMAGE(@"homepage_wathchnumber_icon")];
+        [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
         cell.rightImg.hidden = YES;
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看",listModel.live_users];
         cell.rightLab.hidden = YES;
@@ -243,7 +244,7 @@
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
     
-    return scrollView.frame.origin.y - 50.f;
+    return scrollView.frame.origin.y +50;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

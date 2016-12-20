@@ -8,6 +8,7 @@
 
 #import "JPDownloadManager.h"
 #import "JPVideoCachePathTool.h"
+#import "JPCacheManager.h"
 
 @interface JPDownloadManager()<NSURLSessionDataDelegate>
 
@@ -49,9 +50,7 @@
     _curOffset = offset;
     _downLoadingOffset = 0;
     
-    NSString *urlString = [url absoluteString];
-    self.suggestFileName = [urlString lastPathComponent];
-
+    self.suggestFileName = [JPVideoCachePathTool suggestFileNameWithURL:url];
     [self startLoading];
 }
 
@@ -67,7 +66,7 @@
 // 接收到服务器响应的时候
 -(void)URLSession:(NSURLSession *)session dataTask:(NSURLSessionDataTask *)dataTask didReceiveResponse:(NSURLResponse *)response completionHandler:(void (^)(NSURLSessionResponseDisposition))completionHandler{
     
-    NSLog(@"ReceiveResponse, 开始下载");
+    // NSLog(@"ReceiveResponse, 开始下载");
     _isFinishLoad = NO;
     _mimeType = @"video/mp4";
     
@@ -91,6 +90,13 @@
     }
     self.fileLength = fileLength;
     
+    // Compare DiskFreeSize and fileLength.
+    // 剩余空间与请求长度的判断
+    if (![self checkDiskFreeSize:fileLength]) {
+        completionHandler(NSURLSessionResponseCancel);
+        return;
+    }
+
     if ([self.delegate respondsToSelector:@selector(manager:didReceiveVideoLength:mimeType:)]) {
         [self.delegate manager:self didReceiveVideoLength:self.fileLength mimeType:self.mimeType];
     }
@@ -98,7 +104,8 @@
     self.outputStream = [[NSOutputStream alloc]initToFileAtPath:_tempPath append:YES];
     [self.outputStream open];
     
-    // For Test  NSLog(@"%@", self.tempPath);
+    // For Test
+    // NSLog(@"%@", self.tempPath);
     
     completionHandler(NSURLSessionResponseAllow);
 }
@@ -113,8 +120,7 @@
         
         // For Test
         // NSLog(@"loading ... 正在下载");
-        // NSLog(@"Download progress --- %0.2lf", 1.0 * _downLoadingOffset / self.fileLength);
-        // NSLog(@"DownloadManagerInstance %@", self);
+        //  NSLog(@"Download progress --- %0.2lf", 1.0 * _downLoadingOffset / self.fileLength);
         
         if ([self.delegate respondsToSelector:@selector(manager:didReceiveData:downloadOffset:tempFilePath:)]) {
             [self.delegate manager:self didReceiveData:data downloadOffset:_downLoadingOffset tempFilePath:_tempPath];
@@ -147,13 +153,19 @@
     savePath = [savePath stringByAppendingPathComponent:self.suggestFileName];
     
     if ([fileManager fileExistsAtPath:self.tempPath]) {
-        [fileManager moveItemAtPath:self.tempPath toPath:savePath error:nil];
-        if ([self.delegate respondsToSelector:@selector(didFinishLoadingWithManager:fileSavePath:)]) {
-            [self.delegate didFinishLoadingWithManager:self fileSavePath:savePath];
-        }
-        [self.outputStream close];
-        self.outputStream = nil;
+        dispatch_async(dispatch_get_global_queue(0, 0), ^{
+            
+             [fileManager moveItemAtPath:self.tempPath toPath:savePath error:nil];
+            dispatch_async(dispatch_get_main_queue(), ^{
+                if ([self.delegate respondsToSelector:@selector(didFinishLoadingWithManager:fileSavePath:)]) {
+                    [self.delegate didFinishLoadingWithManager:self fileSavePath:savePath];
+                }
+            });
+        });
     }
+    
+    [self.outputStream close];
+    self.outputStream = nil;
 }
 
 -(void)downloadFailedWithURLSession:(NSURLSession *)session task:(NSURLSessionTask *)task error:(NSError *)error{
@@ -244,6 +256,18 @@
     // Start download
     // 开始下载
     [dataTask resume];
+}
+
+- (BOOL)checkDiskFreeSize:(NSUInteger)length{
+
+    unsigned long long freeDiskSize = [JPCacheManager getDiskFreeSize];
+    
+    if (freeDiskSize < length) {
+//        [AlertBox showMessage:@"手机存储空间不足,请清理后再试." hideAfter:2];
+        return NO;
+    }
+    
+    return YES;
 }
 
 @end

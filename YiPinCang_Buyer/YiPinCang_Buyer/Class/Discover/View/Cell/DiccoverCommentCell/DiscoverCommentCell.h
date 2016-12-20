@@ -17,5 +17,5 @@
 @property (nonatomic, strong)UILabel *timeLab;
 @property (nonatomic, strong)UIView *bgView;
 @property (nonatomic, strong)CommentListModel *model;
-
+@property (nonatomic, strong)UIButton *txBtn;
 @end

@@ -9,5 +9,11 @@
 #import "LiveActivityModel.h"
 
 @implementation LiveActivityModel
-
++ (NSDictionary *)mj_replacedKeyFromPropertyName
+{
+    return @{
+             @"strace_contentStr" : @"strace_content",
+             
+             };
+}
 @end

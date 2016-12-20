@@ -162,7 +162,7 @@
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
     
-    return scrollView.frame.origin.y - 50.f;
+    return scrollView.frame.origin.y +50;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

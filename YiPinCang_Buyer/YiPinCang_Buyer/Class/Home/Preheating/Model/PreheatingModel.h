@@ -8,32 +8,12 @@
 
 #import <Foundation/Foundation.h>
 
-@class PreBrandModel, Store_infoModel, Live_infoModel;
+@class Live_infoModel;
 @interface PreheatingModel : NSObject
 
-@property (nonatomic, strong) PreBrandModel *brand;
-@property (nonatomic, strong) Store_infoModel *store_info;
 @property (nonatomic, strong) Live_infoModel *live_info;
 @property (nonatomic, strong) NSArray *pre_straces;
 
-@end
-
-@interface PreBrandModel : NSObject
-@property (nonatomic, copy) NSString *brand_id;
-@property (nonatomic, copy) NSString *brand_name;
-@property (nonatomic, copy) NSString *brand_initial;
-@property (nonatomic, copy) NSString *brand_class;
-@property (nonatomic, copy) NSString *brand_pic;
-@property (nonatomic, copy) NSString *attentions;
-@property (nonatomic, copy) NSString *brand_store_id;
-@end
-
-@interface Store_infoModel : NSObject
-@property (nonatomic, copy) NSString *store_id;
-@property (nonatomic, copy) NSString *store_name;
-@property (nonatomic, copy) NSString *store_avatar;
-@property (nonatomic, copy) NSString *goods_count;
-@property (nonatomic, copy) NSString *store_collect;
 @end
 
 @interface Live_infoModel : NSObject

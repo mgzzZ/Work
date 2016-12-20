@@ -9,11 +9,17 @@
 #import "YPC_Tools.h"
 #import "HomeVC.h"
 #import <RTRootNavigationController.h>
+#import "GoodsMessage.h"
+#import "FloatingViewController.h"
 
 #define ClassKey   @"rootVCClassString"
 #define TitleKey   @"title"
 #define ImgKey     @"imageName"
 #define SelImgKey  @"selectedImageName"
+
+@interface YPC_Tools ()
+@property (nonatomic, strong) FloatingViewController *floatVC;
+@end
 
 @implementation YPC_Tools
 
@@ -35,13 +41,13 @@
 + (void)showSvpHud
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack];
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
     [SVProgressHUD show];
 }
 + (void)showSvpHudWithNoneMask
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeNone];
+//    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeNone];
     [SVProgressHUD show];
 }
 + (void)showSvpWithPercentWithProgress:(CGFloat)progress
@@ -52,15 +58,15 @@
 + (void)showSvpWithNoneImgHud:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack];
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
     [SVProgressHUD setMinimumDismissTimeInterval:2.f];
-    [SVProgressHUD setInfoImage:nil];
-    [SVProgressHUD showInfoWithStatus:str];
+    [SVProgressHUD showImage:nil status:str];
+    [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeNative];
 }
 + (void)showSvpHud:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeBlack];
+    [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
     [SVProgressHUD showWithStatus:str];
 }
 + (void)showSvpHudWarning:(NSString *)str
@@ -276,11 +282,11 @@
                                                                            actionHandler:nil
                                                                            cancelHandler:nil
                                                                       destructiveHandler:^(LGAlertView *alertView) {
-//                                                                          [NotificationCenter postNotificationName:DidReceiveAccountDidOutOfDate object:nil];
+                                                                          
                                                                       }];
                 [[YPC_Tools shareInstance].alertView showAnimated:YES completionHandler:nil];
-                return NO;
             }
+            [YPCRequestCenter removeCacheUserKeychain];
             return NO;
         }
         if (![response[@"status"][@"error_desc"] isEqual:[NSNull null]]) {
@@ -446,14 +452,16 @@
         viewController.title = @"消息中心";
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-        [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
-        [button sizeToFit];
-        [button addTarget:self
-                   action:@selector(naviRightAction:)
-         forControlEvents:UIControlEventTouchUpInside];
-        objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-        UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-        viewController.navigationItem.leftBarButtonItem = editItem;
+        __weak __typeof(button) weakBtn = button;
+        [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+        [weakBtn sizeToFit];
+        [weakBtn addTarget:self
+                    action:@selector(naviRightAction:)
+          forControlEvents:UIControlEventTouchUpInside];
+        objc_setAssociatedObject(weakBtn, @"backObject", viewController, OBJC_ASSOCIATION_ASSIGN);
+        UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:weakBtn];
+        __weak __typeof(editItem) weakItem = editItem;
+        viewController.navigationItem.leftBarButtonItem = weakItem;
     }];
     [mesVC setViewWillAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
         [weakMesVC refresh];
@@ -462,7 +470,8 @@
     [vc.navigationController pushViewController:mesVC animated:YES];
 }
 
-+ (void)openConversationWithCilentId:(NSString *)clientId andViewController:(UIViewController *)vc
+
++ (void)openConversationWithCilentId:(NSString *)clientId ViewController:(UIViewController *)vc andOrderId:(NSString *)orderId andOrderIndex:(NSString *)index
 {
     [YPCNetworking postWithUrl:@"merchant/user/infobylean"
                   refreshCache:YES
@@ -484,15 +493,48 @@
                                    viewController.title = [[(NSDictionary *)response[@"data"] objectForKey:@"member_truename"] class] == [NSNull class] ? @"私信" : response[@"data"][@"member_truename"];
 
                                    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                                   [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
-                                   [button sizeToFit];
-                                   [button addTarget:self
-                                              action:@selector(naviRightAction:)
-                                    forControlEvents:UIControlEventTouchUpInside];
-                                   objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                                   UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-                                   viewController.navigationItem.leftBarButtonItem = editItem;
+                                   __weak __typeof(button) weakBtn = button;
+                                   [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+                                   [weakBtn sizeToFit];
+                                   [weakBtn addTarget:self
+                                               action:@selector(naviRightAction:)
+                                     forControlEvents:UIControlEventTouchUpInside];
+                                   objc_setAssociatedObject(weakBtn, @"backObject", viewController, OBJC_ASSOCIATION_ASSIGN);
+                                   UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:weakBtn];
+                                   __weak __typeof(editItem) weakItem = editItem;
+                                   viewController.navigationItem.leftBarButtonItem = weakItem;
+                                   
+                                   if (orderId && index) {
+                                       [YPC_Tools shareInstance].floatVC = [FloatingViewController new];
+                                       [YPC_Tools shareInstance].floatVC.conversationVC = viewController;
+                                       [YPC_Tools shareInstance].floatVC.orderId = orderId;
+                                       [YPC_Tools shareInstance].floatVC.index = index;
+                                       [viewController addChildViewController:[YPC_Tools shareInstance].floatVC];
+                                       [viewController.view addSubview:[YPC_Tools shareInstance].floatVC.view];
+                                   }
                                }];
+                               [conversationViewController setViewControllerWillDeallocBlock:^(__kindof LCCKBaseViewController *viewController) {
+                                   [[YPC_Tools shareInstance].floatVC removeFromWindow];
+                                   [YPC_Tools shareInstance].floatVC = nil;
+                               }];
+                               [conversationViewController setViewDidAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
+                                   [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = NO;
+                               }];
+                               [conversationViewController setViewWillDisappearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
+                                   [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = YES;
+                               }];
+//                               if (orderId) {
+//                                   [conversationViewController setViewDidAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
+//                                       GoodsMessage *gMessage = [GoodsMessage GoodsMessageWithOrderId:orderId index:index conversationType:[viewController getConversationIfExists].lcck_type];
+//                                       [viewController sendCustomMessage:gMessage progressBlock:^(NSInteger percentDone) {
+//                                       } success:^(BOOL succeeded, NSError *error) {
+//                                           [viewController sendLocalFeedbackTextMessge:@"商品订单发送成功"];
+//                                       } failed:^(BOOL succeeded, NSError *error) {
+//                                           [viewController sendLocalFeedbackTextMessge:@"商品订单发送失败"];
+//                                       }];
+//                                   }];
+//                               }
+                               
                            }
                        } fail:^(NSError *error) {
                            [YPC_Tools showSvpHudError:@"打开会话失败"];

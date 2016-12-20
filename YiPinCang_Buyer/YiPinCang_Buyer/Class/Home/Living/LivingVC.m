@@ -80,11 +80,11 @@ UITextFieldDelegate
         //点击私信
         _liveBottomView.pushMessage = ^(NSString *hx_name){
             if (weakSelf.player.status == AVIMClientStatusNone || weakSelf.player.status == AVIMClientStatusClosing || weakSelf.player.status == AVIMClientStatusClosed) {
-                [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil andOrderIndex:nil];
             }else {
                 if (!weakSelf.playerIsOnWindow) {
                     [weakSelf playVideoOnWindow];
-                    [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                    [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil andOrderIndex:nil];
                 }
             }
         };
@@ -164,12 +164,7 @@ UITextFieldDelegate
     // 隐藏商品轻拍手势
     UITapGestureRecognizer *singleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
     [self.itemContentView addGestureRecognizer:singleTap];
-    // 小视频单击手势, 返回页面, 全屏播放
-    UITapGestureRecognizer *smallSingleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
-    [self.player.playerView addGestureRecognizer:smallSingleTap];
-    // 小视频拖拽手势
-    UIPanGestureRecognizer *panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(doHandlePanAction:)];
-    [self.player.playerView addGestureRecognizer:panGes];
+    
     // 点击头像
     UITapGestureRecognizer *avatorTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(lookLivingGroupInfoAction:)];
     [self.avatorImgV addGestureRecognizer:avatorTap];
@@ -186,8 +181,8 @@ UITextFieldDelegate
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               _rtmpModel = [RTMPModel mj_objectWithKeyValues:response[@"data"]];
-                               if (_rtmpModel.state.integerValue == 4) {
+                               weakSelf.rtmpModel = [RTMPModel mj_objectWithKeyValues:response[@"data"]];
+                               if (weakSelf.rtmpModel.state.integerValue == 4) {
                                    weakSelf.livingPauseImgV.hidden = NO;
                                }else {                                   
                                    // 配置拉流, 准备拉流
@@ -199,6 +194,8 @@ UITextFieldDelegate
                                [weakSelf joinDanmakuChatroomWithConversationId:_rtmpModel.hx_lgroupid];
                                // 初始化定时器
                                [weakSelf setUpTimer];
+                               // 添加通知
+                               [self addNotifications];
                            }
                        } fail:^(NSError *error) {
                            YPCAppLog(@"%@", [error description]);
@@ -303,7 +300,7 @@ UITextFieldDelegate
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
                                                                                @"live_id" : self.tempModel.live_id,
                                                                                @"announcement_id" : self.tempModel.announcement_id,
-                                                                               @"count" : [NSString stringWithFormat:@"%ld", weakSelf.localLikeCount]
+                                                                               @"count" : [NSString stringWithFormat:@"%ld", self.localLikeCount]
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
@@ -320,6 +317,7 @@ UITextFieldDelegate
     PLPlayerOption *option = [PLPlayerOption defaultOption];
     [option setOptionValue:@10 forKey:PLPlayerOptionKeyTimeoutIntervalForMediaPackets];
     
+    WS(weakSelf);
     self.player = [PLPlayer playerWithURL:[NSURL URLWithString:self.rtmpModel.qn_rtmppublishurl] option:option];
     self.player.delegate = self;
     self.player.delegateQueue = dispatch_get_main_queue();
@@ -327,16 +325,16 @@ UITextFieldDelegate
     self.player.playerView.hidden = YES;
     [self.view insertSubview:self.player.playerView belowSubview:self.itemContentView];
     [self.player.playerView mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_top);
-        make.left.equalTo(self.view.mas_left);
+        make.top.equalTo(weakSelf.view.mas_top);
+        make.left.equalTo(weakSelf.view.mas_left);
         make.width.mas_equalTo(ScreenWidth);
         make.height.mas_equalTo(ScreenHeight);
     }];
     
     [self.player.playerView addSubview:self.smallCloseBtn];
     [self.smallCloseBtn mas_makeConstraints:^(MASConstraintMaker *make) {
-        make.right.equalTo(self.player.playerView.mas_right);
-        make.top.equalTo(self.player.playerView.mas_top);
+        make.right.equalTo(weakSelf.player.playerView.mas_right);
+        make.top.equalTo(weakSelf.player.playerView.mas_top);
         make.width.mas_equalTo(30);
         make.height.mas_equalTo(30);
     }];
@@ -344,11 +342,17 @@ UITextFieldDelegate
     [self startPlayer];
     
     self.reconnectCount = 0; // 重新连接次数
+    
+    // 小视频单击手势, 返回页面, 全屏播放
+    UITapGestureRecognizer *smallSingleTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(hiddenOrShowGoodsView:)];
+    [self.player.playerView addGestureRecognizer:smallSingleTap];
+    // 小视频拖拽手势
+    UIPanGestureRecognizer *panGes = [[UIPanGestureRecognizer alloc] initWithTarget:self action:@selector(doHandlePanAction:)];
+    [self.player.playerView addGestureRecognizer:panGes];
 }
 - (void)startPlayer {
     [UIApplication sharedApplication].idleTimerDisabled = YES;
     [self.player play];
-    [self addNotifications];
 }
 
 #pragma mark - 定时器
@@ -501,7 +505,8 @@ UITextFieldDelegate
 {
     if (self.reconnectCount < 3) {
         self.reconnectCount++;
-        [YPC_Tools showSvpHud:[NSString stringWithFormat:@"正在进行第%ld次重新连接", (long)self.reconnectCount]];
+//        [YPC_Tools showSvpHud:[NSString stringWithFormat:@"正在进行第%ld次重新连接", (long)self.reconnectCount]];
+        [YPC_Tools showSvpHud:@"正在连接..."];
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * pow(2, self.reconnectCount) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
             [self.player play];
         });
@@ -536,6 +541,7 @@ UITextFieldDelegate
                 NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:message.attributes];
                 [dic setObject:textField.text forKey:@"message"];
                 [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:dic];
+                textField.text = @"";
             }
         }];
         
@@ -613,6 +619,9 @@ UITextFieldDelegate
         [self.liveBottomView animationHiden];
         LivingGroupInfoIsShowing = NO;
     }
+    if (self.danmakuTF.isFirstResponder) {
+        [self.view endEditing:YES];
+    }
 }
 - (void)lookLivingGroupInfoAction:(UITapGestureRecognizer *)tap
 {
@@ -622,6 +631,9 @@ UITextFieldDelegate
     }else {
         [self.liveBottomView animationHiden];
         LivingGroupInfoIsShowing = NO;
+    }
+    if (self.danmakuTF.isFirstResponder) {
+        [self.view endEditing:YES];
     }
 }
 
@@ -738,7 +750,7 @@ UITextFieldDelegate
     WS(weakSelf);
     [self.goodsView setCellSelectedBlock:^(NSString *strace_id) {
         if (strace_id) {
-            if (self.player.status == AVIMClientStatusNone || self.player.status == AVIMClientStatusClosing || self.player.status == AVIMClientStatusClosed) {
+            if (weakSelf.player.status == AVIMClientStatusNone || weakSelf.player.status == AVIMClientStatusClosing || weakSelf.player.status == AVIMClientStatusClosed) {
                 
                 DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
                 detailVC.live_id = weakSelf.tempModel.live_id;

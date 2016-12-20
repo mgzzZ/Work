@@ -44,7 +44,7 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="70P-9z-VVe">
                                 <rect key="frame" x="0.0" y="0.0" width="375" height="74"/>
                                 <subviews>
-                                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dnw-a5-gYz">
+                                    <imageView clipsSubviews="YES" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="dnw-a5-gYz">
                                         <rect key="frame" x="14" y="14" width="46" height="46"/>
                                         <constraints>
                                             <constraint firstAttribute="width" constant="46" id="Y16-a4-84p"/>
@@ -67,10 +67,6 @@
                                         <color key="textColor" red="0.17254901959999999" green="0.17254901959999999" blue="0.17254901959999999" alpha="1" colorSpace="calibratedRGB"/>
                                         <nil key="highlightedColor"/>
                                     </label>
-                                    <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="CZx-3L-Dkk">
-                                        <rect key="frame" x="293" y="16" width="67" height="22"/>
-                                        <state key="normal" image="homepage_trailer_button_launchtips"/>
-                                    </button>
                                 </subviews>
                                 <constraints>
                                     <constraint firstAttribute="bottom" secondItem="dnw-a5-gYz" secondAttribute="bottom" constant="14" id="5sL-ne-pfk"/>
@@ -78,10 +74,8 @@
                                     <constraint firstItem="dnw-a5-gYz" firstAttribute="leading" secondItem="70P-9z-VVe" secondAttribute="leading" constant="14" id="91D-AC-7s1"/>
                                     <constraint firstAttribute="trailing" secondItem="3Mg-E2-BQc" secondAttribute="trailing" constant="15" id="G2H-eV-bfo"/>
                                     <constraint firstAttribute="height" constant="74" id="Nmm-dQ-haK"/>
-                                    <constraint firstAttribute="trailing" secondItem="CZx-3L-Dkk" secondAttribute="trailing" constant="15" id="Opf-WB-XAK"/>
                                     <constraint firstItem="dnw-a5-gYz" firstAttribute="top" secondItem="70P-9z-VVe" secondAttribute="top" constant="14" id="PEs-co-9af"/>
                                     <constraint firstItem="GHo-Ls-NUG" firstAttribute="top" secondItem="dnw-a5-gYz" secondAttribute="top" constant="2" id="YJu-pg-f4x"/>
-                                    <constraint firstItem="CZx-3L-Dkk" firstAttribute="top" secondItem="GHo-Ls-NUG" secondAttribute="top" id="ehx-p4-Grc"/>
                                     <constraint firstItem="3Mg-E2-BQc" firstAttribute="top" secondItem="GHo-Ls-NUG" secondAttribute="bottom" constant="5" id="pf4-TE-NgH"/>
                                     <constraint firstItem="3Mg-E2-BQc" firstAttribute="leading" secondItem="dnw-a5-gYz" secondAttribute="trailing" constant="10" id="sIz-mp-a8K"/>
                                 </constraints>
@@ -109,10 +103,10 @@
                             <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="f54-g1-09X">
                                 <rect key="frame" x="0.0" y="308" width="375" height="25"/>
                                 <subviews>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="0CF6905F-B810-40A6-8D33-B3D2DD6B340C" translatesAutoresizingMaskIntoConstraints="NO" id="iHE-A1-d14">
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="A9D0E21B-E1FC-4422-A2D3-45439987108B" translatesAutoresizingMaskIntoConstraints="NO" id="iHE-A1-d14">
                                         <rect key="frame" x="10" y="5" width="15" height="15"/>
                                     </imageView>
-                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="1E48B8AF-BC99-4FD2-BFF1-679FE14618A9" translatesAutoresizingMaskIntoConstraints="NO" id="gjE-Hj-kID">
+                                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="DF091488-0311-4BF6-8583-83B7529663D7" translatesAutoresizingMaskIntoConstraints="NO" id="gjE-Hj-kID">
                                         <rect key="frame" x="131" y="6" width="15" height="15"/>
                                     </imageView>
                                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="11月8日至11月11日" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="cfF-bs-yqL">
@@ -268,7 +262,7 @@
         </view>
     </objects>
     <resources>
-        <image name="0CF6905F-B810-40A6-8D33-B3D2DD6B340C" width="15" height="15">
+        <image name="A9D0E21B-E1FC-4422-A2D3-45439987108B" width="15" height="15">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGPT5YJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK4HCBMU
 GR4fIyQrLjE3OlUkbnVsbNUJCgsMDQ4PEBESVk5TU2l6ZVYkY2xhc3NcTlNJbWFnZUZsYWdzVk5TUmVw
@@ -334,7 +328,7 @@ AMIA2QDbAN0NAw0IDRMNHA0vDTMNPg1HDUwNVA1XDVwNaw1vDXYNfg2LDZANkg2UDZkNoQ2kDakNsQ20
 DcYNyQ3OAAAAAAAAAgEAAAAAAAAAQQAAAAAAAAAAAAAAAAAADdA
 </mutableData>
         </image>
-        <image name="1E48B8AF-BC99-4FD2-BFF1-679FE14618A9" width="15" height="15">
+        <image name="DF091488-0311-4BF6-8583-83B7529663D7" width="15" height="15">
             <mutableData key="keyedArchiveRepresentation">
 YnBsaXN0MDDUAQIDBAUGPT5YJHZlcnNpb25YJG9iamVjdHNZJGFyY2hpdmVyVCR0b3ASAAGGoK4HCBMU
 GR4fIyQrLjE3OlUkbnVsbNUJCgsMDQ4PEBESVk5TU2l6ZVYkY2xhc3NcTlNJbWFnZUZsYWdzVk5TUmVw
@@ -400,7 +394,6 @@ AMIA2QDbAN0NAw0IDRMNHA0vDTMNPg1HDUwNVA1XDVwNaw1vDXYNfg2LDZANkg2UDZkNoQ2kDakNsQ20
 DcYNyQ3OAAAAAAAAAgEAAAAAAAAAQQAAAAAAAAAAAAAAAAAADdA
 </mutableData>
         </image>
-        <image name="homepage_trailer_button_launchtips" width="67" height="22"/>
         <image name="homepage_yure_videoplay" width="60" height="60"/>
     </resources>
 </document>

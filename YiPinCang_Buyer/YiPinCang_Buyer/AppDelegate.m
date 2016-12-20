@@ -73,10 +73,11 @@
 
 - (void)setRootViewController
 {
-    ChooseVC *logVC = [ChooseVC new];
-    UINavigationController *logNavi = [[UINavigationController alloc] initWithRootViewController:logVC];
-    logVC.navigationController.navigationBar.hidden = YES;
-    logVC.navigationController.interactivePopGestureRecognizer.enabled = NO;
+    ChooseVC *cVC = [ChooseVC new];
+    cVC.isChangeHomeStyle = NO;
+    UINavigationController *logNavi = [[UINavigationController alloc] initWithRootViewController:cVC];
+    cVC.navigationController.navigationBar.hidden = YES;
+    cVC.navigationController.interactivePopGestureRecognizer.enabled = NO;
     self.window.rootViewController = logNavi;
 }
 
@@ -119,9 +120,9 @@
 - (void)setNetWorkConfig
 {
 #pragma mark - 本地服务器
-//    NSString *url = @"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url=";
+//    NSString *url = @"http://192.168.1.54/ypcang-api/api/ecapi/index.php?url=";
 #pragma mark - 外网服务器
-   NSString *url = @"http://api.gongchangtemai.com/index.php?url=";
+   NSString *url = @"https://api.gongchangtemai.com/index.php?url=";
     [YPCNetworking updateBaseUrl:url];
     [YPCNetworking setTimeout:15.f];
 //    [YPCNetworking enableInterfaceDebug:YES];
@@ -290,11 +291,6 @@
 //    [self.window.rootViewController presentViewController:logVC animated:YES completion:nil];
 }
 
-// 监听评论
-- (void)networkDidReceiveMessage:(NSNotification *)notification
-{
-    NSDictionary *dic = [notification userInfo];
-    
-}
+
 
 @end

@@ -13,7 +13,7 @@
 
 + (id)GoodsMessageView;
 
-- (void)configureWithModel:(OrderDetailModel *)model;
+- (void)configureWithModel:(OrderDetailModel *)model andDataIndex:(NSString *)index;
 
 @property (nonatomic, copy) void (^GoodsMesViewClickBlock)(id object);
 

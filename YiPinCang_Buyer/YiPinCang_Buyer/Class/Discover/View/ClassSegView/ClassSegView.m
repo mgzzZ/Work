@@ -98,7 +98,7 @@
     NSMutableArray *arr = [self.dataDic valueForKey:key];
     
     cell.dataArr = [arr mutableCopy][indexPath.row];
-    cell.type = @"";
+    cell.typeEnum = FindCell;
     cell.backIdCell = ^(NSString *type,NSString *cid){
         if ([type isEqualToString:@"brand"]) {
             weakSelf.brand = cid;

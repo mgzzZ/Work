@@ -138,27 +138,7 @@
                           }];
 }
 
-- (FiterBrandView *)fiterBrandView{
-    WS(weakSelf);
-    if (_fiterBrandView == nil) {
-        _fiterBrandView = [[FiterBrandView alloc]init];
-        _fiterBrandView.type = Find;
-        [self addSubview:self.fiterBrandView];
-        self.fiterBrandView.sd_layout.topSpaceToView(self,42)
-        .leftEqualToView(self)
-        .rightEqualToView(self)
-        .heightIs(0);
-        self.fiterBrandView.hidden = YES;
-        self.fiterBrandView.backId = ^(NSString *brand,NSString *bind){
-            [weakSelf chooseHiden];
-         
-            weakSelf.topView.priceBtn.selected = NO;
- 
-            [weakSelf getData:weakSelf.page isRefresh:YES];
-        };
-    }
-    return _fiterBrandView;
-}
+
 
 - (ClassSegView *)classSegView{
     WS(weakSelf);
@@ -173,7 +153,8 @@
         _classSegView.hidden = YES;
         _classSegView.classBackId = ^(NSString *class_id){
             weakSelf.class_id = class_id;
-            [weakSelf getData:@"1" isRefresh:YES];
+            weakSelf.page = @"1";
+            [weakSelf getData:weakSelf.page isRefresh:YES];
             [weakSelf segBrandViewHiden];
         };
     }

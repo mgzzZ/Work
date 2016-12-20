@@ -16,6 +16,7 @@
 #import "ClearingVC.h"
 #import "GuessLikeView.h"
 #import "GuessModel.h"
+#import "WebViewController.h"
 static NSString *cellId = @"noedit";
 static NSString *cellId2 = @"edit";
 @interface ShoppingCarVC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
@@ -213,6 +214,12 @@ static NSString *cellId2 = @"edit";
     self.chooseSize.cancel = ^{
         [weakSelf chooseSizeHide];
     };
+    self.chooseSize.push = ^{
+        WebViewController *web = [[WebViewController alloc]init];
+        web.navTitle = @"尺码助手";
+        web.homeUrl = weakSelf.model.specdesc_url;
+        [weakSelf.navigationController pushViewController:web animated:YES];
+    };
     [self.view addSubview:self.chooseSize];
     
     
@@ -377,7 +384,14 @@ static NSString *cellId2 = @"edit";
                                success:^(id response) {
                                    [model.data removeObjectAtIndex:indexPath.row];
                                    [weakSelf.tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
-                                   
+                                   if (model.data.count == 0) {
+                                       [weakSelf.dataArr removeObject:model];
+                                   }
+                                   if (weakSelf.dataArr.count == 0) {
+                                       weakSelf.tableView.tableHeaderView = self.noDataView;
+                                       weakSelf.clearingView.hidden = YES;
+                                       weakSelf.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+                                   }
                                    //[weakSelf.tableView reloadData];
                                    
                                }

@@ -43,7 +43,18 @@
         .topSpaceToView(self.bgView,15)
         .widthIs(34)
         .heightIs(34);
+    
+        
         [self.txImg setSd_cornerRadiusFromWidthRatio:@0.5];
+        
+        self.txBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [self.contentView addSubview:self.txBtn];
+        self.txBtn.sd_layout
+        .leftEqualToView(self.txImg)
+        .rightEqualToView(self.txImg)
+        .topEqualToView(self.txImg)
+        .bottomEqualToView(self.txImg);
+        
         self.timeLab.sd_layout
         .rightSpaceToView(self.bgView,10)
         .heightIs(15)

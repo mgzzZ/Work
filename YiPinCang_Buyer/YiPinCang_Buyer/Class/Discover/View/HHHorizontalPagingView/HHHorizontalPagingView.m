@@ -261,7 +261,7 @@ static NSInteger kPagingButtonTag                 = 1000;
 }
 
 - (void)segmentButtonEvent:(UIButton *)segmentButton {
-    if (segmentButton.tag != kPagingButtonTag + self.segmentButtons.count - 1) {
+    if (segmentButton.tag != kPagingButtonTag + self.segmentButtons.count) {
         for(UIButton *b in self.segmentButtons) {
             UIView  *redView = [_segmentView viewWithTag:b.tag + 100];
             redView.hidden = YES;

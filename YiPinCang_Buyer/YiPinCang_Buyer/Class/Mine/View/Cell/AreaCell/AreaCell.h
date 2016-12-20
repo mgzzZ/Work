@@ -14,4 +14,5 @@
 @property (strong, nonatomic) IBOutlet UILabel *nameLab;
 @property (strong, nonatomic) IBOutlet UILabel *areaLab;
 @property (nonatomic,strong)AreaListModel *model;
+@property (strong, nonatomic) IBOutlet UIButton *deleteBtn;
 @end

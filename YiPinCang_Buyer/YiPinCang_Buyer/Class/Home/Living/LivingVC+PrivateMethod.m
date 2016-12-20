@@ -12,6 +12,7 @@
 
 - (void)joinDanmakuChatroomWithConversationId:(NSString *)conversationId
 {
+    WS(weakSelf);
     [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"正在连接聊天室..."}];
     AVIMClient *client = [LCChatKit sharedInstance].client;
     [client openWithCallback:^(BOOL succeeded, NSError *error) {
@@ -20,7 +21,7 @@
             if (succeeded) {
                 [conversation joinWithCallback:^(BOOL succeeded, NSError *error) {
                     if (succeeded) {
-                        self.danmuconversation = conversation;
+                        weakSelf.danmuconversation = conversation;
                         [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"加入聊天室成功"}];
                     }else {
                         // TOTO 加入聊天室失败
@@ -35,6 +36,7 @@
 
 - (void)followLivingGroup
 {
+    WS(weakSelf);
     [YPCNetworking postWithUrl:@"shop/showstore/followstore/add"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -42,8 +44,8 @@
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               self.groupBgWidthC.constant = 52 + [self.livingNameL.text stringSizeWithFont:LightFont(15)].width;
-                               self.followBtn.hidden = YES;
+                               weakSelf.groupBgWidthC.constant = 52 + [weakSelf.livingNameL.text stringSizeWithFont:LightFont(15)].width;
+                               weakSelf.followBtn.hidden = YES;
                            }
                        }
                           fail:^(NSError *error) {
@@ -53,6 +55,7 @@
 
 - (void)playVideoOnWindow
 {
+    WS(weakSelf);
     [self.player.playerView removeFromSuperview];
     UIWindow *window = [UIApplication sharedApplication].keyWindow;
     self.player.playerView.transform = CGAffineTransformIdentity;
@@ -60,7 +63,7 @@
     self.smallCloseBtn.hidden = NO;
     [window addSubview:self.player.playerView];
     [UIView animateWithDuration:.2f animations:^{
-        [self.player.playerView mas_remakeConstraints:^(MASConstraintMaker *make) {
+        [weakSelf.player.playerView mas_remakeConstraints:^(MASConstraintMaker *make) {
             make.right.equalTo(window.mas_right);
             make.bottom.equalTo(window.mas_bottom).offset(-70);
             make.width.mas_equalTo(120);
@@ -70,13 +73,14 @@
         
     }completion:^(BOOL finished) {
         [window bringSubviewToFront:self.player.playerView];
-        self.playerIsOnWindow = YES;
-        self.isRemoveFromWindow = NO;
+        weakSelf.playerIsOnWindow = YES;
+        weakSelf.isRemoveFromWindow = NO;
     }];
 }
 
 - (void)hiddenVideoOnWindowWithViewController:(UIViewController *)vc
 {
+    WS(weakSelf);
     [self.player.playerView removeFromSuperview];
     self.player.playerView.transform = CGAffineTransformIdentity;
     self.itemContentView.hidden = NO;
@@ -87,22 +91,23 @@
     CGFloat radio = ScreenWidth / ScreenHeight;
     [UIView animateWithDuration:.2f animations:^{
         [weakself.player.playerView mas_updateConstraints:^(MASConstraintMaker *make) {
-            make.top.equalTo(self.view.mas_top);
-            make.left.equalTo(self.view.mas_left).offset((ScreenWidth - radio * height) / 2);
+            make.top.equalTo(weakSelf.view.mas_top);
+            make.left.equalTo(weakSelf.view.mas_left).offset((ScreenWidth - radio * height) / 2);
             make.width.mas_equalTo(radio * height);
             make.height.mas_equalTo(height);
         }];
         [weakself.view layoutIfNeeded];
         
-        [self.navigationController popToViewController:vc animated:YES];
+        [weakSelf.navigationController popToViewController:vc animated:YES];
     }completion:^(BOOL finished) {
-        self.playerIsOnWindow = NO;
-        self.isRemoveFromWindow = NO;
+        weakSelf.playerIsOnWindow = NO;
+        weakSelf.isRemoveFromWindow = NO;
     }];
 }
 
 - (void)removeVideoOnWindow
 {
+    WS(weakSelf);
     [self.player stop];
     [self.player.playerView removeFromSuperview];
     self.player.playerView.transform = CGAffineTransformIdentity;
@@ -113,8 +118,8 @@
     CGFloat height = ScreenHeight - ScreenHeight / 5 * 3;
     CGFloat radio = ScreenWidth / ScreenHeight;
     [self.player.playerView mas_remakeConstraints:^(MASConstraintMaker *make) {
-        make.top.equalTo(self.view.mas_top);
-        make.left.equalTo(self.view.mas_left).offset((ScreenWidth - radio * height) / 2);
+        make.top.equalTo(weakSelf.view.mas_top);
+        make.left.equalTo(weakSelf.view.mas_left).offset((ScreenWidth - radio * height) / 2);
         make.width.mas_equalTo(radio * height);
         make.height.mas_equalTo(height);
     }];

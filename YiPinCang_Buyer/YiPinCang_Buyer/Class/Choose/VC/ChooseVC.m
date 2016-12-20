@@ -43,7 +43,12 @@
  */
 - (IBAction)womenBtnClick:(UIButton *)sender {
     [YPCRequestCenter shareInstance].homeStyleType = homeStyleFemale;
-    [self setWindowRootViewController];
+    if (self.isChangeHomeStyle) {
+        self.ChangeStyleBlock();
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }else{
+        [self setWindowRootViewController];
+    }
 }
 
 /**
@@ -53,7 +58,12 @@
  */
 - (IBAction)manBtnClick:(UIButton *)sender {
     [YPCRequestCenter shareInstance].homeStyleType = homeStyleMale;
-    [self setWindowRootViewController];
+    if (self.isChangeHomeStyle) {
+        self.ChangeStyleBlock();
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }else{
+        [self setWindowRootViewController];
+    }
 }
 
 /**
@@ -63,7 +73,12 @@
  */
 - (IBAction)kidBtnClick:(UIButton *)sender {
     [YPCRequestCenter shareInstance].homeStyleType = homeStyleChildren;
-    [self setWindowRootViewController];
+    if (self.isChangeHomeStyle) {
+        self.ChangeStyleBlock();
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }else{
+        [self setWindowRootViewController];
+    }
 }
 
 /**
@@ -73,7 +88,12 @@
  */
 - (IBAction)homeBtnClick:(UIButton *)sender {
     [YPCRequestCenter shareInstance].homeStyleType = homeStyleHousehold;
-    [self setWindowRootViewController];
+    if (self.isChangeHomeStyle) {
+        self.ChangeStyleBlock();
+        [self dismissViewControllerAnimated:YES completion:nil];
+    }else{
+        [self setWindowRootViewController];
+    }
 }
 
 /*!
@@ -96,6 +116,25 @@
 //    fps.left = 120;
 //    fps.top = 0;
 //    [[AppDelegate shareAppDelegate].window addSubview:fps];
+}
+#pragma mark - Debug
+- (IBAction)ChooseApiAction:(UIButton *)sender {
+    
+    [YPC_Tools customAlertViewWithTitle:nil
+                                Message:nil
+                              BtnTitles:@[@"54", @"56", @"线上"]
+                         CancelBtnTitle:@"取消"
+                    DestructiveBtnTitle:nil
+                          actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+                              if (index == 0) {
+                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.54/ypcang-api/api/ecapi/index.php?url="];
+                              }else if (index == 1) {
+                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url="];
+                              }else {
+                                  [YPCNetworking updateBaseUrl:@"http://api.gongchangtemai.com/index.php?url="];
+                              }
+                          } cancelHandler:nil
+                     destructiveHandler:nil];
 }
 
 - (void)didReceiveMemoryWarning {

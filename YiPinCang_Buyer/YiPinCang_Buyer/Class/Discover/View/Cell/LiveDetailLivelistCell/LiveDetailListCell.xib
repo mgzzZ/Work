@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="410" height="82"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="410" height="81"/>
+                <rect key="frame" x="0.0" y="0.0" width="410" height="82"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="7Id-Vu-JQz">
@@ -30,7 +30,7 @@
                         <constraints>
                             <constraint firstAttribute="height" constant="15" id="WuQ-4k-vPc"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="14"/>
+                        <fontDescription key="fontDescription" name="PingFangSC-Regular" family="PingFang SC" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
@@ -41,7 +41,7 @@
                             <constraint firstAttribute="height" constant="16" id="mFy-6R-gXk"/>
                         </constraints>
                     </imageView>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_clock_icon" translatesAutoresizingMaskIntoConstraints="NO" id="ZES-ng-uIl">
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="livememberdetails_list_clock_icon" translatesAutoresizingMaskIntoConstraints="NO" id="ZES-ng-uIl">
                         <rect key="frame" x="15" y="39" width="15" height="15"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="15" id="3cz-K6-2yz"/>
@@ -53,8 +53,8 @@
                         <constraints>
                             <constraint firstAttribute="height" constant="12" id="TY8-UW-in7"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                        <nil key="textColor"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.69411764705882351" green="0.69411764705882351" blue="0.69411764705882351" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="8gd-Yh-Ea9">
@@ -65,32 +65,32 @@
                         </constraints>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="21312323410人观" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="EnY-eW-pST">
-                        <rect key="frame" x="35" y="63.5" width="85.5" height="12"/>
+                        <rect key="frame" x="35" y="64" width="109" height="12"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="12" id="bEP-IT-ket"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                        <nil key="textColor"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.69411764710000001" green="0.69411764710000001" blue="0.69411764710000001" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="33213216赞12" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="zPS-Vl-yGr">
-                        <rect key="frame" x="160.5" y="63.5" width="69" height="12"/>
+                        <rect key="frame" x="184" y="64" width="87" height="12"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="12" id="dwL-fl-A0P"/>
                         </constraints>
-                        <fontDescription key="fontDescription" type="system" pointSize="10"/>
-                        <nil key="textColor"/>
+                        <fontDescription key="fontDescription" type="system" pointSize="13"/>
+                        <color key="textColor" red="0.69411764710000001" green="0.69411764710000001" blue="0.69411764710000001" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <imageView userInteractionEnabled="NO" contentMode="scaleToFill" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="5iB-TZ-2PF">
-                        <rect key="frame" x="140.5" y="62" width="15" height="15"/>
+                        <rect key="frame" x="164" y="62" width="15" height="15"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="15" id="NWy-f1-er9"/>
                             <constraint firstAttribute="width" constant="15" id="gM5-f3-aPv"/>
                         </constraints>
                     </imageView>
                     <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="homepage_yure_videoplay1" translatesAutoresizingMaskIntoConstraints="NO" id="9Ky-1z-Gab">
-                        <rect key="frame" x="342" y="24.5" width="32" height="32"/>
+                        <rect key="frame" x="342" y="25" width="32" height="32"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="32" id="A7n-MM-rkK"/>
                             <constraint firstAttribute="height" constant="32" id="Yh4-jI-jPr"/>
@@ -125,6 +125,7 @@
             <connections>
                 <outlet property="leftImg" destination="8gd-Yh-Ea9" id="sKE-gQ-4Pp"/>
                 <outlet property="leftLab" destination="EnY-eW-pST" id="sFU-ce-bgl"/>
+                <outlet property="playImg" destination="9Ky-1z-Gab" id="qko-cp-a2h"/>
                 <outlet property="rightImg" destination="5iB-TZ-2PF" id="E7n-61-6em"/>
                 <outlet property="rightLab" destination="zPS-Vl-yGr" id="mIw-Vu-X9F"/>
                 <outlet property="shopImg" destination="7Id-Vu-JQz" id="riR-9c-b7z"/>
@@ -135,7 +136,7 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="homepage_clock_icon" width="15" height="15"/>
         <image name="homepage_yure_videoplay1" width="32" height="32"/>
+        <image name="livememberdetails_list_clock_icon" width="15" height="15"/>
     </resources>
 </document>

@@ -21,6 +21,12 @@
     
     self.mj_h = 100;
     
+//    self.bgImgV = [UIImageView new];
+//    self.bgImgV.contentMode = UIViewContentModeScaleAspectFit;
+//    self.bgImgV.clipsToBounds = YES;
+//    self.bgImgV.image = IMAGE(@"refreshBgImg");
+//    [self addSubview:self.bgImgV];
+    
     self.logoImgV = [UIImageView new];
     self.logoImgV.contentMode = UIViewContentModeScaleAspectFit;
     self.logoImgV.image = IMAGE(@"refresh");

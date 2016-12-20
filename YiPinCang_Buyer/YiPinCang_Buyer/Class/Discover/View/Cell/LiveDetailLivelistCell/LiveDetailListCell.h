@@ -20,5 +20,6 @@
 @property (strong, nonatomic) IBOutlet UIImageView *rightImg;
 @property (strong, nonatomic) IBOutlet UILabel *rightLab;
 @property (nonatomic,strong)LiveDetailListDataModel *model;
+@property (strong, nonatomic) IBOutlet UIImageView *playImg;
     
 @end

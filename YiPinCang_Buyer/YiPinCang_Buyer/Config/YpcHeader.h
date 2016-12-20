@@ -59,6 +59,8 @@
 #import <RTRootNavigationController.h>
 #import "UINavigationBar+BackgroundColor.h"
 #import "YPCRefreshHeader.h"
+#import <ReactiveCocoa/ReactiveCocoa.h>
+#import <ReactiveCocoa/RACEXTScope.h>
 
 //Documents文件夹的路径
 #define kDocPath NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject

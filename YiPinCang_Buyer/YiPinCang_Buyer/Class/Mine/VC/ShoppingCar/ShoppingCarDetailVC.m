@@ -15,7 +15,8 @@
 #import "ChooseSize.h"
 #import "ChooseSizeModel.h"
 #import "ClearingVC.h"
-
+#import "WebViewController.h"
+#import "LiveDetailHHHVC.h"
 @interface ShoppingCarDetailVC ()<ImagePlayerViewDelegate,MHFacebookImageViewerDatasource>
 @property (nonatomic,strong)UIScrollView *scrollView;
 @property (nonatomic,strong)ShopCarView  *shopView;
@@ -23,6 +24,7 @@
 @property (nonatomic,strong)ShoppingCarDetailModel *model;
 @property (nonatomic,strong)ChooseSizeModel *chooseModel;
 @property (nonatomic,strong)ChooseSize *chooseSize;
+@property (nonatomic,strong)UILabel *chooseLab;
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,assign)BOOL isChooseSize;
 @property (nonatomic,copy)NSString *payType;//0是先选  1加入购物车  2立即购买
@@ -76,25 +78,6 @@
     .bottomSpaceToView(self.view,0)
     .heightIs(58);
     
-    UIImageView *txImg = [[UIImageView alloc]init];
-    [self.scrollView addSubview:txImg];
-    txImg.sd_layout
-    .leftSpaceToView(self.scrollView,15)
-    .topSpaceToView(self.scrollView,15)
-    .widthIs(46)
-    .heightIs(46);
-    [txImg sd_setImageWithURL:[NSURL URLWithString:self.model.goodscommon_info.store_avatar] placeholderImage:YPCImagePlaceHolder];
-    UILabel *nameLab = [[UILabel alloc]init];
-    nameLab.textColor = [UIColor blackColor];
-    nameLab.textAlignment = NSTextAlignmentLeft;
-    nameLab.font = [UIFont systemFontOfSize:18];
-    [self.scrollView addSubview:nameLab];
-    nameLab.text = self.model.goodscommon_info.store_name;
-    nameLab.sd_layout
-    .topEqualToView(txImg)
-    .leftSpaceToView(txImg,10)
-    .rightSpaceToView(self.scrollView,15)
-    .heightIs(20);
     
     UILabel *titleLab = [[UILabel alloc]init];
     titleLab.textColor = [UIColor blackColor];
@@ -104,8 +87,8 @@
     titleLab.text = self.model.goodscommon_info.goods_name;
     
     titleLab.sd_layout
-    .leftEqualToView(txImg)
-    .topSpaceToView(txImg,10)
+    .leftSpaceToView(self.scrollView,15)
+    .topSpaceToView(self.scrollView,10)
     .rightSpaceToView(self.scrollView,15)
     .autoHeightRatio(0);
     self.titleImg = [[ImagePlayerView alloc]initWithFrame:CGRectZero];
@@ -161,13 +144,14 @@
     .heightIs(1)
     .topSpaceToView(priceLab,15);
     
-    UILabel *chooseLab = [[UILabel alloc]init];
-    chooseLab.text = @"选择尺码,颜色分类";
-    chooseLab.font = [UIFont systemFontOfSize:15];
-    chooseLab.textAlignment =  NSTextAlignmentLeft;
-    chooseLab.textColor = [Color colorWithHex:@"0x2c2c2c"];
-    [self.scrollView addSubview:chooseLab];
-    chooseLab.sd_layout
+    self.chooseLab = [[UILabel alloc]init];
+    self.chooseLab.text = @"选择尺码,颜色分类";
+    self.chooseLab.font = [UIFont systemFontOfSize:15];
+    self.chooseLab.textAlignment =  NSTextAlignmentLeft;
+    self.chooseLab.tag = 1000;
+    self.chooseLab.textColor = [Color colorWithHex:@"0x2c2c2c"];
+    [self.scrollView addSubview:self.chooseLab];
+    self.chooseLab.sd_layout
     .leftSpaceToView(self.scrollView,10)
     .rightSpaceToView(self.scrollView,60)
     .topSpaceToView(lineView1,0)
@@ -179,15 +163,15 @@
     .widthIs(20)
     .heightIs(20)
     .rightSpaceToView(self.scrollView,15)
-    .centerYEqualToView(chooseLab);
+    .centerYEqualToView(self.chooseLab);
     
     UIButton *chooseBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [chooseBtn addTarget:self action:@selector(chooseBtnClick) forControlEvents:UIControlEventTouchUpInside];
     [self.scrollView addSubview:chooseBtn];
     chooseBtn.sd_layout
-    .leftEqualToView(chooseLab)
+    .leftEqualToView(self.chooseLab)
     .rightEqualToView(nextimg)
-    .centerYEqualToView(chooseLab)
+    .centerYEqualToView(self.chooseLab)
     .heightIs(52);
     
     UIView *lineView2 = [[UIView alloc]init];
@@ -196,7 +180,7 @@
     lineView2.sd_layout
     .leftSpaceToView(self.scrollView,15)
     .rightSpaceToView(self.scrollView,15)
-    .topSpaceToView(chooseLab,0)
+    .topSpaceToView(self.chooseLab,0)
     .heightIs(1);
     
     
@@ -212,21 +196,46 @@
     [timeLab sizeToFit];
     timeLab.sd_layout
     .leftSpaceToView(self.scrollView,15)
-    .heightIs(42)
-    .topSpaceToView(lineView2,0)
+    .heightIs(45)
+    .topSpaceToView(self.titleImg,0)
     .widthIs(timeLab.frame.size.width);
     
     
-    UIView *lineView3 = [[UIView alloc]init];
-    lineView3.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [self.scrollView addSubview:lineView3];
-    lineView3.sd_layout
-    .leftEqualToView(self.scrollView)
-    .rightSpaceToView(self.scrollView,0)
-    .heightIs(1)
-    .topSpaceToView(lineView2,42);
+   
+    UIImageView *txImg = [[UIImageView alloc]init];
+    [self.scrollView addSubview:txImg];
+    txImg.sd_layout
+    .leftSpaceToView(self.scrollView,15)
+    .topSpaceToView(lineView2,15)
+    .widthIs(46)
+    .heightIs(46);
+    txImg.layer.cornerRadius = 23;
+    txImg.layer.masksToBounds = YES;
+    
+    [txImg sd_setImageWithURL:[NSURL URLWithString:self.model.goodscommon_info.store_avatar] placeholderImage:YPCImagePlaceHolder];
+    
+    UIButton *txBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.scrollView addSubview:txBtn];
+    [txBtn addTarget:self action:@selector(pushDetail) forControlEvents:UIControlEventTouchUpInside];
+    txBtn.sd_layout
+    .leftEqualToView(txImg)
+    .rightEqualToView(txImg)
+    .topEqualToView(txImg)
+    .bottomEqualToView(txImg);
+    
+    UILabel *nameLab = [[UILabel alloc]init];
+    nameLab.textColor = [UIColor blackColor];
+    nameLab.textAlignment = NSTextAlignmentLeft;
+    nameLab.font = [UIFont systemFontOfSize:18];
+    [self.scrollView addSubview:nameLab];
+    nameLab.text = self.model.goodscommon_info.store_name;
+    nameLab.sd_layout
+    .centerYEqualToView(txImg)
+    .leftSpaceToView(txImg,10)
+    .rightSpaceToView(self.scrollView,15)
+    .heightIs(20);
 
-    [self.scrollView setupAutoContentSizeWithBottomView:lineView3 bottomMargin:0];
+    [self.scrollView setupAutoContentSizeWithBottomView:txImg bottomMargin:10];
     self.bgView = [[UIView alloc]initWithFrame:self.view.bounds];
     self.bgView.backgroundColor = [UIColor blackColor];
     [self.view addSubview:self.bgView];
@@ -234,44 +243,50 @@
     self.bgView.hidden = YES;
     self.chooseSize =  [[ChooseSize alloc]initWithFrame:CGRectMake(0, ScreenHeight, ScreenWidth, 483) count:15 maxCount:20];
     self.chooseSize.did = ^(NSString *goods_id,NSString *count,NSString *payType){
-        
-        
-        if ([weakSelf.payType isEqualToString:@"1"]) {
-            [YPCNetworking postWithUrl:@"shop/cart/add"
-                          refreshCache:YES
-                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                                       @"goods_id":goods_id,
-                                                                                       @"count":count,
-                                                                                       @"click_from_type":@"6"
-                                                                                       }]
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       weakSelf.shopView.car.badgeValue = @"1";
-                                       [weakSelf.shopView openAnimation];
-                                       [weakSelf chooseSizeHide];
-                                       
-                                       if (payType.length != 0) {
-                                           UILabel *lab = [weakSelf.view viewWithTag:1000];
-                                           lab.text = payType;
+        if (goods_id.length != 0 ) {
+            if ([weakSelf.payType isEqualToString:@"1"]) {
+                [YPCNetworking postWithUrl:@"shop/cart/add"
+                              refreshCache:YES
+                                    params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                           @"goods_id":goods_id,
+                                                                                           @"count":count,
+                                                                                           @"click_from_type":@"6"
+                                                                                           }]
+                                   success:^(id response) {
+                                       if ([YPC_Tools judgeRequestAvailable:response]) {
+                                           weakSelf.shopView.car.badgeValue = @"1";
+                                           [weakSelf.shopView openAnimation];
+                                           [weakSelf chooseSizeHide];
+                                           
+                                           if (payType.length != 0) {
+                                            
+                                               weakSelf.chooseLab.text = payType;
+                                           }
+                                           
                                        }
-                                       
                                    }
-                               }
-                                  fail:^(NSError *error) {
-                                      
-                                  }];
-        }else if ([weakSelf.payType isEqualToString:@"2"]){
-            ClearingVC *clearing = [[ClearingVC alloc]init];
-            NSString *str = [NSString stringWithFormat:@"%@|%@",goods_id,count];
-            clearing.dataStr = str;
-            [weakSelf.navigationController pushViewController:clearing animated:YES];
-        }else{
-            
+                                      fail:^(NSError *error) {
+                                          
+                                      }];
+            }else if ([weakSelf.payType isEqualToString:@"2"]){
+                ClearingVC *clearing = [[ClearingVC alloc]init];
+                NSString *str = [NSString stringWithFormat:@"%@|%@",goods_id,count];
+                clearing.dataStr = str;
+                [weakSelf.navigationController pushViewController:clearing animated:YES];
+            }else{
+                
+            }
         }
         
     };
     self.chooseSize.cancel = ^{
         [weakSelf chooseSizeHide];
+    };
+    self.chooseSize.push = ^{
+        WebViewController *web = [[WebViewController alloc]init];
+        web.navTitle = @"尺码助手";
+        web.homeUrl = weakSelf.chooseModel.specdesc_url;
+        [weakSelf.navigationController pushViewController:web animated:YES];
     };
     [self.view addSubview:self.chooseSize];
 }
@@ -311,7 +326,7 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.chooseModel = [ChooseSizeModel mj_objectWithKeyValues:response[@"data"]];
                                NSInteger maxcount = weakSelf.model.goodscommon_info.total_storage.integerValue;
-                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goodscommon_info.goods_price img:weakSelf.model.goodscommon_info.store_avatar chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
+                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goodscommon_info.goods_price img:weakSelf.model.image[0] chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
                            }
                            
                        }
@@ -383,6 +398,13 @@
         weakself.isChooseSize = NO;
     }];
 }
+
+- (void)pushDetail{
+    LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+    live.store_id = self.model.goodscommon_info.store_id;
+    [self.navigationController pushViewController:live animated:YES];
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

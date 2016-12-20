@@ -29,13 +29,17 @@
     self.detailsBtn.selected = YES;
     
     if ([self.str isEqualToString:@"个人"]) {
+        self.inv_title = @"个人";
         self.personBtn.selected = YES;
     }else if ([self.str isEqualToString:@"不需要发票"]){
-        
+         self.personBtn.selected = YES;
+        self.inv_title = @"个人";
     }else{
         self.unitsBtn.selected = YES;
         self.textField.text = self.str;
+        self.inv_title = self.textField.text;
     }
+    
 }
 
 
@@ -45,6 +49,11 @@
 }
 //确认
 - (IBAction)saveBtnClick:(UIButton *)sender {
+    
+    if (self.unitsBtn.selected) {
+        self.inv_title = self.textField.text;
+    }
+    
     [YPCNetworking postWithUrl:@"shop/flow/addinv"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -79,7 +88,7 @@
 - (IBAction)unitsBtnClick:(UIButton *)sender {
     sender.selected = YES;
     self.personBtn.selected =! sender.selected;
-    self.inv_title = self.textField.text;
+    
 }
 
 - (void)textFieldChanged

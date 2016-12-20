@@ -12,5 +12,5 @@
 @interface UMSocialWechatHandler : UMSocialHandler
 
 + (UMSocialWechatHandler *)defaultManager;
-@property (nonatomic, assign) NSString *style;
+
 @end

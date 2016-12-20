@@ -14,4 +14,6 @@
 @property (nonatomic,copy)NSString *store_name;
 @property (nonatomic,copy)NSString *order_sn;
 @property (nonatomic,copy)NSString *store_avatar;
+@property (nonatomic,copy)NSString *hx_uname;
+@property (nonatomic,copy)NSString *order_id;
 @end

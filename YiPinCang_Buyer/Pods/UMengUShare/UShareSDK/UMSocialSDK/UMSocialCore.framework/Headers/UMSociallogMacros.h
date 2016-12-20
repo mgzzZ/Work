@@ -12,7 +12,7 @@
 /**
  *  设置全局的日志等级
  *
- *  @param levelString @see UMSocialLogClosedString,UMSocialLogErrorString,UMSocialLogWarnString,UMSocialLogInfoString,UMSocialLogDebugString,UMSocialLogVerboseString
+ *  @param levelString 日志分级字符串 @see UMSocialLogClosedString,UMSocialLogErrorString,UMSocialLogWarnString,UMSocialLogInfoString,UMSocialLogDebugString,UMSocialLogVerboseString
  *  @discuss 普通用户可以设置UMSocialLogClosedString，UMSocialLogErrorString，UMSocialLogWarnString，UMSocialLogInfoString，UMSocialLogDebugString的字符串，如果设置UMSocialLogVerboseString的时候，如果不是本库的开发者，是降低其等级到UMSocialLogDebugString
  */
 FOUNDATION_EXPORT void setGlobalLogLevelString(NSString* levelString);
@@ -29,7 +29,8 @@ FOUNDATION_EXPORT NSString* const UMSocialLogVerboseLevelString;
 /**
  *  根据等级打印日志
  *
- *  @param flagString  @see  below  UMSocialLogClosedFlagString...and so on
+ *  @param flagString  控制打印分级的标志字符串 
+ *  @see  below  UMSocialLogClosedFlagString...and so on
  *  @param file        打印日志的文件
  *  @param function    打印日志的函数
  *  @param line        打印的日志的行数

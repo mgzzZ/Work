@@ -167,7 +167,7 @@ static NSString *Identifier = @"endActivityGoodsCVCell";
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout *)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return CGSizeMake((ScreenWidth - 14) / 3 - 15, (ScreenWidth - 14) / 3 - 15 + 50);
+    return CGSizeMake(100.f, 150.f);
 }
 
 - (void)collectionView:(UICollectionView *)collectionView didSelectItemAtIndexPath:(NSIndexPath *)indexPath

@@ -15,5 +15,5 @@
 
 @property (nonatomic,strong)NSMutableArray *group;
 @property (nonatomic,strong)NSMutableArray *info;
-
+@property (nonatomic,copy)NSString *specdesc_url;
 @end

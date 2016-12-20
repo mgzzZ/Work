@@ -44,14 +44,16 @@
 - (NSURL *)getSchemeVideoURL:(NSURL *)url{
     
     // NSURLComponents用来替代NSMutableURL，可以readwrite修改URL
-    // 这里通过更改请求策略，将容量巨大的连续媒体数据进行分段，分割为数量众多的小文件进行传递.
-    // 采用了一个不断更新的轻量级索引文件来控制分割后小媒体文件的下载和播放，可同时支持直播和点播.
+    // AVAssetResourceLoader通过你提供的委托对象去调节AVURLAsset所需要的加载资源。
+    // 而很重要的一点是，AVAssetResourceLoader仅在AVURLAsset不知道如何去加载这个URL资源时才会被调用
+    // 就是说你提供的委托对象在AVURLAsset不知道如何加载资源时才会得到调用。
+    // 所以我们又要通过一些方法来曲线解决这个问题，把我们目标视频URL地址的scheme替换为系统不能识别的scheme
     
     NSURLComponents *components = [[NSURLComponents alloc] initWithURL:url resolvingAgainstBaseURL:NO];
-    components.scheme = @"streaming";
+    components.scheme = @"systemCannotRecognition";
     
     NSString *path = [NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject stringByAppendingString:jp_tempPath];
-    NSString *suggestFileName = [[url absoluteString]lastPathComponent];
+    NSString *suggestFileName = [JPVideoCachePathTool suggestFileNameWithURL:url];
     path = [path stringByAppendingPathComponent:suggestFileName];
     _videoPath = path;
     
@@ -94,18 +96,10 @@
 - (void)dealLoadingRequest:(AVAssetResourceLoadingRequest *)loadingRequest{
   
     NSURL *interceptedURL = [loadingRequest.request URL];
-    long long loc = (NSUInteger)loadingRequest.dataRequest.currentOffset;
     
     if (self.manager) {
         if (self.manager.downLoadingOffset > 0)
             [self processPendingRequests];
-        
-        // If the new location is greater than the total length of cached file
-        // Then request new region data
-        // 如果新的rang的起始位置比当前缓存的位置还大，则重新按照range请求数据
-        if (self.manager.offset + self.manager.downLoadingOffset + 1024*300 < loc) {
-            [self.manager setUrl:interceptedURL offset:loc];
-        }
     }
     else{
         self.manager = [JPDownloadManager new];
@@ -149,6 +143,7 @@
     [dataRequest respondWithData:[fileData subdataWithRange:NSMakeRange((NSUInteger)startOffset- self.manager.offset, (NSUInteger)numberOfBytesToRespondWith)]];
     
     // Thank for @DrunkenMouse(http://www.jianshu.com/users/5d853d21f7da/latest_articles) submmit a bug that my mistake of calculate "endOffset".
+    
     long long endOffset = startOffset + dataRequest.requestedLength;
     BOOL didRespondFully = (self.manager.offset + self.manager.downLoadingOffset) >= endOffset;
     

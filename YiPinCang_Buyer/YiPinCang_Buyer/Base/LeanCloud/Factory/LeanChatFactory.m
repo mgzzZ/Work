@@ -273,21 +273,27 @@
                                            viewController.navigationController.navigationBar.barTintColor = [Color colorWithHex:@"#3B3B3B"];
                                            viewController.navigationController.navigationBar.translucent = YES;
                                            [viewController.navigationController.navigationBar setTitleTextAttributes:@{NSFontAttributeName:BoldFont(18),NSForegroundColorAttributeName:[UIColor whiteColor]}];
-                                           if ([response[@"data"][@"member_truename"] isEqual:[NSNull null]]) {
+                                           if (![response[@"data"][@"member_truename"] isEqual:[NSNull null]]) {
                                                viewController.title = [(NSDictionary *)response[@"data"] safe_objectForKey:@"member_truename"];
                                            }else {
                                                viewController.title = conversation.members.lastObject;
                                            }
                                            
                                            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-                                           [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
-                                           [button sizeToFit];
-                                           [button addTarget:self
+                                           __weak __typeof(button) weakBtn = button;
+                                           [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+                                           [weakBtn sizeToFit];
+                                           [weakBtn addTarget:self
                                                       action:@selector(naviRightAction:)
                                             forControlEvents:UIControlEventTouchUpInside];
-                                           objc_setAssociatedObject(button, @"backObject", viewController, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
-                                           UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:button];
-                                           viewController.navigationItem.leftBarButtonItem = editItem;
+                                           objc_setAssociatedObject(weakBtn, @"backObject", viewController, OBJC_ASSOCIATION_ASSIGN);
+                                           UIBarButtonItem *editItem = [[UIBarButtonItem alloc] initWithCustomView:weakBtn];
+                                           __weak __typeof(editItem) weakItem = editItem;
+                                           viewController.navigationItem.leftBarButtonItem = weakItem;
+                                       }];
+                                       
+                                       [conversationViewController setViewControllerWillDeallocBlock:^(__kindof LCCKBaseViewController *viewController) {
+                                           YPCAppLog(@"%@...Dealloc", NSStringFromClass([viewController class]));
                                        }];
                                    }
                                } fail:^(NSError *error) {

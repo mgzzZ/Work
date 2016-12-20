@@ -18,7 +18,7 @@
 #import "ChooseSize.h"
 #import "DiscoverDetailVC.h"
 #import "LiveBottomView.h"
-
+#import "WebViewController.h"
 static NSString *TvIdentifier = @"tvIdentifierCell";
 static NSString *CvIdentifier = @"cvIdentifierCell";
 @interface VideoPlayerVC ()
@@ -98,11 +98,11 @@ DZNEmptyDataSetDelegate
         //点击私信
         _liveBottomView.pushMessage = ^(NSString *hx_name){
             if (weakSelf.playerV.state == WMPlayerStateFailed) {
-                [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil  andOrderIndex:nil];
             }else {
                 if (!weakSelf.playerV.playerIsOnWindow) {
                     [weakSelf playVideoOnWindow];
-                    [YPC_Tools openConversationWithCilentId:hx_name andViewController:weakSelf];
+                    [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil andOrderIndex:nil];
                 }
             }
         };
@@ -302,6 +302,12 @@ DZNEmptyDataSetDelegate
         // 取消
         [weakSelf chooseSizeHide];
     };
+    self.chooseSize.push = ^{
+        WebViewController *web = [[WebViewController alloc]init];
+        web.navTitle = @"尺码助手";
+        web.homeUrl = weakSelf.chooseModel.specdesc_url;
+        [weakSelf.navigationController pushViewController:web animated:YES];
+    };
     [self.view addSubview:self.chooseSize];
 }
 
@@ -388,7 +394,7 @@ DZNEmptyDataSetDelegate
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 85.f;
+    return 105.f;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

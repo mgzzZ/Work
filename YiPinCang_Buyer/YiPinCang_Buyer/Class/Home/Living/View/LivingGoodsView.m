@@ -11,7 +11,7 @@
 #import "AllGoodsTvCell.h"
 #import "ChooseSizeModel.h"
 #import "ChooseSize.h"
-
+#import "WebViewController.h"
 static NSString *CommendIdentifier = @"hotIdentifier";
 static NSString *AllIdentifier = @"allIdentifier";
 
@@ -76,6 +76,14 @@ static NSString *AllIdentifier = @"allIdentifier";
         // 取消
         [weakSelf chooseSizeHide];
     };
+    
+    _chooseSize.push = ^{
+        WebViewController *web = [[WebViewController alloc]init];
+        web.navTitle = @"尺码助手";
+        web.homeUrl = weakSelf.chooseModel.specdesc_url;
+        [[YPC_Tools getControllerWithView:weakSelf].navigationController pushViewController:web animated:YES];
+    };
+    
     [window addSubview:_chooseSize];
     return _chooseSize;
 }
@@ -132,7 +140,7 @@ static NSString *AllIdentifier = @"allIdentifier";
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    return 85.f;
+    return 105.f;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {

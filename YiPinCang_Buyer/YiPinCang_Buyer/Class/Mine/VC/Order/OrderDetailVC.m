@@ -13,6 +13,8 @@
 #import "OrderHeader.h"
 #import "OrderDetailView.h"
 #import "LogisticsVC.h"
+#import "ChoosePayVC.h"
+#import "LiveDetailHHHVC.h"
 @interface OrderDetailVC ()<UITableViewDelegate,UITableViewDataSource>
 
 @property (nonatomic,strong)UITableView *tableView;
@@ -20,35 +22,70 @@
 @property (nonatomic,strong)OrderFooter *footerView;
 @property (nonatomic,strong)OrderHeader *headerView;
 @property (nonatomic,strong)OrderDetailView *orderDetailView;
+@property (nonatomic,assign)BOOL isHave;//是否footersention
+@property (nonatomic, strong) UIButton *rightBtn;
 @end
 
 @implementation OrderDetailVC
 
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (self.rightBtn) {
+        self.rightBtn.littleRedBadgeValue = [YPCRequestCenter shareInstance].kUnReadMesCount;
+    }
+}
+
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.navigationItem.title = @"订单详情";
+    self.automaticallyAdjustsScrollViewInsets = NO;
     
-    [self setRightBar];
+    __block BOOL isCrateRightNavi;
+    [self.rt_navigationController.rt_viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([NSStringFromClass([obj class]) isEqualToString:@"LCCKConversationListViewController"]) {
+            isCrateRightNavi = NO;
+            *stop = YES;
+        }else {
+            isCrateRightNavi = YES;
+        }
+    }];
+    if (isCrateRightNavi) {
+        [self setRightBar];
+    }
+    
+    __block BOOL isCrateImmediatelyMessage;
+    [self.rt_navigationController.rt_viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+        if ([NSStringFromClass([obj class]) isEqualToString:@"OrderDetailVC"]) {
+            isCrateImmediatelyMessage = NO;
+            *stop = YES;
+        }else {
+            isCrateImmediatelyMessage = YES;
+        }
+    }];
+    self.isHave = NO;
+    if (isCrateRightNavi) {
+        // TODO : 创建立即咨询按钮
+        self.isHave = YES;
+    }
     
     [self getData];
-
-    // Do any additional setup after loading the view from its nib.
 }
 - (void)setRightBar{
-    UIButton *rightBtn1 = [UIButton buttonWithType:UIButtonTypeCustom];
-    rightBtn1.frame = CGRectMake(0, 0, 25, 25);
-    [rightBtn1 setImage:IMAGE(@"mine_icon_news") forState:UIControlStateNormal];
-    [rightBtn1 addTarget:self action:@selector(messageBtnClick) forControlEvents:UIControlEventTouchUpInside];
-    UIBarButtonItem *message = [[UIBarButtonItem alloc]initWithCustomView:rightBtn1];
+    self.rightBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.rightBtn.acceptEventInterval = 1.f;
+    self.rightBtn.frame = CGRectMake(0, 0, 25, 25);
+    [self.rightBtn setImage:IMAGE(@"mine_icon_inform") forState:UIControlStateNormal];
+    [self.rightBtn addTarget:self action:@selector(messageBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *message = [[UIBarButtonItem alloc]initWithCustomView:self.rightBtn];
     self.navigationItem.rightBarButtonItems = @[message];
-    rightBtn1.badgeValue = @"2";
 }
 - (void)setup{
-    self.tableView = [[UITableView alloc]init];
+    self.tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStyleGrouped];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
     [self.view addSubview:self.tableView];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 49, 0));
+    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 49, 0));
     
    
     if ([self.model.invoice_info isEqualToString:@"不需要发票"]) {
@@ -99,7 +136,7 @@
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfState_sent];
         self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
-        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 0, 0));
     }else{
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 171)];
         _headerView.payViewHeight.constant = 82;
@@ -109,7 +146,7 @@
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfFinish];
         self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
-        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+        self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 0, 0));
     }
     _headerView.nameLab.text = [NSString stringWithFormat:@"收货人:%@ %@",self.model.reciver_info.reciver_name,self.model.reciver_info.mob_phone];
     _headerView.areaLab.text = [NSString stringWithFormat:@"详细地址:%@",self.model.reciver_info.address];
@@ -133,6 +170,16 @@
             LogisticsVC *logistics = [[LogisticsVC alloc]init];
             logistics.order_id = weakself.order_id;
             [weakself.navigationController pushViewController:logistics animated:YES];
+        }else if ([str isEqualToString:@"立即付款"]) {
+            [weakself goPay];
+        }else if ([str isEqualToString:@"确认收货"]){
+            [weakself receiveOrder];
+        }else if ([str isEqualToString:@"取消订单"]){
+            [weakself cancelOrder];
+        }else if ([str isEqualToString:@"删除订单"]){
+            [weakself deleteOrder];
+        }else{
+            
         }
     };
 
@@ -143,9 +190,14 @@
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 42;
+   
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
-    return 101;
+    if (self.isHave) {
+        return 101;
+    }else{
+        return 7;
+    }
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     
@@ -171,66 +223,84 @@
     .bottomEqualToView(hearderView);
     UIView *lineView = [[UIView alloc]initWithFrame:CGRectMake(0, 41.5, ScreenWidth, 0.5)];
     lineView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    
+    UIButton *txBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [hearderView addSubview:txBtn];
+    txBtn.tag = section;
+    [txBtn addTarget:self action:@selector(pushDetail:) forControlEvents:UIControlEventTouchUpInside];
+    txBtn.sd_layout
+    .leftEqualToView(img)
+    .bottomEqualToView(img)
+    .rightEqualToView(img)
+    .topEqualToView(img);
     [hearderView addSubview:lineView];
     return hearderView;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
-    OrderGoodsInfoModel * model = self.model.goodsinfo[section];
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 101)];
-    view.backgroundColor = [UIColor whiteColor];
-    UILabel *orderNumber = [[UILabel alloc]init];
-    [view addSubview:orderNumber];
-    orderNumber.textColor = [Color colorWithHex:@"#BFBFBF"];
-    orderNumber.textAlignment = NSTextAlignmentLeft;
-    orderNumber.font = [UIFont systemFontOfSize:13];
-    orderNumber.text = [NSString stringWithFormat:@"订单编号:%@",model.store.order_sn];
-    orderNumber.sd_layout
-    .leftSpaceToView(view,15)
-    .rightEqualToView(view)
-    .topEqualToView(view)
-    .heightIs(37);
-    UIView *lineView = [[UIView alloc]init];
-    lineView.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [view addSubview:lineView];
-    lineView.sd_layout
-    .leftEqualToView(view)
-    .rightEqualToView(view)
-    .topSpaceToView(orderNumber,0)
-    .heightIs(1);
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btn setTitle:@"订单咨询" forState:UIControlStateNormal];
-    [btn setTitleColor:[Color colorWithHex:@"#2C2C2C"] forState:UIControlStateNormal];
-    [btn setImage:IMAGE(@"order_advice_icon") forState:UIControlStateNormal];
-    btn.backgroundColor = [UIColor whiteColor];
-    btn.titleLabel.font = [UIFont systemFontOfSize:13];
-    btn.layer.cornerRadius = 2;
-    btn.layer.borderWidth = 1;
-    [btn addTarget:self action:@selector(orderClick) forControlEvents:UIControlEventTouchUpInside];
-    btn.layer.borderColor = [Color colorWithHex:@"0X2C2C2C"].CGColor;
-    [view addSubview:btn];
-    btn.sd_layout
-    .centerXEqualToView(view)
-    .topSpaceToView(lineView,13)
-    .widthIs(100)
-    .heightIs(30);
-    UIView *lineView2 = [[UIView alloc]init];
-    lineView2.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [view addSubview:lineView2];
-    lineView2.sd_layout
-    .leftEqualToView(view)
-    .rightEqualToView(view)
-    .topSpaceToView(btn,14)
-    .heightIs(7);
-    UIView *lineView3 = [[UIView alloc]init];
-    lineView3.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [view addSubview:lineView3];
-    lineView3.sd_layout
-    .leftEqualToView(view)
-    .rightEqualToView(view)
-    .topSpaceToView(view,0)
-    .heightIs(1);
-    return view;
+    if (self.isHave) {
+        OrderGoodsInfoModel * model = self.model.goodsinfo[section];
+        UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 101)];
+        view.backgroundColor = [UIColor whiteColor];
+        UILabel *orderNumber = [[UILabel alloc]init];
+        [view addSubview:orderNumber];
+        orderNumber.textColor = [Color colorWithHex:@"#BFBFBF"];
+        orderNumber.textAlignment = NSTextAlignmentLeft;
+        orderNumber.font = [UIFont systemFontOfSize:13];
+        orderNumber.text = [NSString stringWithFormat:@"订单编号:%@",model.store.order_sn];
+        orderNumber.sd_layout
+        .leftSpaceToView(view,15)
+        .rightEqualToView(view)
+        .topEqualToView(view)
+        .heightIs(37);
+        UIView *lineView = [[UIView alloc]init];
+        lineView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        [view addSubview:lineView];
+        lineView.sd_layout
+        .leftEqualToView(view)
+        .rightEqualToView(view)
+        .topSpaceToView(orderNumber,0)
+        .heightIs(1);
+        UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [btn setTitle:@"订单咨询" forState:UIControlStateNormal];
+        [btn setTitleColor:[Color colorWithHex:@"#2C2C2C"] forState:UIControlStateNormal];
+        [btn setImage:IMAGE(@"order_advice_icon") forState:UIControlStateNormal];
+        btn.backgroundColor = [UIColor whiteColor];
+        btn.titleLabel.font = [UIFont systemFontOfSize:13];
+        btn.layer.cornerRadius = 2;
+        btn.layer.borderWidth = 1;
+        objc_setAssociatedObject(btn, @"index", [NSString stringWithFormat:@"%ld", section], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+        [btn addTarget:self action:@selector(orderClick:) forControlEvents:UIControlEventTouchUpInside];
+        
+        btn.layer.borderColor = [Color colorWithHex:@"0X2C2C2C"].CGColor;
+        [view addSubview:btn];
+        btn.sd_layout
+        .centerXEqualToView(view)
+        .topSpaceToView(lineView,13)
+        .widthIs(100)
+        .heightIs(30);
+        UIView *lineView2 = [[UIView alloc]init];
+        lineView2.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        [view addSubview:lineView2];
+        lineView2.sd_layout
+        .leftEqualToView(view)
+        .rightEqualToView(view)
+        .topSpaceToView(btn,14)
+        .heightIs(7);
+        UIView *lineView3 = [[UIView alloc]init];
+        lineView3.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        [view addSubview:lineView3];
+        lineView3.sd_layout
+        .leftEqualToView(view)
+        .rightEqualToView(view)
+        .topSpaceToView(view,0)
+        .heightIs(1);
+        return view;
+    }else{
+        UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 7)];
+        view.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        return view;
+    }
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
@@ -280,13 +350,127 @@
 
 #pragma mark - 右上角
 - (void)messageBtnClick{
-    
+    [YPC_Tools pushConversationListViewController:self];
 }
 
 #pragma mark - 订单咨询
-- (void)orderClick{
-    YPCAppLog(@"订单咨询");
+- (void)orderClick:(UIButton *)sender
+{
+    NSString *index = objc_getAssociatedObject(sender, @"index");
+    [YPC_Tools openConversationWithCilentId:[self.model.goodsinfo[index.integerValue] store].hx_uname ViewController:self andOrderId:[self.model.goodsinfo[index.integerValue] store].order_id andOrderIndex:index];
 }
+
+#pragma mark- 去支付
+
+- (void)goPay{
+    ChoosePayVC *chose = [[ChoosePayVC alloc]init];
+    chose.price = self.model.order_amount;
+    chose.pay_sn = self.model.pay_sn;
+    [self.navigationController pushViewController:chose animated:YES];
+}
+
+#pragma mark- 取消
+
+- (void)cancelOrder{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/cancel"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":weakself.order_id
+                                                                                   }]
+                           success:^(id response) {
+                               weakself.model.order_state = @"state_cancel";
+                               [YPC_Tools showSvpWithNoneImgHud:@"取消订单成功"];
+                               [weakself.navigationController popViewControllerAnimated:YES];
+                               
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
+}
+
+#pragma mark- 删除
+
+- (void)deleteOrder{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认删除该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/delete"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":weakself.order_id
+                                                                                   }]
+                           success:^(id response) {
+                               [YPC_Tools showSvpWithNoneImgHud:@"删除订单成功"];
+                               [weakself.navigationController popViewControllerAnimated:YES];
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
+    
+}
+
+//确认收货
+- (void)receiveOrder{
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定对该订单进行确认收货?" preferredStyle:(UIAlertControllerStyleAlert)];
+    
+    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        WS(weakself);
+        [YPCNetworking postWithUrl:@"shop/orders/receive"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"order_id":weakself.order_id
+                                                                                   }]
+                           success:^(id response) {
+                              weakself.model.order_state = @"state_noeval";
+                               [YPC_Tools showSvpWithNoneImgHud:@"确认收货成功"];
+                               
+                               [weakself.navigationController popViewControllerAnimated:YES];
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+        
+    }];
+    
+    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
+    [alert addAction:action];
+    [alert addAction:cancel];
+    [self showDetailViewController:alert sender:nil];
+    
+}
+
+
+- (void)pushDetail:(UIButton *)sender{
+    OrderGoodsInfoModel * model = self.model.goodsinfo[sender.tag];
+    LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+    live.store_id = model.store.store_id;
+    [self.navigationController pushViewController:live animated:YES];
+}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

@@ -22,15 +22,8 @@
             <rect key="frame" x="0.0" y="0.0" width="301" height="257"/>
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
-                <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Ovo-uR-Crs">
-                    <rect key="frame" x="0.0" y="0.0" width="301" height="1"/>
-                    <color key="backgroundColor" red="0.8980392157" green="0.8980392157" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="1" id="L61-D5-Hx2"/>
-                    </constraints>
-                </view>
-                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vhp-a0-1ky">
-                    <rect key="frame" x="0.0" y="1" width="301" height="235"/>
+                <tableView clipsSubviews="YES" contentMode="scaleToFill" alwaysBounceVertical="YES" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" style="plain" separatorStyle="none" rowHeight="44" sectionHeaderHeight="28" sectionFooterHeight="28" translatesAutoresizingMaskIntoConstraints="NO" id="vhp-a0-1ky">
+                    <rect key="frame" x="0.0" y="0.0" width="301" height="237"/>
                     <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <color key="sectionIndexBackgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                     <connections>
@@ -38,13 +31,6 @@
                         <outlet property="delegate" destination="-1" id="Yuw-0V-efM"/>
                     </connections>
                 </tableView>
-                <view alpha="0.30000001192092896" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="ud4-QJ-gQR">
-                    <rect key="frame" x="0.0" y="236" width="301" height="1"/>
-                    <color key="backgroundColor" red="0.8980392157" green="0.8980392157" blue="0.8980392157" alpha="1" colorSpace="calibratedRGB"/>
-                    <constraints>
-                        <constraint firstAttribute="height" constant="1" id="IOh-rz-bKP"/>
-                    </constraints>
-                </view>
                 <view hidden="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="uiL-g9-OeX">
                     <rect key="frame" x="0.0" y="237" width="100.5" height="20"/>
                     <subviews>
@@ -89,18 +75,12 @@
             </subviews>
             <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
             <constraints>
-                <constraint firstAttribute="trailing" secondItem="Ovo-uR-Crs" secondAttribute="trailing" id="2mk-P4-dAV"/>
                 <constraint firstAttribute="trailing" secondItem="vhp-a0-1ky" secondAttribute="trailing" id="7G6-Dy-1Ma"/>
-                <constraint firstItem="Ovo-uR-Crs" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="Hmn-yS-0MA"/>
-                <constraint firstAttribute="trailing" secondItem="ud4-QJ-gQR" secondAttribute="trailing" id="L3K-7F-WaT"/>
-                <constraint firstItem="ud4-QJ-gQR" firstAttribute="top" secondItem="vhp-a0-1ky" secondAttribute="bottom" id="dlu-ew-lnp"/>
+                <constraint firstItem="uiL-g9-OeX" firstAttribute="top" secondItem="vhp-a0-1ky" secondAttribute="bottom" id="8TZ-bF-rbh"/>
+                <constraint firstItem="vhp-a0-1ky" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="Btp-Be-yTV"/>
                 <constraint firstItem="vhp-a0-1ky" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="huG-4z-0Lu"/>
                 <constraint firstAttribute="bottom" secondItem="uiL-g9-OeX" secondAttribute="bottom" id="iob-KV-mxg"/>
-                <constraint firstItem="ud4-QJ-gQR" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="lvi-8X-P3X"/>
                 <constraint firstItem="uiL-g9-OeX" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="o5n-Gv-xXs"/>
-                <constraint firstItem="uiL-g9-OeX" firstAttribute="top" secondItem="ud4-QJ-gQR" secondAttribute="bottom" id="wiV-Fm-UmK"/>
-                <constraint firstItem="Ovo-uR-Crs" firstAttribute="top" secondItem="iN0-l3-epB" secondAttribute="top" id="x1n-Ju-F7A"/>
-                <constraint firstItem="vhp-a0-1ky" firstAttribute="top" secondItem="Ovo-uR-Crs" secondAttribute="bottom" id="zd9-yB-wxi"/>
             </constraints>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>
             <point key="canvasLocation" x="-2.5" y="-151.5"/>

@@ -9,8 +9,8 @@
 #import "AllGoodsTvCell.h"
 @interface AllGoodsTvCell ()
 
-@property (strong, nonatomic) IBOutlet NSLayoutConstraint *numWidthConstraint;
-@property (strong, nonatomic) IBOutlet UILabel *numberL;
+@property (strong, nonatomic) IBOutlet UILabel *numberL1;
+@property (strong, nonatomic) IBOutlet UILabel *numberL2;
 @property (strong, nonatomic) IBOutlet UIImageView *imgV;
 @property (strong, nonatomic) IBOutlet UILabel *titleL;
 @property (strong, nonatomic) IBOutlet UILabel *priceL;
@@ -30,7 +30,11 @@
 {
     _tempModel = tempModel;
     
-    self.numberL.text = @"34";
+//    self.numberL.text = @"34";
+    NSString *numStr1 = [_tempModel.goods_serial substringToIndex:1];
+    self.numberL1.text = numStr1;
+    NSString *numStr2 = [_tempModel.goods_serial substringWithRange:NSMakeRange(1, _tempModel.goods_serial.length - 1)];
+    self.numberL2.text = numStr2;
     [self.imgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.goods_image] placeholderImage:YPCImagePlaceHolder];
     self.titleL.text = _tempModel.goods_name;
     self.priceL.text = [NSString stringWithFormat:@"¥%@", _tempModel.goods_price];

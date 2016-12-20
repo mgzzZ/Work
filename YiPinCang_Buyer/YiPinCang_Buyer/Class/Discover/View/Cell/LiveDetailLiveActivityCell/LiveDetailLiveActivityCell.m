@@ -19,7 +19,7 @@
     if (_model != model) {
         _model = model;
     }
-    [self.shopImg sd_setImageWithURL:[NSURL URLWithString:model.strace_content] placeholderImage:YPCImagePlaceHolder];
+    [self.shopImg sd_setImageWithURL:[NSURL URLWithString:model.strace_contentStr] placeholderImage:YPCImagePlaceHolder];
     self.borderLab.text = model.brand_name;
     self.priceLab.text = [NSString stringWithFormat:@"¥%@",model.goods_price];
     self.titleLab.text = model.strace_title;

@@ -124,7 +124,7 @@
         [self.rightBtn setTitle:@"删除订单" forState:UIControlStateNormal];
         self.leftBtn.hidden = YES;
         self.rightBtn.hidden = NO;
-        NSString *priceStr = [NSString stringWithFormat:@"实付¥%@(含运费¥%@)",model.order_amount,model.shipping_fee];
+        NSString *priceStr = [NSString stringWithFormat:@"需付¥%@(含运费¥%@)",model.order_amount,model.shipping_fee];
         [self attributStrText:priceStr model:model];
         self.timeLab.text = model.store_name;
         self.timeLab.textColor = [Color colorWithHex:@"0x2c2c2c"];

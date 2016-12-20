@@ -17,6 +17,7 @@
 #import "preGoodsCell.h"
 #import "DiscoverDetailVC.h"
 #import "PreheatingDetailVC.h"
+#import "LiveDetailHHHVC.h"
 
 static NSString *PhotoIdentifier = @"photoPreheadtingCell";
 static NSString *VideoIdentifier = @"videoPreheadtingCell";
@@ -44,6 +45,8 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
 
 @property (strong, nonatomic) MPMoviePlayerController *moviePlayer;
 @property (strong, nonatomic) UIButton *movieCoverBtn;
+@property (nonatomic, strong) UIActivityIndicatorView *loadingView;
+
 @property (strong, nonatomic) IBOutlet UIView *preTitleView;
 
 
@@ -168,6 +171,10 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
     [self.bigImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.activity_pic] placeholderImage:IMAGE(@"live_zhanweitu2")];
     self.timeL.text = [NSString stringWithFormat:@"%@-%@", [YPC_Tools timeWithTimeIntervalString:self.tempModel.start Format:@"MM月dd日"], [YPC_Tools timeWithTimeIntervalString:self.tempModel.end Format:@"MM月dd日"]];
     self.addressL.text = self.tempModel.address;
+    
+    // 头像添加手势
+    UITapGestureRecognizer *avatorTap = [[UITapGestureRecognizer alloc] initWithTarget:self action:@selector(lookGroupInfoAction:)];
+    [self.headImgV addGestureRecognizer:avatorTap];
 }
 
 #pragma mark - tableViewDelegate
@@ -237,7 +244,7 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
 
 #pragma mark - 播放上方广告视频
 - (IBAction)playBrandVideoAction:(UIButton *)sender {
-    [self videoPlayActionWithURL:[NSURL URLWithString:self.tempModel.video]];
+    [self videoPlayActionWithURL:[NSURL URLWithString:self.dataModel.live_info.video]];
 }
 
 #pragma mark - 播放视频
@@ -265,6 +272,12 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
     self.movieCoverBtn.backgroundColor = [UIColor clearColor];
     [self.moviePlayer.view addSubview:self.movieCoverBtn];
     [self.movieCoverBtn addTarget:self action:@selector(dismissMoviePlayer) forControlEvents:UIControlEventTouchUpInside];
+    
+//    self.loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+//    self.loadingView.center = self.movieCoverBtn.center;
+//    [self.moviePlayer.view addSubview:self.loadingView];
+//    [self.loadingView startAnimating]
+    
     [YPC_Tools setStatusBarIsHidden:YES];
 }
 
@@ -296,6 +309,13 @@ static NSString *PreGoodsIdentifier = @"goodsPreheadtingCell";
 - (void)naviRightAction:(UIButton *)sender
 {
     
+}
+
+- (void)lookGroupInfoAction:(UITapGestureRecognizer *)tap
+{
+    LiveDetailHHHVC *detailVC = [LiveDetailHHHVC new];
+    detailVC.store_id = self.dataModel.live_info.store_id;
+    [self.navigationController pushViewController:detailVC animated:YES];
 }
 
 - (void)didReceiveMemoryWarning {

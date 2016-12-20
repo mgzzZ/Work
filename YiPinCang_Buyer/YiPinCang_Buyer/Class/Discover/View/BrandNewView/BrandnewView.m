@@ -11,26 +11,22 @@
 #import "LiveDetailSectionModel.h"
 #import "GuessLikeView.h"
 #import "BannerModel.h"
-#import <ImagePlayerView.h>
 #import "BrandBannerModel.h"
-@interface BrandnewView ()<UITableViewDelegate,UITableViewDataSource>
+#import <SDCycleScrollView.h>
+@interface BrandnewView ()<UITableViewDelegate,UITableViewDataSource,SDCycleScrollViewDelegate>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,strong)NSMutableArray *guessLikeArr;//推荐商品
-@property (nonatomic,strong)ImagePlayerView *titleImg;
+@property (strong, nonatomic) SDCycleScrollView *bannerView;
 @property (nonatomic,strong)BrandBannerModel *bannerModel;
 @property (nonatomic,strong)NSMutableArray *bannerDataArr;
+@property (nonatomic,strong)NSString *page;
+@property (nonatomic,strong)GuessLikeView *guessLikeView;
 @end
 
 
 @implementation BrandnewView
-- (void)dealloc
-{
-    // clear
-    [self.titleImg stopTimer];
-    self.titleImg.imagePlayerViewDelegate = nil;
-    self.titleImg = nil;
-}
+
 - (instancetype)initWithFrame:(CGRect)frame{
    self = [super initWithFrame:frame];
     if (self) {
@@ -40,7 +36,9 @@
 }
 
 - (void)setup{
+    self.page = @"1";
     self.dataArr = [NSMutableArray array];
+    self.guessLikeArr = [NSMutableArray array];
     self.bannerDataArr = [NSMutableArray array];
     self.tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];;
     self.tableView.delegate = self;
@@ -48,13 +46,13 @@
     self.tableView.tableFooterView = [UIView new];
     [self addSubview:self.tableView];
     self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
-    self.titleImg = [[ImagePlayerView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 250)];
-    self.titleImg.imagePlayerViewDelegate = self;
-    self.titleImg.scrollInterval = 3.0f;
-    self.titleImg.backgroundColor = [UIColor whiteColor];
-    self.titleImg.pageControlPosition = ICPageControlPosition_BottomCenter;
-    self.titleImg.hidePageControl = NO;
-    self.tableView.tableHeaderView = self.titleImg;
+    self.bannerView = [SDCycleScrollView cycleScrollViewWithFrame:CGRectMake(0, 0, ScreenWidth, ScreenHeight / 40 * 13) delegate:self placeholderImage:IMAGE(@"homepage_banner_zhanweitu")];
+    self.bannerView.pageControlAliment = SDCycleScrollViewPageContolAlimentCenter;
+    self.bannerView.bannerImageViewContentMode = UIViewContentModeScaleAspectFill;
+    //    self.bannerView.titlesGroup = titles;
+    self.bannerView.autoScrollTimeInterval = 4.f;
+    self.bannerView.currentPageDotColor = [UIColor whiteColor]; // 自定义分页控件小圆标颜色
+    [self.tableView setTableHeaderView:self.bannerView];
     [self getData];
     [self addMjRefresh];
     [self getDataGuessUlike];
@@ -74,7 +72,7 @@
                   refreshCache:YES
                         params:@{@"pagination":@{
                                          @"page":@"1",
-                                         @"count" : @"10"
+                                         @"count" : @"1000"
                                          }
                                  }
                        success:^(id response) {
@@ -107,23 +105,45 @@
                   refreshCache:YES
                         params:@{
                                  @"pagination":@{
-                                         @"count":@"24",
-                                         @"page":@"1"
+                                         @"count":@"10",
+                                         @"page":weakSelf.page
                                          }
                                  }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               weakSelf.guessLikeArr = [GuessModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                               GuessLikeView *guessLikeView = [[GuessLikeView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ((ScreenWidth - 46) / 2 * 182 / 137 +60 + 20) * weakSelf.guessLikeArr.count / 2 + 50)];
-                               guessLikeView.dataArr = weakSelf.guessLikeArr;
-                               guessLikeView.didSelect = ^(NSIndexPath *index){
-                                   GuessModel *model = weakSelf.guessLikeArr[index.row];
-                                   if (weakSelf.didlike) {
-                                       weakSelf.didlike(index,model);
-                                   }
-                                   
-                               };
-                               weakSelf.tableView.tableFooterView = guessLikeView;
+                               
+                               NSMutableArray *arr = [GuessModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               if (arr.count < 10) {
+                                   [weakSelf.guessLikeView.collectView.mj_footer endRefreshingWithNoMoreData];
+                               }else{
+                                   [weakSelf.guessLikeView.collectView.mj_footer endRefreshing];
+                               }
+                               [weakSelf.guessLikeArr addObjectsFromArray:arr];
+                               if (_guessLikeView == nil) {
+                                   weakSelf.guessLikeView = [[GuessLikeView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, ((ScreenWidth - 46) / 2 * 182 / 137 +60 + 20) * weakSelf.guessLikeArr.count / 2 + 70)];
+                                   weakSelf.guessLikeView.dataArr = weakSelf.guessLikeArr;
+                                   weakSelf.guessLikeView.didSelect = ^(NSIndexPath *index){
+                                       GuessModel *model = weakSelf.guessLikeArr[index.row];
+                                       if (weakSelf.didlike) {
+                                           weakSelf.didlike(index,model);
+                                       }
+                                       
+                                   };
+                                   weakSelf.guessLikeView.collectView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+                                       weakSelf.page = [NSString stringWithFormat:@"%zd",weakSelf.page.integerValue + 1];
+                                       [weakSelf getDataGuessUlike];
+                                   }];
+//                                   weakSelf.guessLikeView.refresh = ^{
+//                                       weakSelf.page = [NSString stringWithFormat:@"%zd",weakSelf.page.integerValue + 1];
+//                                       [weakSelf getDataGuessUlike];
+//                                   };
+                                   weakSelf.tableView.tableFooterView = weakSelf.guessLikeView;
+
+                               }
+                               weakSelf.guessLikeView.frame = CGRectMake(0, 0, ScreenWidth, ((ScreenWidth - 46) / 2 * 182 / 137 +60 + 20) * weakSelf.guessLikeArr.count / 2 + 140);
+                               weakSelf.tableView.tableFooterView = weakSelf.guessLikeView;
+                               weakSelf.guessLikeView.dataArr = weakSelf.guessLikeArr;
+                              
                                
                            }
                            
@@ -142,9 +162,11 @@
                       success:^(id response) {
                           if ([YPC_Tools judgeRequestAvailable:response]) {
                               weakSelf.bannerDataArr = [BannerModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"banners"]];
-                             [weakSelf.titleImg reloadData];
-                             
-                             ;
+                              NSMutableArray *bannerImgArr = [NSMutableArray array];
+                              for (BannerModel *model in weakSelf.bannerDataArr) {
+                                  [bannerImgArr addObject:model.pic];
+                              }
+                              weakSelf.bannerView.imageURLStringsGroup = bannerImgArr;
                           }
                       } fail:^(NSError *error) {
                           YPCAppLog(@"%@", [error description]);
@@ -253,8 +275,8 @@
     if ([model.type isEqualToString:@"start_activity"]) {
         //直播中
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_live")];
-        [cell.leftImg setImage:IMAGE(@"homepage_yure_live_icon")];
-        [cell.rightImg setImage:IMAGE(@"find_productdetails_icon_likes")];
+        [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
+        [cell.rightImg setImage:IMAGE(@"livememberdetails_list_zan_icon")];
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看中",listModel.live_users];
         cell.rightLab.text = listModel.live_like;
         cell.titleLab.text = listModel.name;
@@ -264,7 +286,7 @@
         //预告
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_trailer")];
         [cell.leftImg setImage:IMAGE(@"homepage_yure_hot_icon")];
-        [cell.rightImg setImage:IMAGE(@"homepage_follow_icon")];
+        [cell.rightImg setImage:IMAGE(@"livememberdetails_list_follow_icon")];
         cell.leftLab.text = [NSString stringWithFormat:@"%@热度",listModel.live_users];
         cell.rightLab.text = [NSString stringWithFormat:@"%@人关注",listModel.live_like];
         cell.titleLab.text = [NSString stringWithFormat:@" %@",listModel.name];
@@ -273,8 +295,9 @@
     }else if ([model.type isEqualToString:@"end_activity"]){
         //回放
         [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_playback")];
-        [cell.leftImg setImage:IMAGE(@"homepage_wathchnumber_icon")];
+        [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
         cell.rightImg.hidden = YES;
+
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看",listModel.live_users];
         cell.rightLab.hidden = YES;
         cell.titleLab.text = [NSString stringWithFormat:@" %@",listModel.name];
@@ -299,9 +322,6 @@
         tempModel.store_avatar = listModel.store_avatar;
         tempModel.store_name = listModel.store_name;
         tempModel.store_id = listModel.store_id;
-       
-
-        
     }else if ([model.type isEqualToString:@"will_activity"]){
         //预告
         typeStr = @"预告";
@@ -377,29 +397,9 @@
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 }
-#pragma mark - ImagePlayerViewDelegate
-- (NSInteger)numberOfItems
-{
-    return self.bannerDataArr.count;
-}
 
-- (void)imagePlayerView:(ImagePlayerView *)imagePlayerView loadImageForImageView:(UIImageView *)imageView index:(NSInteger)index
+- (void)cycleScrollView:(SDCycleScrollView *)cycleScrollView didSelectItemAtIndex:(NSInteger)index
 {
-    // recommend to use SDWebImage lib to load web image
-    BannerModel *model = self.bannerDataArr[index];
-
-    imageView.contentMode = UIViewContentModeScaleAspectFill;
-    if (self.bannerDataArr.count == 0) {
-        
-    }else{
-        
-        [imageView sd_setImageWithURL:[NSURL URLWithString:model.pic] placeholderImage:IMAGE(@"find_banner_placeholder")];
-    }
-   
-    imageView.clipsToBounds = YES;
-    
-}
-- (void)imagePlayerView:(ImagePlayerView *)imagePlayerView didTapAtIndex:(NSInteger)index{
     BannerModel *model = self.bannerDataArr[index];
     BannerDetailModel *detailModel = model.param;
     switch ([YPC_Tools judgementUrlSechmeTypeWithUrlString:(NSString *)[self.bannerDataArr[index] url]]) {

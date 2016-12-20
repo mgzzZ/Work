@@ -10,4 +10,8 @@
 
 @interface ChooseVC : UIViewController
 
+@property (nonatomic, assign) BOOL isChangeHomeStyle;
+
+@property (nonatomic, copy) void (^ChangeStyleBlock)();
+
 @end

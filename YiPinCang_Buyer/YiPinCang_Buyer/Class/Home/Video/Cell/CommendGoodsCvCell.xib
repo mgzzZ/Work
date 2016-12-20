@@ -19,7 +19,7 @@
                 <rect key="frame" x="0.0" y="0.0" width="160" height="193"/>
                 <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
                 <subviews>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fZV-ov-rGE">
+                    <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleAspectFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="fZV-ov-rGE">
                         <rect key="frame" x="0.0" y="0.0" width="160" height="160"/>
                         <constraints>
                             <constraint firstAttribute="width" secondItem="fZV-ov-rGE" secondAttribute="height" multiplier="1:1" id="PcF-Fn-P6T"/>

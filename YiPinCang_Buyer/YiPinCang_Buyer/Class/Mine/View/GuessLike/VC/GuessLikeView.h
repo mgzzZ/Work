@@ -10,6 +10,8 @@
 
 typedef void(^ItemCountBlock)(NSMutableArray *dataArr);
 typedef void(^DidSelectBlock)(NSIndexPath *indexPath);
+typedef void(^RefreshBlock)();
+
 
 @interface GuessLikeView : UIView<UICollectionViewDelegate,UICollectionViewDataSource>
 @property (nonatomic,strong)NSMutableArray *dataArr;
@@ -17,4 +19,5 @@ typedef void(^DidSelectBlock)(NSIndexPath *indexPath);
 @property (nonatomic,assign)NSInteger count;
 @property (nonatomic,copy)DidSelectBlock didSelect;
 @property (nonatomic,copy)ItemCountBlock itemCount;
+@property (nonatomic,copy)RefreshBlock refresh;
 @end
