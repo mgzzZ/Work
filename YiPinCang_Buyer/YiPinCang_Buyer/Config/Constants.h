@@ -18,6 +18,27 @@
 
 #define kRandomColor @[]
 
+//Callback with Foundation type
+typedef void (^YPCBooleanResultBlock)(BOOL succeeded, NSError *error);
+typedef void (^YPCViewControllerBooleanResultBlock)(__kindof UIViewController *viewController, BOOL succeeded, NSError *error);
+
+typedef void (^YPCIntegerResultBlock)(NSInteger number, NSError *error);
+typedef void (^YPCStringResultBlock)(NSString *string, NSError *error);
+typedef void (^YPCDictionaryResultBlock)(NSDictionary * dict, NSError *error);
+typedef void (^YPCArrayResultBlock)(NSArray *objects, NSError *error);
+typedef void (^YPCSetResultBlock)(NSSet *channels, NSError *error);
+typedef void (^YPCDataResultBlock)(NSData *data, NSError *error);
+typedef void (^YPCIdResultBlock)(id object, NSError *error);
+typedef void (^YPCIdBoolResultBlock)(BOOL succeeded, id object, NSError *error);
+typedef void (^YPCRequestAuthorizationBoolResultBlock)(BOOL granted, NSError *error);
+
+//Callback with Function object
+typedef void (^YPCVoidBlock)(void);
+typedef void (^YPCErrorBlock)(NSError *error);
+typedef void (^YPCImageResultBlock)(UIImage * image, NSError *error);
+typedef void (^YPCProgressBlock)(NSInteger percentDone);
+
+
 /**
  *  pageVC类型(足迹&收藏)
  */
@@ -45,17 +66,6 @@ typedef NS_ENUM(NSUInteger, UrlSechmeType){
     urlSechmeActivityDeatail, // 活动详情
     urlSechmeLivingGroupDetail, // 直播中详情
     urlSechmeBrandDetail, // 品牌详情
-};
-/*!
- *
- *    主题选择
- *
- */
-typedef NS_ENUM(NSUInteger, HomeStyleType){
-    homeStyleFemale = 0, // 女性
-    homeStyleMale, // 男性
-    homeStyleChildren, // 商品详情
-    homeStyleHousehold // 居家
 };
 
 /*!
@@ -89,12 +99,41 @@ enum : LeanCloudCustomMessageType {
 static NSString *const KEY_Will_Activity = @"will_activity";
 static NSString *const KEY_Start_Activity = @"start_activity";
 static NSString *const KEY_End_Activity = @"stop_activity";
+
+typedef NS_ENUM(NSUInteger, LiveListType){
+    LiveListOfLiving = 0, //直播中
+    LiveListOfPreHearting, //预热
+    LiveListOfEnd, //往期回顾
+};
+
 /**
  *  九宫格图层类型
  */
-typedef NS_ENUM(NSInteger, PhotoContainerType){
+typedef NS_ENUM(NSUInteger, PhotoContainerType){
     PhotoContainerTypeNormal = 0, // 宽度不充满屏幕, 正常类型
     PhotoContainerTypeFullScreenWidth, // 宽度充满屏幕
+    PhotoContainerTypeFindScreenWidth,//发现页面特殊要求
+    PhotoContainerTypeGeneral,//九张图一样大小
+};
+/**
+ *  九宫格图层模式  是否带缩略图
+ */
+typedef NS_ENUM(NSUInteger, PhotoContainerModeType){
+    PhotoContainerModeTypeNormal = 0, // 没有
+    PhotoContainerModeTypeHave, // 有
+};
+
+/**
+ *  分享类型
+ */
+typedef NS_ENUM(NSUInteger, ShareStateType){
+    ShareStateTypeStore = 0, // 直播组
+    ShareStateTypeGoods, // 商品
+    ShareStateTypeStartActivity, // 正在直播活动
+    ShareStateTypeWillActivity, // 预热活动
+    ShareStateTypeEndActivity, // 已结束活动
+    ShareStateTypeBrand, // 品牌
+    ShareStateTypeBrandActivity,
 };
 
 #endif /* Constants_h */

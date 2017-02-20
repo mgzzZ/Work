@@ -23,4 +23,5 @@
 @property (nonatomic,strong)UIImageView *commentImg;
 @property (nonatomic,strong)UIView *toplineView;
 @property (nonatomic,strong)LiveShareModel *model;
+@property (nonatomic,strong)OriginalPriceLab *originalpriceLab;//原价
 @end

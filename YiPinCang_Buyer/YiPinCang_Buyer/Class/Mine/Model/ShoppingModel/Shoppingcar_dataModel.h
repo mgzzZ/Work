@@ -16,11 +16,13 @@
 @property (nonatomic,copy)NSString *goods_price;
 @property (nonatomic,copy)NSString *goods_num;
 @property (nonatomic,copy)NSString *goods_image;
+@property (nonatomic,copy)NSString *goods_image_thumb;
 @property (nonatomic,copy)NSString *addtime;
 @property (nonatomic,copy)NSString *type;
 @property (nonatomic,copy)NSString *goods_commonid;
 @property (nonatomic,copy)NSString *goods_spec;
 @property (nonatomic,copy)NSString *goods_storage;
 @property (nonatomic,copy)NSString *remaintime;
+@property (nonatomic,copy)NSString *goods_marketprice;
 @property (nonatomic,assign)BOOL seleted;
 @end

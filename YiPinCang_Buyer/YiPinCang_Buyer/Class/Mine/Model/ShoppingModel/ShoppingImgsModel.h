@@ -12,5 +12,4 @@
 @property(nonatomic,copy)NSString *goods_image_id;
 @property(nonatomic,copy)NSString *goods_image;
 
-
 @end

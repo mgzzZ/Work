@@ -16,4 +16,10 @@
              @"content" : @"LogistcsinContentModel"
              };
 }
++ (id)mj_getNewValueFromObject:(__unsafe_unretained id)object oldValue:(__unsafe_unretained id)oldValue property:(MJProperty *__unsafe_unretained)property{
+    if ([property.name isEqualToString:@"publisher"]) {
+        if (oldValue == nil) return @"";
+    }
+    return oldValue;
+}
 @end

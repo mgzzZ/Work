@@ -2,11 +2,12 @@
 //  LCCKBaseViewController.h
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/26.
+//  v0.8.5 Created by ElonChan on 16/2/26.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
+#import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 
-@import UIKit;
 @class LCCKBaseViewController;
 @protocol LCCKViewControllerEventProtocol <NSObject>
 
@@ -45,7 +46,7 @@ typedef void(^LCCKViewDidReceiveMemoryWarningBlock)(__kindof LCCKBaseViewControl
 
 @end
 
-typedef void(^LCCKBarButtonItemActionBlock)(UIBarButtonItem *sender, UIEvent *event);
+typedef void(^LCCKBarButtonItemActionBlock)(__kindof LCCKBaseViewController *viewController, UIBarButtonItem *sender, UIEvent *event);
 
 typedef NS_ENUM(NSInteger, LCCKBarButtonItemStyle) {
     LCCKBarButtonItemStyleSetting = 0,

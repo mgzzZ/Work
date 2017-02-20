@@ -30,8 +30,6 @@
     self.priceLab.text = [NSString stringWithFormat:@"¥%@",model.goods_price];
     self.typeLab.text = model.goods_spec;
     self.countLab.text = [NSString stringWithFormat:@"×%@",model.goods_num];
-    
-    
 }
 
 @end

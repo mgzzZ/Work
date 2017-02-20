@@ -79,6 +79,7 @@
     //数量展示/输入框
     _textField = [[UITextField alloc] init];
     _textField.delegate = self;
+    _textField.userInteractionEnabled = NO;
     _textField.textAlignment = NSTextAlignmentCenter;
     _textField.keyboardType = UIKeyboardTypeNumberPad;
     _textField.font = [UIFont systemFontOfSize:_inputFieldFont];
@@ -135,6 +136,10 @@
     _delegate ? [_delegate pp_numberButton:self number:_textField.text] : nil;
 }
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+- (BOOL)textFieldShouldEndEditing:(UITextField *)textField{
     [textField resignFirstResponder];
     return YES;
 }

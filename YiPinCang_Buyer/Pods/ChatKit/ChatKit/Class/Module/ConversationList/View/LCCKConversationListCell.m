@@ -2,7 +2,7 @@
 //  LCCKConversationListCell.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/22.
+//  v0.8.5 Created by ElonChan on 16/3/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -17,18 +17,18 @@
 
 #import "UIImageView+LCCKExtension.h"
 
-static CGFloat LCCKImageSize = 46;
-static CGFloat LCCKVerticalSpacing = 11;
+static CGFloat LCCKImageSize = 45;
+static CGFloat LCCKVerticalSpacing = 8;
 static CGFloat LCCKHorizontalSpacing = 10;
 static CGFloat LCCKTimestampeLabelWidth = 100;
 static CGFloat LCCKAutoResizingDefaultScreenWidth = 320;
-static CGFloat LCCKNameLabelHeightProportion = 3.0 / 6;
+static CGFloat LCCKNameLabelHeightProportion = 3.0 / 5;
 static CGFloat LCCKNameLabelHeight;
 static CGFloat LCCKMessageLabelHeight;
 static CGFloat LCCKLittleBadgeSize = 10;
 static CGFloat LCCKRemindMuteSize = 18;
 
-CGFloat const LCCKConversationListCellDefaultHeight = 68; //LCCKImageSize + LCCKVerticalSpacing * 2;
+CGFloat const LCCKConversationListCellDefaultHeight = 61; //LCCKImageSize + LCCKVerticalSpacing * 2;
 
 @interface LCCKConversationListCell ()
 
@@ -70,12 +70,12 @@ CGFloat const LCCKConversationListCellDefaultHeight = 68; //LCCKImageSize + LCCK
     self.selectedBackgroundView = selectionColor;
     LCCKNameLabelHeight = LCCKImageSize * LCCKNameLabelHeightProportion;
     LCCKMessageLabelHeight = LCCKImageSize - LCCKNameLabelHeight;
-    [self addSubview:self.avatarImageView];
-    [self addSubview:self.timestampLabel];
-    [self.contentView addSubview:self.litteBadgeView];
+    [self.contentView addSubview:self.avatarImageView];
+    [self.contentView addSubview:self.timestampLabel];
     [self.contentView addSubview:self.nameLabel];
     [self.contentView addSubview:self.messageTextLabel];
     [self.contentView addSubview:self.remindMuteImageView];
+    [self.contentView addSubview:self.litteBadgeView];
 }
 
 - (UIImageView *)avatarImageView {
@@ -94,7 +94,7 @@ CGFloat const LCCKConversationListCellDefaultHeight = 68; //LCCKImageSize + LCCK
 - (UIView *)litteBadgeView {
     if (_litteBadgeView == nil) {
         UIView *litteBadgeView = [[UIView alloc] initWithFrame:CGRectMake(0, 0, LCCKLittleBadgeSize, LCCKLittleBadgeSize)];
-//        litteBadgeView.layer.masksToBounds = YES;
+        litteBadgeView.backgroundColor = [UIColor redColor];
         litteBadgeView.layer.cornerRadius = LCCKLittleBadgeSize / 2;
         litteBadgeView.center = CGPointMake(CGRectGetMaxX(_avatarImageView.frame), CGRectGetMinY(_avatarImageView.frame));
         litteBadgeView.hidden = YES;

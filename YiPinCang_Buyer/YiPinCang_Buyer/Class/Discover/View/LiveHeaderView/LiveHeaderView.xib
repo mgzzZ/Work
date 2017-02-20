@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -46,7 +46,7 @@
                         </userDefinedRuntimeAttribute>
                     </userDefinedRuntimeAttributes>
                 </imageView>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="sdadasdasd" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y7S-S8-4Qy">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="----------------" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Y7S-S8-4Qy">
                     <rect key="frame" x="15" y="121" width="290" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="nct-7F-lOL"/>
@@ -55,14 +55,14 @@
                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="个性签名：当我知道昵称不能为空 其实 我是拒绝的" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uyA-vh-8NL">
-                    <rect key="frame" x="39" y="151" width="242" height="31.5"/>
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="个性签名：-------------------------" textAlignment="center" lineBreakMode="tailTruncation" numberOfLines="2" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uyA-vh-8NL">
+                    <rect key="frame" x="39" y="151" width="242" height="16"/>
                     <fontDescription key="fontDescription" type="system" pointSize="13"/>
                     <color key="textColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="Fbr-Ko-KVv">
-                    <rect key="frame" x="68.5" y="198" width="184" height="26"/>
+                    <rect key="frame" x="68.5" y="189" width="184" height="26"/>
                     <subviews>
                         <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="c8r-G9-BUc">
                             <rect key="frame" x="0.0" y="0.0" width="74" height="26"/>
@@ -122,7 +122,7 @@
                         <constraint firstAttribute="width" constant="184" id="sQa-AR-o6j"/>
                     </constraints>
                 </view>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="收到赞65万" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="maT-Od-C5Q">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="------------" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="maT-Od-C5Q">
                     <rect key="frame" x="15" y="225" width="127.5" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="TiP-Cl-AA3"/>
@@ -131,7 +131,7 @@
                     <color key="textColor" red="1" green="1" blue="1" alpha="1" colorSpace="calibratedRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
-                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="粉丝1651人" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uDK-TG-nD3">
+                <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="------------" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="uDK-TG-nD3">
                     <rect key="frame" x="178.5" y="225" width="126.5" height="20"/>
                     <constraints>
                         <constraint firstAttribute="height" constant="20" id="Aoo-Wt-E95"/>
@@ -145,7 +145,7 @@
             <constraints>
                 <constraint firstItem="brX-rh-GHT" firstAttribute="leading" secondItem="0Ls-vD-sO8" secondAttribute="leading" id="3Qu-Hi-VvL"/>
                 <constraint firstItem="do7-ck-Qpe" firstAttribute="top" secondItem="WDd-mR-CsF" secondAttribute="top" constant="41" id="5ZM-Pt-guM"/>
-                <constraint firstAttribute="bottom" secondItem="Fbr-Ko-KVv" secondAttribute="bottom" constant="41" id="6bo-79-cMb"/>
+                <constraint firstAttribute="bottom" secondItem="Fbr-Ko-KVv" secondAttribute="bottom" constant="50" id="6bo-79-cMb"/>
                 <constraint firstItem="Y7S-S8-4Qy" firstAttribute="top" secondItem="do7-ck-Qpe" secondAttribute="bottom" constant="10" id="72l-ER-zSw"/>
                 <constraint firstItem="brX-rh-GHT" firstAttribute="height" secondItem="0Ls-vD-sO8" secondAttribute="height" id="Al7-4M-wlg"/>
                 <constraint firstAttribute="trailing" secondItem="0Ls-vD-sO8" secondAttribute="trailing" id="Djf-st-z11"/>

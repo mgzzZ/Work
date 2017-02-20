@@ -10,7 +10,8 @@
 
 @interface endActivityGoodsCVCell ()
 @property (strong, nonatomic) IBOutlet UIImageView *imgV;
-@property (strong, nonatomic) IBOutlet UILabel *priceL;
+@property (nonatomic, strong) IBOutlet UILabel *priceL;
+@property (strong, nonatomic) IBOutlet UILabel *originalpriceL;
 
 @end
 
@@ -19,13 +20,17 @@
 - (void)setTempModel:(CommendModel *)tempModel
 {
     _tempModel = tempModel;
-    [self.imgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.goods_image] placeholderImage:YPCImagePlaceHolder];
+    [self.imgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.goods_image] placeholderImage:YPCImagePlaceHolderSquare];
     self.priceL.text = [NSString stringWithFormat:@"¥ %@", _tempModel.goods_price];
+
+    //中划线
+    NSDictionary *attribtDic = @{NSStrikethroughStyleAttributeName: [NSNumber numberWithInteger:NSUnderlineStyleSingle]};
+    NSMutableAttributedString *attribtStr = [[NSMutableAttributedString alloc]initWithString:_tempModel.goods_marketprice attributes:attribtDic];
+    self.originalpriceL.attributedText = attribtStr;
 }
 
 - (void)awakeFromNib {
     [super awakeFromNib];
-    // Initialization code
 }
 
 @end

@@ -8,10 +8,9 @@
 
 #import <UIKit/UIKit.h>
 
-typedef void(^BackBlock)();
-
 @interface LoginVC : UIViewController
 
-@property (nonatomic,copy)BackBlock back;
+@property (nonatomic, copy) void (^SuccessLoginBlock)();
+@property (nonatomic, copy) NSString *resetPwdPhone;
 
 @end

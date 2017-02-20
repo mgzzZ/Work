@@ -27,7 +27,7 @@
 - (UIBarButtonItem *)customBackItemWithTarget:(id)target action:(SEL)action
 {
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+    [button setImage:IMAGE(@"back_icon") forState:UIControlStateNormal];
     [button sizeToFit];
     [button addTarget:target
                action:action

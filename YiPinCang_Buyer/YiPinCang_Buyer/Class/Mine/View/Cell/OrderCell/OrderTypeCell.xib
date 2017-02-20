@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="380" height="233"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="380" height="232"/>
+                <rect key="frame" x="0.0" y="0.0" width="380" height="233"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="aDR-03-BOx">
@@ -66,8 +66,8 @@
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="PNU-nJ-9ym">
                         <rect key="frame" x="0.0" y="129" width="380" height="42"/>
                         <subviews>
-                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="共1件商品" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="94U-7D-GF3">
-                                <rect key="frame" x="15" y="14" width="68" height="15"/>
+                            <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" horizontalCompressionResistancePriority="749" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="94U-7D-GF3">
+                                <rect key="frame" x="15" y="14" width="0.0" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="2wt-pb-IPx"/>
                                 </constraints>
@@ -76,7 +76,7 @@
                                 <nil key="highlightedColor"/>
                             </label>
                             <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="需付 ¥79.00（含运费¥0.00）" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aRH-C8-KWV">
-                                <rect key="frame" x="172" y="14" width="193" height="15"/>
+                                <rect key="frame" x="30" y="14" width="335" height="15"/>
                                 <constraints>
                                     <constraint firstAttribute="height" constant="15" id="Dxc-fG-XOf"/>
                                 </constraints>
@@ -92,6 +92,7 @@
                             <constraint firstAttribute="height" constant="42" id="gdW-rz-00t"/>
                             <constraint firstItem="94U-7D-GF3" firstAttribute="centerY" secondItem="PNU-nJ-9ym" secondAttribute="centerY" id="hNM-BZ-6b0"/>
                             <constraint firstAttribute="trailing" secondItem="aRH-C8-KWV" secondAttribute="trailing" constant="15" id="qp5-hl-5KU"/>
+                            <constraint firstItem="aRH-C8-KWV" firstAttribute="leading" relation="lessThanOrEqual" secondItem="94U-7D-GF3" secondAttribute="trailing" constant="15" id="w4G-ZF-LHp"/>
                         </constraints>
                     </view>
                     <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="3ej-PZ-eAr">
@@ -280,7 +281,7 @@
             <rect key="frame" x="0.0" y="0.0" width="383" height="248"/>
             <autoresizingMask key="autoresizingMask"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="6JS-wA-2ig" id="E0t-Fd-CDZ">
-                <rect key="frame" x="0.0" y="0.0" width="383" height="247"/>
+                <rect key="frame" x="0.0" y="0.0" width="383" height="248"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="订单状态" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="NSx-eR-ch4">
@@ -306,13 +307,18 @@
                             <constraint firstAttribute="height" constant="1" id="Dws-d4-ru8"/>
                         </constraints>
                     </view>
-                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" showsVerticalScrollIndicator="NO" dataMode="none" translatesAutoresizingMaskIntoConstraints="NO" id="E9W-SK-n5h">
+                    <collectionView clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="scaleToFill" scrollEnabled="NO" showsHorizontalScrollIndicator="NO" showsVerticalScrollIndicator="NO" dataMode="none" prefetchingEnabled="NO" translatesAutoresizingMaskIntoConstraints="NO" id="E9W-SK-n5h">
                         <rect key="frame" x="0.0" y="43" width="383" height="97"/>
                         <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="97" id="eZp-uT-2ST"/>
                         </constraints>
-                        <collectionViewLayout key="collectionViewLayout" id="VUB-pS-8lr" customClass="UICollectionViewFlowLayout"/>
+                        <collectionViewFlowLayout key="collectionViewLayout" scrollDirection="horizontal" minimumLineSpacing="10" minimumInteritemSpacing="10" id="5wl-Vs-7RO">
+                            <size key="itemSize" width="50" height="50"/>
+                            <size key="headerReferenceSize" width="0.0" height="0.0"/>
+                            <size key="footerReferenceSize" width="0.0" height="0.0"/>
+                            <inset key="sectionInset" minX="0.0" minY="0.0" maxX="0.0" maxY="0.0"/>
+                        </collectionViewFlowLayout>
                         <connections>
                             <outlet property="dataSource" destination="-1" id="vUZ-bz-HCu"/>
                             <outlet property="delegate" destination="-1" id="7OU-wK-Hxw"/>
@@ -325,10 +331,9 @@
                             <constraint firstAttribute="height" constant="1" id="3s9-BC-YXf"/>
                         </constraints>
                     </view>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="49h-pN-DcQ">
-                        <rect key="frame" x="15" y="141" width="72" height="42"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="252" verticalHuggingPriority="251" text="" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="49h-pN-DcQ">
+                        <rect key="frame" x="15" y="141" width="0.0" height="42"/>
                         <constraints>
-                            <constraint firstAttribute="width" constant="72" id="9B6-U8-foD"/>
                             <constraint firstAttribute="height" constant="42" id="JuI-Ay-cLV"/>
                         </constraints>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
@@ -336,7 +341,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Ph1-sa-mpP">
-                        <rect key="frame" x="368" y="141" width="0.0" height="42"/>
+                        <rect key="frame" x="30" y="141" width="338" height="42"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
@@ -426,6 +431,7 @@
                     <constraint firstItem="E9W-SK-n5h" firstAttribute="top" secondItem="pEr-Qg-eE2" secondAttribute="bottom" id="9Po-d8-mX9"/>
                     <constraint firstAttribute="trailing" secondItem="ABj-hN-iR0" secondAttribute="trailing" id="B6o-LF-Xst"/>
                     <constraint firstItem="vb4-x9-LDI" firstAttribute="top" secondItem="ABj-hN-iR0" secondAttribute="bottom" constant="57" id="CSH-3F-BwM"/>
+                    <constraint firstItem="Ph1-sa-mpP" firstAttribute="leading" relation="lessThanOrEqual" secondItem="49h-pN-DcQ" secondAttribute="trailing" constant="15" id="Ck3-Rx-kiW"/>
                     <constraint firstItem="BLZ-Ls-8cm" firstAttribute="leading" secondItem="E0t-Fd-CDZ" secondAttribute="leading" constant="15" id="DV9-8S-cIe"/>
                     <constraint firstItem="NSx-eR-ch4" firstAttribute="leading" secondItem="E0t-Fd-CDZ" secondAttribute="leading" constant="15" id="DcT-cX-5ez"/>
                     <constraint firstAttribute="trailing" secondItem="vb4-x9-LDI" secondAttribute="trailing" id="GK9-vo-dEN"/>
@@ -464,7 +470,7 @@
                 <outlet property="stateMoreLab" destination="Ph1-sa-mpP" id="F0C-ma-Iws"/>
                 <outlet property="timeMoreLab" destination="qYX-0y-gxG" id="KAg-2y-ugL"/>
             </connections>
-            <point key="canvasLocation" x="-390.5" y="95"/>
+            <point key="canvasLocation" x="-545" y="88"/>
         </tableViewCell>
     </objects>
     <resources>

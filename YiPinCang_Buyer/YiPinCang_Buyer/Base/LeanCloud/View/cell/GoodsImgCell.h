@@ -7,9 +7,10 @@
 //
 
 #import <UIKit/UIKit.h>
+#import "GoodsModel.h"
 
 @interface GoodsImgCell : UICollectionViewCell
 
-@property (nonatomic, copy) NSString *tempStr;
+@property (nonatomic, strong) GoodsModel *tempModel;
 
 @end

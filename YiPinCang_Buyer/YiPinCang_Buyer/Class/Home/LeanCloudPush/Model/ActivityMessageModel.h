@@ -38,5 +38,6 @@
 @property (nonatomic, copy) NSString *store_id;
 @property (nonatomic, copy) NSString *video;
 @property (nonatomic, copy) NSString *livingshowinitimg;
+@property (nonatomic, copy) NSString *activity_type;
 
 @end

@@ -7,7 +7,12 @@
 //
 
 #import <UIKit/UIKit.h>
-
+#import "Choose_spModel.h"
+typedef enum : NSUInteger {
+    SEGCOUNTOFONECELL= 1,
+    SEGCOUNTMORECELL,
+    
+} SEGCOUNTCELL;
 typedef void(^SuccessBlock)(NSIndexPath *index);
 
 typedef void(^ErrorBlock)(NSIndexPath *index);
@@ -24,4 +29,6 @@ typedef void(^ErrorBlock)(NSIndexPath *index);
 
 @property (nonatomic,copy)ErrorBlock error;
 
+@property (nonatomic,strong)Choose_spModel *model;
+@property (nonatomic,assign)SEGCOUNTCELL segcount;
 @end

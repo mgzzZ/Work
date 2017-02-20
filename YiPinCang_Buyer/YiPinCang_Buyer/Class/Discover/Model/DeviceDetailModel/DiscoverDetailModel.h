@@ -14,6 +14,7 @@
 @interface DiscoverDetailModel : NSObject
 
 @property (nonatomic,copy)NSString *goods_commonid;
+@property (nonatomic,copy)NSString *goods_discount;
 @property (nonatomic,copy)NSString *goods_name;
 @property (nonatomic,copy)NSString *gc_name;
 @property (nonatomic,copy)NSString *goods_image;
@@ -32,7 +33,9 @@
 @property (nonatomic,copy)NSString *islike;//预售状态
 @property (nonatomic,strong)NSArray *p;
 @property (nonatomic,strong)NSArray *strace_content;
+@property (nonatomic,strong)NSArray *strace_content_thumb;
 @property (nonatomic,strong)NSMutableArray *commentlist;
 @property (nonatomic,strong)NSString *total_storage;
 @property (nonatomic,strong)NSString *store_id;
+@property (nonatomic,strong)NSString *goods_marketprice;
 @end

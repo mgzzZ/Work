@@ -12,12 +12,17 @@
 #import "GoodsModel.h"
 
 @interface GoodsMessageView () <UICollectionViewDelegate, UICollectionViewDataSource, UICollectionViewDelegateFlowLayout>
-@property (strong, nonatomic) IBOutlet UIImageView *avatarImgV;
-@property (nonatomic, strong) IBOutlet UILabel *storeNameL;
+
 @property (nonatomic, strong) IBOutlet UILabel *stateL;
+@property (nonatomic, strong) IBOutlet UILabel *orderNumL;
 @property (nonatomic, strong) IBOutlet UILabel *endPriceL;
+@property (nonatomic, strong) IBOutlet UILabel *goodsCountL;
+@property (nonatomic, strong) IBOutlet UILabel *transportationPrice;
+@property (nonatomic, strong) IBOutlet UIImageView *goodsImgV;
 
 @property (nonatomic, strong) IBOutlet UICollectionView *goodsImgCollectionView;
+
+@property (nonatomic, strong) IBOutlet UILabel *desL;
 
 @property (nonatomic, strong) OrderDetailModel *dataModel;
 
@@ -25,9 +30,13 @@
 
 @implementation GoodsMessageView
 
-+ (id)GoodsMessageView
++ (id)GoodsMessageViewWithGoodsCount:(NSInteger)goodsCount
 {
-    return [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:nil options:nil].firstObject;
+    if (goodsCount > 1) { // 多件商品, 使用collectionView展示
+        return [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:nil options:nil].firstObject;
+    }else { // 单间商品, 一张图片展示
+        return [[NSBundle mainBundle] loadNibNamed:NSStringFromClass([self class]) owner:nil options:nil].lastObject;
+    }
 }
 - (void)awakeFromNib {
     [super awakeFromNib];
@@ -48,42 +57,40 @@
 - (void)configureWithModel:(OrderDetailModel *)model andDataIndex:(NSString *)index
 {
     self.dataModel = model;
-    [self.avatarImgV sd_setImageWithURL:[NSURL URLWithString:[model.goodsinfo[index.integerValue] store].store_avatar] placeholderImage:nil];
-    self.storeNameL.text = [model.goodsinfo[index.integerValue] store].store_name;
     
-//    CGFloat totalPrice;
-//    for (GoodsModel *gm in model.goodsinfo) {
-//        <#statements#>
-//    }
+    self.orderNumL.text = [[self.dataModel.goodsinfo.firstObject store] order_sn];
+    self.endPriceL.text = self.dataModel.order_amount;
+    self.transportationPrice.text = [NSString stringWithFormat:@"(含运费: %@)", self.dataModel.shipping_fee];
+    self.goodsCountL.text = [NSString stringWithFormat:@"共%ld件商品", [self.dataModel.goodsinfo.firstObject goods].count];
     
-    if ([model.state_desc isEqualToString:@"已取消"] ||[model.state_desc isEqualToString:@"待付款"]) {
-        self.endPriceL.text = [NSString stringWithFormat:@"需付款: ¥%@ (含运费: ¥%@)", model.order_amount, model.shipping_fee];
-    }else {
-        self.endPriceL.text = [NSString stringWithFormat:@"已付款: ¥%@ (含运费: ¥%@)", model.order_amount, model.shipping_fee];
+    if ([self.dataModel.goodsinfo.firstObject goods].count > 1) { // 多件商品, 使用collectionView展示
+        [self configTempCell];
+    }else { // 单间商品, 一张图片展示
+        [self.goodsImgV sd_setImageWithURL:[NSURL URLWithString:[[self.dataModel.goodsinfo.firstObject goods].firstObject goods_image]] placeholderImage:YPCImagePlaceHolderSquare];
+        self.desL.text = [[self.dataModel.goodsinfo.firstObject goods].firstObject goods_name];
     }
     
     if (self.dataModel.order_state.integerValue == 0) {
         // 已取消
         self.stateL.text = @"已取消";
-        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+        self.stateL.textColor = [Color colorWithHex:@"#F00E36"];
     }else if (self.dataModel.order_state.integerValue == 10) {
         // 待付款
         self.stateL.text = @"待付款";
-        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+        self.stateL.textColor = [Color colorWithHex:@"#F00E36"];
     }else if (self.dataModel.order_state.integerValue == 20) {
         // 待发货
         self.stateL.text = @"待发货";
-        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+        self.stateL.textColor = [Color colorWithHex:@"#1CBBB4"];
     }else if (self.dataModel.order_state.integerValue == 30) {
         // 已发货
         self.stateL.text = @"已发货";
-        self.stateL.textColor = [Color colorWithHex:@"#E4393C"];
+        self.stateL.textColor = [Color colorWithHex:@"#1CBBB4"];
     }else if (self.dataModel.order_state.integerValue == 40) {
         // 已完成
         self.stateL.text = @"已完成";
-        self.stateL.textColor = [Color colorWithHex:@"#36A74D"];
+        self.stateL.textColor = [Color colorWithHex:@"#1CBBB4"];
     }
-    [self configTempCell];
 }
 
 - (void)configTempCell
@@ -101,7 +108,7 @@
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     GoodsImgCell *cell = [collectionView dequeueReusableCellWithReuseIdentifier:@"goodsImgItem" forIndexPath:indexPath];
-    cell.tempStr = [[self.dataModel.goodsinfo.firstObject goods][indexPath.item] goods_image];
+    cell.tempModel = [self.dataModel.goodsinfo.firstObject goods][indexPath.item];
     return cell;
 }
 

@@ -65,7 +65,7 @@ static NSString *Identifier = @"identifier";
             [YPC_Tools customSheetViewWithTitle:nil
                                         Message:nil
                                       BtnTitles:nil
-                                 CancelBtnTitle:@"取消"
+                                     CancelBtnTitle:@"取消"
                             DestructiveBtnTitle:[[YPCRequestCenter shareInstance].model.member_mobile isEqual:[NSNull null]] || [YPCRequestCenter shareInstance].model.member_mobile == nil ? @"更换手机号码" : @"绑定手机号码"
                                   actionHandler:nil
                                   cancelHandler:nil

@@ -25,6 +25,7 @@
 #import "AVIMErrorUtil.h"
 #import "LCIMConversationCache.h"
 #import "MessagesProtoOrig.pbobjc.h"
+#import "AVUtils.h"
 
 #define LCIM_VALID_LIMIT(limit) ({      \
     int32_t limit_ = (int32_t)(limit);  \
@@ -71,6 +72,23 @@
 
 - (NSString *)clientId {
     return _imClient.clientId;
+}
+
+- (AVIMMessage *)lastMessage {
+    if (_lastMessage) {
+        return _lastMessage;
+    }
+    if (!_lastMessageAt || !self.imClient.messageQueryCacheEnabled) {
+        return nil;
+    }
+    [AVUtils warnMainThreadIfNecessary];
+    NSArray *cachedMessages = [[self messageCacheStore] latestMessagesWithLimit:1];
+    AVIMMessage *message = [cachedMessages lastObject];
+    if (message) {
+        _lastMessage = message;
+        return _lastMessage;
+    }
+    return nil;
 }
 
 - (void)setImClient:(AVIMClient *)imClient {
@@ -138,10 +156,13 @@
     AVIMConversationQuery *query = [self.imClient conversationQuery];
     query.cachePolicy = kAVCachePolicyNetworkOnly;
     [query getConversationById:self.conversationId callback:^(AVIMConversation *conversation, NSError *error) {
-        if (conversation && conversation != self) {
-            [self setKeyedConversation:[conversation keyedConversation]];
-        }
-        [AVIMBlockHelper callBooleanResultBlock:callback error:error];
+        dispatch_async([AVIMClient imClientQueue], ^{
+            [conversation lastMessage];
+            if (conversation && conversation != self) {
+                [self setKeyedConversation:[conversation keyedConversation]];
+            }
+            [AVIMBlockHelper callBooleanResultBlock:callback error:error];
+        });
     }];
 }
 
@@ -292,7 +313,8 @@
 - (void)updateWithCallback:(AVIMBooleanResultBlock)callback {
     dispatch_async([AVIMClient imClientQueue], ^{
         NSDictionary *updateBuilderDataSource = [self.mutableAttributes copy];
-        AVIMGenericCommand *genericCommand = [self generateGenericCommandWithAttributes:updateBuilderDataSource];
+        NSDictionary *customAttributes = [[self class] filterCustomAttributesFromDictionary:updateBuilderDataSource];
+        AVIMGenericCommand *genericCommand = [self generateGenericCommandWithAttributes:customAttributes];
         [genericCommand setCallback:^(AVIMGenericCommand *outCommand, AVIMGenericCommand *inCommand, NSError *error) {
             if (!error) {
                 [self updateAttributesWithUpdateBuilderDataSource:updateBuilderDataSource customAttributes:updateBuilderDataSource];
@@ -640,6 +662,9 @@
                 AVIMAckCommand *ackInCommand = inCommand.ackMessage;
                 message.sendTimestamp = ackInCommand.t;
                 message.messageId = ackInCommand.uid;
+                if (!transient) {
+                    self.lastMessage = message;
+                }
                 if (!directCommand.transient && self.imClient.messageQueryCacheEnabled) {
                     [[self messageCacheStore] insertMessage:message withBreakpoint:NO];
                 }
@@ -687,7 +712,7 @@
     //新版本中也可能产生同时含有attr字段，以及和attr字段同级的其他自定义属性
     //同时含有attr和同一个层级的自定义属性，如果包含同一个自定义名称，则以新形式的自定义属性为准。
     NSMutableDictionary *campatibleCustomAttributes = [attr mutableCopy];
-    [campatibleCustomAttributes addEntriesFromDictionary:dictionary];
+    [campatibleCustomAttributes addEntriesFromDictionary:customAttributes];
     return [campatibleCustomAttributes copy];
 }
 
@@ -812,7 +837,7 @@
                     message.messageId = [logsItem msgId];
                     [messages addObject:message];
                 }
-                
+                self.lastMessage = messages.lastObject;
                 [self postprocessMessages:messages];
                 [self sendACKIfNeeded:messages];
                 
@@ -1078,6 +1103,7 @@
     keyedConversation.createAt       = self.createAt;
     keyedConversation.updateAt       = self.updateAt;
     keyedConversation.lastMessageAt  = self.lastMessageAt;
+    keyedConversation.lastMessage    = self.lastMessage;
     keyedConversation.name           = self.name;
     keyedConversation.members        = self.members;
     keyedConversation.attributes     = self.attributes;
@@ -1093,6 +1119,7 @@
     self.createAt          = keyedConversation.createAt;
     self.updateAt          = keyedConversation.updateAt;
     self.lastMessageAt     = keyedConversation.lastMessageAt;
+    self.lastMessage       = keyedConversation.lastMessage;
     self.name              = keyedConversation.name;
     self.members           = keyedConversation.members;
     self.attributes        = keyedConversation.attributes;

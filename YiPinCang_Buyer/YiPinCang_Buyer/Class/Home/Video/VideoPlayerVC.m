@@ -19,6 +19,7 @@
 #import "DiscoverDetailVC.h"
 #import "LiveBottomView.h"
 #import "WebViewController.h"
+#import "LiveDetailHHHVC.h"
 static NSString *TvIdentifier = @"tvIdentifierCell";
 static NSString *CvIdentifier = @"cvIdentifierCell";
 @interface VideoPlayerVC ()
@@ -59,7 +60,9 @@ DZNEmptyDataSetDelegate
 @end
 
 @implementation VideoPlayerVC
-
+{
+    NSInteger dataIndex;
+}
 #pragma mark - 懒加载
 - (NSMutableArray *)commendDataArr
 {
@@ -86,12 +89,12 @@ DZNEmptyDataSetDelegate
         _liveBottomView = [[LiveBottomView alloc]init];
         _liveBottomView.store_id = self.mainDataModel.store_id;//加载数据
         //点击cell
-        _liveBottomView.didcell = ^(TempHomePushModel *model){
+        _liveBottomView.didcell = ^(NSString *liveId){
             [weakSelf.playerV pause];
             weakSelf.playerV.isRemoveFromWindow = YES;
             weakSelf.playerV.playerIsOnWindow = NO;
             VideoPlayerVC *vVC = [VideoPlayerVC new];
-            vVC.tempModel = model;
+            vVC.liveId = liveId;
             vVC.hidesBottomBarWhenPushed = YES;
             [weakSelf.navigationController pushViewController:vVC animated:YES];
         };
@@ -105,6 +108,11 @@ DZNEmptyDataSetDelegate
                     [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil andOrderIndex:nil];
                 }
             }
+        };
+        _liveBottomView.didTxBtnClick = ^(NSString *storeId){
+            LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+            live.store_id = storeId;
+            [weakSelf.navigationController pushViewController:live animated:YES];
         };
         [self.view addSubview:_liveBottomView];
     }
@@ -124,11 +132,17 @@ DZNEmptyDataSetDelegate
     self.rt_disableInteractivePop = YES;
     [YPC_Tools setStatusBarIsHidden:YES];
     
-    [self initWithPlayer];
     [self configTableViewAndCollectionView];
-    [self getMainData];
-    [self getIssueData];
+    
     [self initChooseSizeView];
+    
+    [self getMainData];
+    
+    WS(weakSelf);
+    self.tableView.mj_footer = [MJRefreshAutoFooter footerWithRefreshingBlock:^{
+        [weakSelf addIssueDataForFooter];
+    }];
+    self.tableView.mj_footer.hidden = YES;
 }
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -178,37 +192,92 @@ DZNEmptyDataSetDelegate
 #pragma mark - 获取数据
 - (void)getMainData
 {
+    WS(weakSelf);
     [YPCNetworking postWithUrl:@"shop/activity/stopactivitydetail"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id
+                                                                               @"live_id" : self.liveId
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               self.mainDataModel = [MainModel mj_objectWithKeyValues:response[@"data"][@"live_info"]];
-                               self.commendDataArr = [CommendModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"commend_goods"]];
-                               [self.collectionView reloadData];
-                               [self videoPlay];
-                               [self judgementNetworkType];
-                               [self addNetworkNotifications];
+                               weakSelf.mainDataModel = [MainModel mj_objectWithKeyValues:response[@"data"][@"live_info"]];
+                               weakSelf.commendDataArr = [CommendModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"commend_goods"]];
+                               [weakSelf.collectionView reloadData];
+                               
+                               [weakSelf initWithPlayer];
+                               
+                               [weakSelf videoPlay];
+                               
+                               [weakSelf judgementNetworkType];
+                               [weakSelf addNetworkNotifications];
+                               
+                               weakSelf.playerV.closeBtn.hidden = NO;
+                               weakSelf.playerV.shareBtn.hidden = NO;
+                               
+                               // 获取商品数据
+                               [weakSelf getIssueData];
+                               
+                           }
+                       } fail:^(NSError *error) {
+                           weakSelf.playerV.closeBtn.hidden = NO;
+                           weakSelf.playerV.shareBtn.hidden = NO;
+                       }];
+}
+- (void)getIssueData
+{
+    WS(weakSelf);
+    dataIndex = 1;
+    [YPCNetworking postWithUrl:@"shop/activity/showgoodslist"
+                  refreshCache:YES
+                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                               @"live_id" : self.liveId,
+                                                                               @"live_state" : self.mainDataModel.live_state,
+                                                                               @"pagination" : @{
+                                                                                       @"page" : [NSString stringWithFormat:@"%ld", dataIndex],
+                                                                                       @"count" : @"20"
+                                                                                       }
+                                                                               }]
+                       success:^(id response) {
+                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                               weakSelf.allGoodsDataArr = [AllGoodsModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               weakSelf.playerV.goodsBtn.badgeValue = response[@"paginated"][@"total"];
+                               [weakSelf.tableView reloadData];
+                               
+                               if ([response[@"paginated"][@"more"] integerValue] == 1) {
+                                   weakSelf.tableView.mj_footer.hidden = NO;
+                               }else {
+                                   weakSelf.tableView.mj_footer.hidden = YES;
+                               }
                            }
                        } fail:^(NSError *error) {
                            
                        }];
 }
-- (void)getIssueData
+- (void)addIssueDataForFooter
 {
+    WS(weakSelf);
+    dataIndex++;
     [YPCNetworking postWithUrl:@"shop/activity/showgoodslist"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id,
-                                                                               @"live_state" : self.tempModel.live_state
+                                                                               @"live_id" : self.liveId,
+                                                                               @"live_state" : self.mainDataModel.live_state,
+                                                                               @"pagination" : @{
+                                                                                       @"page" : [NSString stringWithFormat:@"%ld", dataIndex],
+                                                                                       @"count" : @"20"
+                                                                                       }
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
-                               self.allGoodsDataArr = [AllGoodsModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                               [self.tableView reloadData];
+                               [weakSelf.allGoodsDataArr addObjectsFromArray:[AllGoodsModel mj_objectArrayWithKeyValuesArray:response[@"data"]]];
+                               [weakSelf.tableView reloadData];
                                
+                               if ([response[@"paginated"][@"more"] integerValue] == 1) {
+                                   weakSelf.tableView.mj_footer.hidden = NO;
+                               }else {
+                                   weakSelf.tableView.mj_footer.hidden = YES;
+                               }
+                               [weakSelf.tableView.mj_footer endRefreshing];
                            }
                        } fail:^(NSError *error) {
                            
@@ -243,19 +312,26 @@ DZNEmptyDataSetDelegate
     self.playerV.isRemoveFromWindow = NO; // 是否点击关闭从window上移除
     self.playerV.delegate = self;
     self.playerModel = [PlayerViewModel new];
-    [self.playerModel setName:self.tempModel.store_name];
-    [self.playerModel setAvator:self.tempModel.store_avatar];
+    [self.playerModel setName:self.mainDataModel.store_name];
+    [self.playerModel setAvator:self.mainDataModel.store_avatar];
     self.playerV.dataModel = self.playerModel;
     WS(weakSelf);
     [self.playerV setButtonClickedBlock:^(id type) {
         if ([type isEqualToString:@"seeGoods"]) {
             [weakSelf showGoodsAction];
         }else if ([type isEqualToString:@"share"]) {
-            
+            NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+            [YPCShare EndActivityShareInWindowWithName:weakSelf.mainDataModel.store_name
+                                             StartTime:weakSelf.mainDataModel.endtime
+                                                LiveID:weakSelf.mainDataModel.live_id
+                                                 image:[[SDImageCache sharedImageCache] imageFromDiskCacheForKey:weakSelf.mainDataModel.activity_pic]
+                                          activityName:weakSelf.mainDataModel.name
+                                                   uid:uid
+                                        viewController:weakSelf];
         }else if ([type isEqualToString:@"follow"]) {
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:weakSelf]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:weakSelf success:^{
                 [weakSelf followLiveGroup];
-            }
+            }];
         }else if ([type isEqualToString:@"seeAbout"]) {
             [weakSelf showGroupInfoAction];
         }
@@ -291,6 +367,14 @@ DZNEmptyDataSetDelegate
                                success:^(id response) {
                                    if ([YPC_Tools judgeRequestAvailable:response]) {
                                        [YPC_Tools showSvpWithNoneImgHud:@"添加成功"];
+                                       NSString *carNumber = response[@"data"][@"num"];
+                                       NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                       NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                       NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                       
+                                       [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                       [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                       [YPCRequestCenter shareInstance].carNumber = carNumber;
                                        [weakSelf chooseSizeHide];
                                    }
                                }
@@ -314,6 +398,7 @@ DZNEmptyDataSetDelegate
 #pragma mark - 网络状态
 - (void)judgementNetworkType
 {
+    WS(weakSelf);
     if ([YPCRequestCenter getCurrentNetworkType] == AFNetworkReachabilityStatusReachableViaWWAN) {
         [YPC_Tools customAlertViewWithTitle:@"提示"
                                     Message:@"当前非WiFi网络\n继续播放将产生流量费用"
@@ -322,8 +407,8 @@ DZNEmptyDataSetDelegate
                         DestructiveBtnTitle:@"继续播放"
                               actionHandler:nil
                               cancelHandler:^(LGAlertView *alertView) {
-                                  [self releaseWMPlayer];
-                                  [self.navigationController popViewControllerAnimated:YES];
+                                  [weakSelf releaseWMPlayer];
+                                  [weakSelf.navigationController popViewControllerAnimated:YES];
                               } destructiveHandler:^(LGAlertView *alertView) {
                                   
                               }];
@@ -348,6 +433,8 @@ DZNEmptyDataSetDelegate
             
             break;
         case AFNetworkReachabilityStatusReachableViaWWAN:
+        {
+            WS(weakSelf);
             if (self.playerV.state == WMPlayerStateBuffering || self.playerV.state == WMPlayerStatePlaying) {
                 [YPC_Tools customAlertViewWithTitle:@"提示"
                                             Message:@"当前非WiFi网络\n继续播放将产生流量费用"
@@ -356,12 +443,13 @@ DZNEmptyDataSetDelegate
                                 DestructiveBtnTitle:@"继续播放"
                                       actionHandler:nil
                                       cancelHandler:^(LGAlertView *alertView) {
-                                          [self releaseWMPlayer];
-                                          [self.navigationController popViewControllerAnimated:YES];
+                                          [weakSelf releaseWMPlayer];
+                                          [weakSelf.navigationController popViewControllerAnimated:YES];
                                       } destructiveHandler:^(LGAlertView *alertView) {
                                           
                                       }];
             }
+        }
             break;
         case AFNetworkReachabilityStatusReachableViaWiFi:
             
@@ -374,7 +462,12 @@ DZNEmptyDataSetDelegate
 #pragma mark - tableViewDelegate
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    self.countOfAllGoods.text = [NSString stringWithFormat:@"全部宝贝（%ld）", self.allGoodsDataArr.count];
+    NSString *count = [NSString stringWithFormat:@"全部宝贝 %ld", self.allGoodsDataArr.count];
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:count];
+    [str addAttribute:NSForegroundColorAttributeName value:[Color colorWithHex:@"0x2c2c2c" ] range:NSMakeRange(0,4)];
+    
+    [str addAttribute:NSForegroundColorAttributeName value:[Color colorWithHex:@"#F00E36" ] range:NSMakeRange(5,count.length - 5)];
+    self.countOfAllGoods.attributedText = str;
     return self.allGoodsDataArr.count;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
@@ -384,11 +477,11 @@ DZNEmptyDataSetDelegate
     WS(weakSelf);
     [cell setButtonClickedBlock:^(id object) {
         if ([object isEqualToString:@"joinShopCar"]) {
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {                
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{                
                 AllGoodsModel *model = weakSelf.allGoodsDataArr[indexPath.row];
                 [weakSelf getDataChooseSize:model.goods_commonid price:model.goods_price count:@"1" maxCount:model.total_storage img:model.goods_image];
+            }];
             }
-        }
     }];
     return cell;
 }
@@ -398,10 +491,17 @@ DZNEmptyDataSetDelegate
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
+    WS(weakself);
     if (self.playerV.state == WMPlayerStateFailed) {
         DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
+        AllGoodsModel *model = self.allGoodsDataArr[indexPath.row];
         detailVC.live_id = self.mainDataModel.live_id;
         detailVC.strace_id = [self.allGoodsDataArr[indexPath.row] strace_id];
+        detailVC.backBlock = ^(NSString *likeCount,NSString *isLike,NSString *commentCount){
+            model.strace_cool = likeCount;
+            model.strace_comment = commentCount;
+            [weakself.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+        };
         [self.navigationController pushViewController:detailVC animated:YES];
     }else {
         
@@ -410,7 +510,13 @@ DZNEmptyDataSetDelegate
             
             DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
             detailVC.live_id = self.mainDataModel.live_id;
+            AllGoodsModel *model = self.allGoodsDataArr[indexPath.row];
             detailVC.strace_id = [self.allGoodsDataArr[indexPath.row] strace_id];
+            detailVC.backBlock = ^(NSString *likeCount,NSString *isLike,NSString *commentCount){
+                model.strace_cool = likeCount;
+                model.strace_comment = commentCount;
+                [weakself.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+            };
             [self.navigationController pushViewController:detailVC animated:YES];
         }
     }
@@ -419,7 +525,12 @@ DZNEmptyDataSetDelegate
 #pragma mark - collectionviewDelegate
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section
 {
-    self.countOfHotGoods.text = [NSString stringWithFormat:@"热销推荐（%ld）", self.commendDataArr.count];
+    NSString *count = [NSString stringWithFormat:@"热销推荐 %ld", self.commendDataArr.count];
+    NSMutableAttributedString *str = [[NSMutableAttributedString alloc] initWithString:count];
+    [str addAttribute:NSForegroundColorAttributeName value:[Color colorWithHex:@"0x2c2c2c" ] range:NSMakeRange(0,4)];
+    
+    [str addAttribute:NSForegroundColorAttributeName value:[Color colorWithHex:@"#F00E36" ] range:NSMakeRange(5,count.length - 5)];
+    self.countOfHotGoods.attributedText = str;
     return self.commendDataArr.count;
 }
 - (UICollectionViewCell *)collectionView:(UICollectionView *)collectionView cellForItemAtIndexPath:(NSIndexPath *)indexPath

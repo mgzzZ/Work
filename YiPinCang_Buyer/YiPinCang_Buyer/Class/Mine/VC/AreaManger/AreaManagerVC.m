@@ -44,31 +44,29 @@
     .rightSpaceToView(self.view,15)
     .bottomSpaceToView(self.view,10)
     .heightIs(43);
-    self.btn = nextBtn;
-    
-    
+    self.btn = nextBtn; 
     [self getDataList];
     
 }
 
 #pragma mark-- init
 
-- (void)setup{
-    self.tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];
-    self.tableView.delegate = self;
-    self.tableView.rowHeight = 143;
-    self.tableView.dataSource = self;
-    [self.tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-    self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    self.tableView.emptyDataSetSource = self;
-    self.tableView.emptyDataSetDelegate = self;
-    [self.view addSubview:self.tableView];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 63, 0));
-    self.tableView.tableFooterView = [UIView new];
-    
-    
+- (UITableView *)tableView{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc]initWithFrame:CGRectZero style:UITableViewStylePlain];
+        _tableView.delegate = self;
+        _tableView.rowHeight = 143;
+        _tableView.dataSource = self;
+        [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
+        _tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        _tableView.emptyDataSetSource = self;
+        _tableView.emptyDataSetDelegate = self;
+        [self.view addSubview:_tableView];
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 13, 63, 13));
+        _tableView.tableFooterView = [UIView new];
+    }
+    return _tableView;
 }
-
 #pragma mark-- getdata
 
 - (void)getDataList{
@@ -84,10 +82,31 @@
                                weakSelf.dataArr = [AreaListModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                
                                if (!weakSelf.tableView) {
-                                   [weakSelf setup];
                                    [weakSelf.tableView reloadData];
                                }else{
                                    [weakSelf.tableView reloadData];
+                               }
+                               if (weakSelf.dataArr.count == 1 && [weakSelf.from isEqualToString:@"结算添加第一个地址"] ) {
+                                   
+                                   [YPC_Tools customAlertViewWithTitle:@"提示" Message:@"确定选择这条收货地址吗?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+                                       AreaListModel *model = self.dataArr[0];
+                                       if (weakSelf.backArea) {
+                                           weakSelf.backArea([NSString stringWithFormat:@"%@ %@",model.true_name,model.tel_phone],[NSString stringWithFormat:@"%@ %@",model.area_info,model.address],model.is_default,model.address_id,model.area_id,model.city_id);
+                                           weakSelf.from = @"结算";
+                                           
+                                       }
+                                       [weakSelf.navigationController popViewControllerAnimated:YES];
+                                       
+                                   } cancelHandler:^(LGAlertView *alertView) {
+                                       //点击取消的时候还要继续出发cell点击方法
+                                       if ([weakSelf.from isEqualToString:@"结算添加第一个地址"]) {
+                                           weakSelf.from = @"结算";
+                                       }
+                                   } destructiveHandler:nil];
+                               }else{
+                                   if ([weakSelf.from isEqualToString:@"结算添加第一个地址"]) {
+                                       weakSelf.from = @"结算";
+                                   }
                                }
                                
                            }
@@ -116,37 +135,83 @@
         cell = [nib objectAtIndex:0];
     }
     cell.selectionStyle = UITableViewCellSelectionStyleNone;
-    cell.model = self.dataArr[indexPath.row];
+    AreaListModel *model = self.dataArr[indexPath.row];
+    cell.model = model;
     cell.setBtn.tag = indexPath.row;
     cell.deleteBtn.tag = indexPath.row;
     [cell.setBtn addTarget:self action:@selector(setBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     [cell.deleteBtn addTarget:self action:@selector(deleteBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    cell.chooseBtn.tag = indexPath.row;
+    [cell.chooseBtn addTarget:self action:@selector(chooseBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+    
+    if ([self.address_id isEqualToString:model.address_id]) {
+        cell.bgView.layer.borderColor = [Color colorWithHex:@"#F00E37"].CGColor;
+        cell.bgView.layer.borderWidth = 1;
+    }else{
+        cell.bgView.layer.borderColor = [UIColor whiteColor].CGColor;
+        cell.bgView.layer.borderWidth = 1;
+    }
+    
     return cell;
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     if ([_from isEqualToString:@"结算"]) {
         WS(weakself);
-        UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定选择这条收货地址吗?" preferredStyle:(UIAlertControllerStyleAlert)];
-        
-        UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+        [YPC_Tools customAlertViewWithTitle:@"提示" Message:@"确定选择这条收货地址吗?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
             AreaListModel *model = self.dataArr[indexPath.row];
             if (self.backArea) {
                 self.backArea([NSString stringWithFormat:@"%@ %@",model.true_name,model.tel_phone],[NSString stringWithFormat:@"%@ %@",model.area_info,model.address],model.is_default,model.address_id,model.area_id,model.city_id);
                 
             }
             [weakself.navigationController popViewControllerAnimated:YES];
+
+        } cancelHandler:nil destructiveHandler:nil];
+    
+    }else if ([_from isEqualToString:@"待付款"]){
+        WS(weakself);
+        [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"收货地址只能修改一次" BtnTitles:@[@"确定"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+            AreaListModel *model = weakself.dataArr[indexPath.row];
+            [YPCNetworking postWithUrl:@"shop/orders/alteraddr"
+                          refreshCache:YES
+                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                       @"pay_sn":weakself.pay_sn,
+                                                                                       @"address_id":model.address_id
+                                                                                       }]
+                               success:^(id response) {
+                                   if ([YPC_Tools judgeRequestAvailable:response]) {
+                                       [YPC_Tools showSvpWithNoneImgHud:@"修改地址成功!"];
+                                       if (weakself.backArea) {
+                                           weakself.backArea([NSString stringWithFormat:@"%@ %@",model.true_name,model.tel_phone],[NSString stringWithFormat:@"%@ %@",model.area_info,model.address],model.is_default,model.address_id,model.area_id,model.city_id);
+                                           
+                                       }
+                                       
+                                       [weakself.navigationController popViewControllerAnimated:YES];
+                                   }
+                               }
+                                  fail:^(NSError *error) {
+                                      
+                                  }];
             
-        }];
-        UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-        [alert addAction:action];
-        [alert addAction:cancel];
-        [self showDetailViewController:alert sender:nil];
+            
+            
+        } cancelHandler:nil destructiveHandler:nil];
     }
-   
+    for (int i = 0; i < self.dataArr.count; i++) {
+        NSIndexPath *index = [NSIndexPath indexPathForRow:i inSection:0];
+        AreaCell *cell = [tableView cellForRowAtIndexPath:index];
+        cell.bgView.layer.borderColor = [UIColor whiteColor].CGColor;
+        cell.bgView.layer.borderWidth = 1;
+    }
+   AreaCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+    cell.bgView.layer.borderColor = [Color colorWithHex:@"#F00E37"].CGColor;
+    cell.bgView.layer.borderWidth = 1;
 }
 
-
-
+//- (void)tableView:(UITableView *)tableView didDeselectRowAtIndexPath:(NSIndexPath *)indexPath{
+//    AreaCell *cell = [tableView cellForRowAtIndexPath:indexPath];
+//    cell.bgView.layer.borderColor = [UIColor whiteColor].CGColor;
+//    cell.bgView.layer.borderWidth = 1;
+//}
 -(void)viewDidLayoutSubviews
 {
     if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
@@ -179,7 +244,11 @@
         AddAreaVC *add = [[AddAreaVC alloc]init];
         add.type = @"1";
         add.backreload = ^{
-            [weakself getDataList];
+            if ([weakself.from isEqualToString:@"结算"]) {
+                weakself.from = @"结算添加第一个地址";
+            }
+           // [weakself getDataList];
+           
         };
         [self.navigationController pushViewController:add animated:YES];
    
@@ -194,6 +263,7 @@
     add.type = @"1";
     add.backreload = ^{
         [weakself getDataList];
+        
     };
     [self.navigationController pushViewController:add animated:YES];
     
@@ -202,38 +272,25 @@
 #pragma mark- 删除新地址
 - (void)deleteBtnClick:(UIButton *)sender{
     WS(weakself);
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定删除这条收货地址吗?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-        NSIndexPath *index = [NSIndexPath indexPathForRow:sender.tag inSection:0];
-        AreaListModel *model = self.dataArr[sender.tag];
-        AreaCell *cell = (AreaCell *)[self.tableView cellForRowAtIndexPath:index];
-        
-        if (cell.chooseBtn.selected == YES) {
-            [YPCNetworking postWithUrl:@"shop/address/delete"
-                          refreshCache:YES
-                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                                       @"id":model.address_id
-                                                                                       }]
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       
-                                       [weakself.dataArr removeObject:model];
-                                       [weakself.tableView reloadData];
-                                   }
+    [YPC_Tools customAlertViewWithTitle:@"提示" Message:@"确认删除这条收货地址吗?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+        AreaListModel *model = weakself.dataArr[sender.tag];
+        [YPCNetworking postWithUrl:@"shop/address/delete"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"id":model.address_id
+                                                                                   }]
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
                                    
+                                   [weakself.dataArr removeObject:model];
+                                   [weakself.tableView reloadData];
                                }
-                                  fail:^(NSError *error) {
-                                      
-                                  }];
-        }
-        
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+    } cancelHandler:nil destructiveHandler:nil];
 
 }
 
@@ -269,6 +326,8 @@
     add.name = model.true_name;
     add.address = model.address;
     add.areaid = model.address_id;
+    add.area_id = model.area_id;
+    add.city_id = model.city_id;
     add.phone = model.mob_phone;
     add.type = @"2";
     add.is_default = model.is_default;
@@ -278,6 +337,40 @@
     };
     [self.navigationController pushViewController:add animated:YES];
 }
+
+#pragma mark- 设置为默认
+
+- (void)chooseBtnClick:(UIButton *)sender{
+    WS(weakself);
+    AreaListModel *model = weakself.dataArr[sender.tag];
+    [YPC_Tools customAlertViewWithTitle:@"提示" Message:@"确认设置为默认地址吗?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+        [YPCNetworking postWithUrl:@"shop/address/setdefault"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"id":model.address_id
+                                                                                   }]
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   for (int i = 0; i < self.dataArr.count; i++) {
+                                       AreaListModel *newmodel = weakself.dataArr[i];
+                                       if (i == sender.tag) {
+                                           newmodel.is_default = @"1";
+                                       }else{
+                                           newmodel.is_default = @"0";
+                                       }
+                                   }
+                                   [weakself.tableView reloadData];
+                                   
+                               }
+                               
+                           }
+                              fail:^(NSError *error) {
+                                  
+                              }];
+    } cancelHandler:nil destructiveHandler:nil];
+    
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

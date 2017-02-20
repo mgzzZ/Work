@@ -2,12 +2,18 @@
 //  LCCKTextFullScreenViewController.m
 //  LeanCloudIMKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/23.
+//  v0.8.5 Created by ElonChan on 16/3/23.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
 #import "LCCKTextFullScreenViewController.h"
-#import "LCCKDeallocBlockExecutor.h"
+
+#if __has_include(<CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>)
+#import <CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>
+#else
+#import "CYLDeallocBlockExecutor.h"
+#endif
+
 #import "LCCKFaceManager.h"
 #define kLCCKTextFont [UIFont systemFontOfSize:30.0f]
 static void * const LCCKTextFullScreenViewContentSizeContext = (void*)&LCCKTextFullScreenViewContentSizeContext;
@@ -29,7 +35,7 @@ static void * const LCCKTextFullScreenViewContentSizeContext = (void*)&LCCKTextF
         UITextView *displayTextView = [[UITextView alloc] initWithFrame:self.view.frame];
         [displayTextView addObserver:self forKeyPath:@"contentSize" options:(NSKeyValueObservingOptionNew) context:LCCKTextFullScreenViewContentSizeContext];
         __unsafe_unretained __typeof(self) weakSelf = self;
-        [self lcck_executeAtDealloc:^{
+        [self cyl_executeAtDealloc:^{
             [displayTextView removeObserver:weakSelf forKeyPath:@"contentSize"];
         }];
         displayTextView.contentSize = self.view.bounds.size;

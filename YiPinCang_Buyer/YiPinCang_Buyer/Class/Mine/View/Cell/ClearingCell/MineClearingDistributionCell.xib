@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -15,7 +15,7 @@
             <rect key="frame" x="0.0" y="0.0" width="320" height="95"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMaxY="YES"/>
             <tableViewCellContentView key="contentView" opaque="NO" clipsSubviews="YES" multipleTouchEnabled="YES" contentMode="center" tableViewCell="KGk-i7-Jjw" id="H2p-sc-9uM">
-                <rect key="frame" x="0.0" y="0.0" width="320" height="95"/>
+                <rect key="frame" x="0.0" y="0.0" width="320" height="94"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="配送方式：" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="2cD-8J-Lj9">
@@ -27,8 +27,8 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="顺丰快递（默认）" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wAT-cC-ajX">
-                        <rect key="frame" x="177.5" y="15" width="122.5" height="21"/>
+                    <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="wAT-cC-ajX">
+                        <rect key="frame" x="305" y="15" width="0.0" height="21"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="21" id="x5l-Ct-dLY"/>
                         </constraints>
@@ -37,7 +37,7 @@
                         <nil key="highlightedColor"/>
                     </label>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="运费 ¥15.00" textAlignment="right" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="pTu-Yz-FrS">
-                        <rect key="frame" x="208.5" y="41" width="81.5" height="15"/>
+                        <rect key="frame" x="223.5" y="41" width="81.5" height="15"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="15" id="0k2-Ap-3Xg"/>
                         </constraints>
@@ -47,11 +47,11 @@
                     </label>
                 </subviews>
                 <constraints>
-                    <constraint firstAttribute="trailing" secondItem="wAT-cC-ajX" secondAttribute="trailing" constant="20" id="1Z3-2L-4hD"/>
+                    <constraint firstAttribute="trailing" secondItem="wAT-cC-ajX" secondAttribute="trailing" constant="15" id="1Z3-2L-4hD"/>
                     <constraint firstItem="2cD-8J-Lj9" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="15" id="Gdn-nC-meW"/>
                     <constraint firstItem="pTu-Yz-FrS" firstAttribute="top" secondItem="wAT-cC-ajX" secondAttribute="bottom" constant="5" id="Ssq-GO-wcs"/>
                     <constraint firstItem="wAT-cC-ajX" firstAttribute="top" secondItem="2cD-8J-Lj9" secondAttribute="top" id="VLD-cs-RLN"/>
-                    <constraint firstAttribute="trailing" secondItem="pTu-Yz-FrS" secondAttribute="trailing" constant="30" id="fIM-k6-oQC"/>
+                    <constraint firstAttribute="trailing" secondItem="pTu-Yz-FrS" secondAttribute="trailing" constant="15" id="fIM-k6-oQC"/>
                     <constraint firstItem="2cD-8J-Lj9" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="zzB-oJ-4zJ"/>
                 </constraints>
             </tableViewCellContentView>

@@ -30,7 +30,7 @@
 @property (nonatomic,copy)NSString *order_amount;
 @property (nonatomic,copy)NSString *shipping_fee;
 @property (nonatomic,copy)NSString *remaintime;
+@property (nonatomic,copy)NSString *address_lock;
 @property (nonatomic,strong)NSMutableArray *goodsinfo;
-
 
 @end

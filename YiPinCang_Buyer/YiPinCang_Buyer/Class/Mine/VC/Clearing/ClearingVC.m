@@ -15,18 +15,20 @@
 #import "CleaingOrderCell.h"
 #import "AreaManagerVC.h"
 #import "InvVC.h"
+#import "AddAreaVC.h"
 #import "ChoosePayVC.h"
+#import "TPKeyboardAvoidingTableView.h"
 static NSString *cellId = @"noedit";
 static NSString *AreacellId = @"Area";
 static NSString *OthercellId = @"Other";
 static NSString *DistributioncellId = @"Distribution";
 
-@interface ClearingVC ()<UITableViewDelegate,UITableViewDataSource>
-@property (nonatomic,strong)UITableView *tableView;
+@interface ClearingVC ()<UITableViewDelegate,UITableViewDataSource,UITextFieldDelegate>
+@property (nonatomic,strong)TPKeyboardAvoidingTableView *tableView;
 @property (nonatomic,strong)UILabel *priceLab;
-@property (nonatomic ,strong) dispatch_source_t timer;
+@property (nonatomic,strong)dispatch_source_t timer;
 @property (nonatomic,strong)CliearingModel *model;
-@property (nonatomic,strong)id data;
+@property (nonatomic,assign)id data;
 @property (nonatomic,strong)NSString *invoice_id;
 @property (nonatomic,strong)NSString *text;
 @property (nonatomic,strong)NSString *freight;
@@ -93,7 +95,7 @@ static NSString *DistributioncellId = @"Distribution";
 #pragma mark- init
 
 - (void)setup{
-    self.tableView = [[UITableView alloc]init];
+    self.tableView = [[TPKeyboardAvoidingTableView alloc]init];
     self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
     self.tableView.delegate = self;
     self.tableView.dataSource = self;
@@ -115,7 +117,8 @@ static NSString *DistributioncellId = @"Distribution";
     [bgView addSubview:self.priceLab];
     UIButton *payBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     payBtn.backgroundColor = [Color colorWithHex:@"#E4393C"];
-    [payBtn setTitle:@"结算" forState:UIControlStateNormal];
+    [payBtn setTitle:@"提交订单" forState:UIControlStateNormal];
+    payBtn.acceptEventInterval = 1;
     [payBtn addTarget:self action:@selector(clearBtnClcik) forControlEvents:UIControlEventTouchUpInside];
     [payBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
     payBtn.titleLabel.font = [UIFont systemFontOfSize:15];
@@ -137,29 +140,31 @@ static NSString *DistributioncellId = @"Distribution";
 
 - (void)getDataWithLikt:(id)data{
     WS(weakself);
-    [YPCNetworking postWithUrl:@"shop/flow/checkorder"
-                  refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"cart_id":data
-                                                                               }]
-                       success:^(id response) {
-                           if ([YPC_Tools judgeRequestAvailable:response]) {
-                               weakself.model = [CliearingModel mj_objectWithKeyValues:response[@"data"]];
-                               weakself.oldfreight = weakself.model.freight;
-                               weakself.address_id = weakself.model.address_info.address_id;
-                               if (!weakself.tableView) {
-                                   [weakself setup];
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{        
+        [YPCNetworking postWithUrl:@"shop/flow/checkorder"
+                      refreshCache:YES
+                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                   @"cart_id":data
+                                                                                   }]
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   weakself.model = [CliearingModel mj_objectWithKeyValues:response[@"data"]];
+                                   weakself.oldfreight = weakself.model.freight;
+                                   weakself.address_id = weakself.model.address_info.address_id;
+                                   if (!weakself.tableView) {
+                                       [weakself setup];
+                                   }
+                                   [weakself.tableView reloadData];
+                                   NSString *str = [NSString stringWithFormat:@"合计:¥%@",self.model.total_price];
+                                   [weakself priceLabtext:str];
+                               }else{
+                                   
                                }
-                               [weakself.tableView reloadData];
-                               NSString *str = [NSString stringWithFormat:@"合计:¥%@",self.model.total_price];
-                               [weakself priceLabtext:str];
-                           }else{
-                              
                            }
-                       }
-                          fail:^(NSError *error) {
-                              
-                          }];
+                              fail:^(NSError *error) {
+                                  
+                              }];
+    }];
 }
 
 #pragma mark- delegate
@@ -173,7 +178,7 @@ static NSString *DistributioncellId = @"Distribution";
         ShoppingCarModel *model = self.self.model.store_cart_list[section];
         return model.data.count;
     }else{
-        return 6;
+        return 5;
     }
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
@@ -304,11 +309,12 @@ static NSString *DistributioncellId = @"Distribution";
                 cell = [nib objectAtIndex:0];
             }
             cell.areaLab.text = [NSString stringWithFormat:@"运费¥%@",self.model.freight];
+            cell.phoneLab.text = self.model.express_data;
             cell.selectionStyle = UITableViewCellSelectionStyleNone;
             return cell;
 
         }else{
-            if (indexPath.row == 4 && ![self.model.inv_info.content isEqualToString:@"不需要发票"]) {
+            if (indexPath.row == 3 && ![self.model.inv_info.content isEqualToString:@"不需要发票"]) {
                 MineClearingDistributionCell *cell = [tableView dequeueReusableCellWithIdentifier:DistributioncellId];
                 if (!cell) {
                     NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"MineClearingDistributionCell" owner:self options:nil];
@@ -317,27 +323,31 @@ static NSString *DistributioncellId = @"Distribution";
                 cell.phoneLab.textColor = [UIColor redColor];
                 cell.phoneLab.text = [NSString stringWithFormat:@"¥%@",self.model.store_goods_total];
                 cell.areaLab.font = [UIFont systemFontOfSize:10];
-                cell.areaLab.text = [NSString stringWithFormat:@"商品总额¥%@;运费¥%@;发票人民币%@",self.model.store_goods_total,self.model.freight,self.model.inv_price];
+                cell.areaLab.text = [NSString stringWithFormat:@"商品总额¥%@;运费¥%@;发票人民币%@",self.model.total_price,self.model.freight,self.model.inv_price];
                 cell.selectionStyle = UITableViewCellSelectionStyleNone;
                 return cell;
             }else{
-                MineClearingOtherCell *cell = [tableView dequeueReusableCellWithIdentifier:OthercellId];
+                MineClearingOtherCell *cell = (MineClearingOtherCell *)[tableView dequeueReusableCellWithIdentifier:OthercellId];
                 if (!cell) {
                     NSArray *nib = [[NSBundle mainBundle] loadNibNamed:@"MineClearingOtherCell" owner:self options:nil];
                     cell = [nib objectAtIndex:0];
                 }
                 
-                NSArray *nameArr = @[@"支付方式",@"发票",@"应付总额",@"备注"];
-                NSArray *rightArr = @[@"在线支付",self.model.inv_info.content,[NSString stringWithFormat:@"¥%@(含运费¥%@)",self.model.store_goods_total,self.model.freight],@""];
+                NSArray *nameArr = @[@"支付方式",@"应付总额",@"备注"];
+                NSArray *rightArr = @[@"在线支付",[NSString stringWithFormat:@"¥%@(含运费¥%@)",self.model.total_price,self.model.freight],@""];
                 cell.titleLab.text = nameArr[indexPath.row - 2];
                 cell.textField.text = rightArr[indexPath.row - 2];
+                cell.textField.delegate = self;
                 cell.typeImg.hidden = YES;
-                if (indexPath.row == 5) {
+                if (indexPath.row == 4) {
                     cell.textField.userInteractionEnabled = YES;
                      cell.textField.placeholder = @"请输入备注信息";
-                    self.text = cell.textField.text;
+                    if (cell.textField.text.length > 0) {
+                        self.text = cell.textField.text;
+                    }
+                    
                 }else if (indexPath.row == 3) {
-                    cell.typeImg.hidden = NO;
+                    //cell.typeImg.hidden = NO;
                     cell.textField.userInteractionEnabled = NO;
                 }else{
                     cell.textField.userInteractionEnabled = NO;
@@ -356,36 +366,43 @@ static NSString *DistributioncellId = @"Distribution";
         return;
     }else{
         if (indexPath.row == 3) {
-            //开发票
-            MineClearingOtherCell *cell = (MineClearingOtherCell *)[tableView cellForRowAtIndexPath:indexPath];
-            InvVC *inv = [[InvVC alloc]init];
-            inv.backname = ^(NSString *str,NSString *inv_id){
-                cell.textField.text = str;
-                weakself.invoice_id = inv_id;
-            };
-            inv.str = cell.textField.text;
-            [self.navigationController pushViewController:inv animated:YES];
+//            //开发票
+//            MineClearingOtherCell *cell = (MineClearingOtherCell *)[tableView cellForRowAtIndexPath:indexPath];
+//            InvVC *inv = [[InvVC alloc]init];
+//            inv.backname = ^(NSString *str,NSString *inv_id){
+//                cell.textField.text = str;
+//                weakself.invoice_id = inv_id;
+//            };
+//            inv.str = cell.textField.text;
+//            [self.navigationController pushViewController:inv animated:YES];
         }else if (indexPath.row == 0){
             //地址管理
-            AreaManagerVC *areaManager = [[AreaManagerVC alloc]init];
-            areaManager.from = @"结算";
-            areaManager.backArea = ^(NSString *name,NSString *area,NSString *isDefault,NSString *address_id,NSString *area_id,NSString *city_id){
-                
-                [weakself changeAddress:city_id area_id:area_id name:name area:area isDefault:isDefault address_id:address_id];
-                
-                
-                
-                
-                
-            };
-            [self.navigationController pushViewController:areaManager animated:YES];
+            if (self.model.address_info.address.length == 0) {
+                AddAreaVC *add = [[AddAreaVC alloc]init];
+                add.type = @"1";
+                add.addBackreload = ^(NSString *name,NSString *area,NSString *isDefault,NSString *address_id,NSString *area_id,NSString *city_id){
+                    weakself.model.address_info.address = area;
+                    [weakself changeAddress:city_id area_id:area_id name:name area:area isDefault:isDefault address_id:address_id];
+                };
+                [self.navigationController pushViewController:add animated:YES];
+            }else{
+                AreaManagerVC *areaManager = [[AreaManagerVC alloc]init];
+                areaManager.from = @"结算";
+                areaManager.address_id = self.model.address_info.address_id;
+                areaManager.backArea = ^(NSString *name,NSString *area,NSString *isDefault,NSString *address_id,NSString *area_id,NSString *city_id){
+                    
+                    [weakself changeAddress:city_id area_id:area_id name:name area:area isDefault:isDefault address_id:address_id];
+                };
+                [self.navigationController pushViewController:areaManager animated:YES];
+            }
+            
         }else{
             return;
         }
     }
 }
--(void)viewDidLayoutSubviews
-{
+
+-(void)viewDidLayoutSubviews{
     if ([self.tableView respondsToSelector:@selector(setSeparatorInset:)]) {
         [self.tableView setSeparatorInset:UIEdgeInsetsMake(0,0,0,0)];
     }
@@ -396,8 +413,7 @@ static NSString *DistributioncellId = @"Distribution";
     
 }
 
--(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath
-{
+-(void)tableView:(UITableView *)tableView willDisplayCell:(UITableViewCell *)cell forRowAtIndexPath:(NSIndexPath *)indexPath{
     if ([cell respondsToSelector:@selector(setSeparatorInset:)]) {
         [cell setSeparatorInset:UIEdgeInsetsZero];
     }
@@ -423,14 +439,19 @@ static NSString *DistributioncellId = @"Distribution";
     if (self.address_id.length == 0) {
         [YPC_Tools showSvpWithNoneImgHud:@"请选择收货地址"];
     }else{
-        NSIndexPath *index = [NSIndexPath indexPathForRow:5 inSection:self.model.store_cart_list.count];
+        NSIndexPath *index = [NSIndexPath indexPathForRow:4 inSection:self.model.store_cart_list.count];
         
         MineClearingOtherCell *cell = [self.tableView cellForRowAtIndexPath:index];
-        self.text = cell.textField.text;
+        if (cell == nil) {
+            self.text = @"";
+        }else{
+           self.text = cell.textField.text;
+        }
+        
         [YPCNetworking postWithUrl:@"shop/flow/createorder"
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                                   @"cart_id":self.data,
+                                                                                   @"cart_id":weakself.data,
                                                                                    @"pay_message":weakself.text,
                                                                                    @"vat_hash":weakself.model.vat_hash,
                                                                                    @"address_id":weakself.address_id,
@@ -450,6 +471,7 @@ static NSString *DistributioncellId = @"Distribution";
                               }];
     }
 }
+
 - (void)changeAddress:(NSString *)city_id area_id:(NSString *)area_id name:(NSString *)name area:(NSString *)area isDefault:(NSString *)isDefault address_id:(NSString *)address_id{
     
     WS(weakself);
@@ -490,7 +512,7 @@ static NSString *DistributioncellId = @"Distribution";
                                NSIndexPath *index = [NSIndexPath indexPathForRow:1 inSection:weakself.model.store_cart_list.count];
                                MineClearingDistributionCell *cell1 = [weakself.tableView cellForRowAtIndexPath:index];
                                cell1.areaLab.text = [NSString stringWithFormat:@"运费¥%@",weakself.freight];
-                               NSIndexPath *index4 = [NSIndexPath indexPathForRow:4 inSection:weakself.model.store_cart_list.count];
+                               NSIndexPath *index4 = [NSIndexPath indexPathForRow:3 inSection:weakself.model.store_cart_list.count];
                                if ([[weakself.tableView cellForRowAtIndexPath:index4] isKindOfClass:[MineClearingDistributionCell class]]) {
                                    MineClearingDistributionCell *cell4 = [weakself.tableView cellForRowAtIndexPath:index4];
                                    
@@ -519,6 +541,12 @@ static NSString *DistributioncellId = @"Distribution";
                           }];
 
 }
+
+- (BOOL)textFieldShouldReturn:(UITextField *)textField{
+    [textField resignFirstResponder];
+    return YES;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

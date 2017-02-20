@@ -18,64 +18,83 @@
         self.keysArr = [NSArray array];
         self.oldSection = -1;
         self.oldRow = -1;
-        [self setup];
+        [self addSubview:self.tableView];
     }
     return self;
 }
-- (void)setup{
-    if (!self.tableView) {
 
-        self.tableView = [[UITableView alloc]init];
-        self.tableView.delegate = self;
-        self.tableView.dataSource = self;
-        [self addSubview:self.tableView];
-        self.tableView.tableFooterView = [UIView new];
-        self.tableView.sd_layout
+- (UITableView *)tableView{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc]init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        [self addSubview:_tableView];
+        _tableView.tableFooterView = [UIView new];
+        _tableView.sd_layout
         .topSpaceToView(self,0)
         .leftEqualToView(self)
         .rightEqualToView(self)
         .heightIs(0);
-        
-        self.bottomView = [[UIView alloc]init];
-        self.bottomView.backgroundColor = [UIColor whiteColor];
-        [self addSubview:self.bottomView];
-        self.bottomView.sd_layout
+    }
+    return _tableView;
+}
+
+- (UIView *)bottomView{
+    if (_bottomView == nil) {
+        _bottomView = [[UIView alloc]init];
+        _bottomView.backgroundColor = [UIColor whiteColor];
+        [self addSubview:_bottomView];
+        _bottomView.sd_layout
         .topSpaceToView(self.tableView,0)
         .leftEqualToView(self)
         .rightEqualToView(self)
         .heightIs(0);
-        
-        self.finishBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        self.finishBtn.backgroundColor = [Color colorWithHex:@"0xe4393c"];
-        [self.finishBtn setTitle:@"完成" forState:UIControlStateNormal];
-        [self.finishBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
-        [self.finishBtn addTarget:self action:@selector(finishBtnClick) forControlEvents:UIControlEventTouchUpInside];
-        self.finishBtn.layer.cornerRadius = 2;
-        [self.bottomView addSubview:self.finishBtn];
-        self.finishBtn.sd_layout
+    }
+    return _bottomView;
+}
+
+- (UIButton *)finishBtn{
+    if (_finishBtn == nil) {
+        _finishBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _finishBtn.backgroundColor = [Color colorWithHex:@"0xe4393c"];
+        [_finishBtn setTitle:@"完成" forState:UIControlStateNormal];
+        [_finishBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+        [_finishBtn addTarget:self action:@selector(finishBtnClick) forControlEvents:UIControlEventTouchUpInside];
+        _finishBtn.layer.cornerRadius = 2;
+        [self.bottomView addSubview:_finishBtn];
+        _finishBtn.sd_layout
         .centerYEqualToView(self.bottomView)
         .rightSpaceToView(self.bottomView,15)
         .widthIs(107)
         .heightIs(35);
-        self.resetBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-        self.resetBtn.layer.cornerRadius = 2;
-        self.resetBtn.layer.borderWidth = 1;
-        [self.resetBtn addTarget:self action:@selector(resetClick) forControlEvents:UIControlEventTouchUpInside];
-        self.resetBtn.layer.borderColor = [Color colorWithHex:@"0x2c2c2c"].CGColor;
-        [self.resetBtn setTitleColor:[Color colorWithHex:@"0x2c2c2c"] forState:UIControlStateNormal];
-        [self.resetBtn setTitle:@"重置" forState:UIControlStateNormal];
-        [self.bottomView addSubview:self.resetBtn];
-        self.resetBtn.sd_layout
+        _finishBtn.hidden = YES;
+    }
+    return _finishBtn;
+}
+
+- (UIButton *)resetBtn{
+    if (_resetBtn == nil) {
+        _resetBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        _resetBtn.layer.cornerRadius = 2;
+        _resetBtn.layer.borderWidth = 1;
+        [_resetBtn addTarget:self action:@selector(resetClick) forControlEvents:UIControlEventTouchUpInside];
+        _resetBtn.layer.borderColor = [Color colorWithHex:@"0x2c2c2c"].CGColor;
+        [_resetBtn setTitleColor:[Color colorWithHex:@"0x2c2c2c"] forState:UIControlStateNormal];
+        [_resetBtn setTitle:@"重置" forState:UIControlStateNormal];
+        [self.bottomView addSubview:_resetBtn];
+        _resetBtn.sd_layout
         .rightSpaceToView(self.finishBtn,20)
         .centerYEqualToView(self.finishBtn)
         .widthIs(107)
         .heightIs(35);
-        self.finishBtn.hidden = YES;
-        self.resetBtn.hidden = YES;
+        
+        _resetBtn.hidden = YES;
     }
+    return _resetBtn;
 }
 
 - (void)setDataDic:(NSMutableDictionary *)dataDic{
+    [_dataDic removeAllObjects];
     if (_dataDic != dataDic) {
         _dataDic = dataDic;
     }
@@ -118,10 +137,10 @@
     NSString * key = self.keysArr[indexPath.section];
     NSArray *arr = [self.dataDic valueForKey:key][indexPath.row];
     NSInteger row = 0;
-    if (arr.count % 4 == 0) {
-        row = arr.count / 4;
+    if (arr.count % 3 == 0) {
+        row = arr.count / 3;
     }else{
-        row = arr.count / 4 + 1;
+        row = arr.count / 3 + 1;
     }
     
     return row * 47;

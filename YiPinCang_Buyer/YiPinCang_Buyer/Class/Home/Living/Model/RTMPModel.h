@@ -18,5 +18,12 @@
 @property (nonatomic, copy) NSString *live_like;
 @property (nonatomic, copy) NSString *state;
 @property (nonatomic, copy) NSString *store_id;
+@property (nonatomic, copy) NSString *name;
+@property (nonatomic, copy) NSString *starttime;
+@property (nonatomic, copy) NSString *activity_pic;
 @property (nonatomic, strong) NSArray *live_useravars;
+@property (nonatomic, copy) NSString *store_avatar;
+@property (nonatomic, copy) NSString *store_name;
+@property (nonatomic, copy) NSString *announcement_id;
+@property (nonatomic, copy) NSString *endtime;
 @end

@@ -42,6 +42,10 @@ static NSString *Identifier = @"identifier";
     }
     _datePicker = [UIDatePicker new];
     _datePicker.datePickerMode = UIDatePickerModeDate;
+    NSDate* minDate = [NSDate dateWithTimeIntervalSince1970:-1577952000];;
+    NSDate* maxDate = [NSDate date];
+    _datePicker.minimumDate = minDate;
+    _datePicker.maximumDate = maxDate;
     _datePicker.frame = CGRectMake(0.f, 0.f, self.view.frame.size.width, 110.f);
     return _datePicker;
 }

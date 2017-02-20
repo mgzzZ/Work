@@ -13,7 +13,11 @@ typedef enum : NSUInteger {
     detailStylePerhearting = 1,
     detailStyleUserCircle,
 } DetailStyleType;
+
+typedef void(^BackLikeAndCommentBlock)(NSString *likeCount,NSString * isLike,NSString *commentCount);
+
 @interface PreheatingDetailVC : BaseNaviConfigVC
-@property (nonatomic, strong) Pre_stracesModel *tempModel;
+@property (nonatomic, copy) NSString *tempStrace_ID;
 @property (nonatomic, assign) DetailStyleType detailType;
+@property (nonatomic, copy) BackLikeAndCommentBlock backBlock;
 @end

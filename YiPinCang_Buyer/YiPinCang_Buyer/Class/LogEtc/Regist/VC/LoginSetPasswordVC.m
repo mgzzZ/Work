@@ -11,6 +11,7 @@
 #import "UserModel.h"
 #import "JPUSHService.h"
 #import "LeanChatFactory.h"
+#import "LoginVC.h"
 
 @interface LoginSetPasswordVC ()<UITextFieldDelegate>
 @property (strong, nonatomic) IBOutlet UITextField *passwordTextField;
@@ -64,24 +65,32 @@
         [YPC_Tools showSvpWithNoneImgHud:@"请输入密码"];
     }else{
         if ([_from isEqualToString:@"3"]) {
-            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-                if (!registrationID) {
-                    return;
-                }
+//            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
                 [YPCNetworking postWithUrl:@"shop/user/fastsignin"
                               refreshCache:YES
                                     params:@{
                                              @"token" : _token,
                                              @"password":_passwordTextField.text,
-                                             @"registration_id" : registrationID
+                                             @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
                                              }
                                    success:^(id response) {
                                        if ([YPC_Tools judgeRequestAvailable:response]) {
                                            [YPCRequestCenter setUserInfoWithResponse:response];
                                            [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                               [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                               [weakSelf.navigationController popToRootViewControllerAnimated:NO];
-                                               [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                               [weakSelf.navigationController.childViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                                                   if ([[obj class] isEqual:[LoginVC class]]) {
+                                                       __block LoginVC *vc = obj;
+                                                       if (vc.SuccessLoginBlock) {
+                                                           vc.SuccessLoginBlock();
+                                                       }
+                                                       
+                                                       [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                                       [weakSelf.navigationController popToRootViewControllerAnimated:NO];
+                                                       [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                                       
+                                                       *stop = YES;
+                                                   }
+                                               }];
                                            } failed:^(NSError *error) {
                                                YPCAppLog(@"%@", [error description]);
                                            }];
@@ -90,7 +99,7 @@
                                       fail:^(NSError *error) {
                                           YPCAppLog(@"%@", [error description]);
                                       }];
-            }];
+//            }];
         }else{
             [YPCNetworking postWithUrl:@"shop/user/resetpasswd"
                           refreshCache:YES
@@ -99,7 +108,9 @@
                                          @"password":_passwordTextField.text
                                          }
                                success:^(id response1) {
-                                   if ([YPC_Tools judgeRequestAvailable:response1]) {   
+                                   if ([YPC_Tools judgeRequestAvailable:response1]) {
+                                       LoginVC *tempVC = (LoginVC *)self.navigationController.viewControllers.firstObject;
+                                        tempVC.resetPwdPhone= self.phoneNum;
                                        [self.navigationController popToRootViewControllerAnimated:YES];
                                    }
                                }
@@ -107,6 +118,17 @@
                                       YPCAppLog(@"%@", [error description]);
                                   }];
         }
+    }
+}
+
+- (IBAction)pwdShowAction:(UIButton *)sender {
+    sender.selected = !sender.selected;
+    if (sender.selected) {
+        [sender setBackgroundImage:IMAGE(@"logon_signin_icon_hidepassword") forState:UIControlStateNormal];
+        _passwordTextField.secureTextEntry = NO;
+    }else {
+        [sender setBackgroundImage:IMAGE(@"logon_signin_icon_showpassword") forState:UIControlStateNormal];
+        _passwordTextField.secureTextEntry = YES;
     }
 }
 

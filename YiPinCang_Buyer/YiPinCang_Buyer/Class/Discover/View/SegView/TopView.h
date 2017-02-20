@@ -8,7 +8,13 @@
 
 #import <UIKit/UIKit.h>
 
+typedef void(^DidBtnClick)(UIButton *btn,NSInteger tag);
+
 @interface TopView : UIView
+
+
+
+
 @property (strong, nonatomic) IBOutlet UIView *contentView;
 @property (strong, nonatomic) IBOutlet UIView *bgView;
 
@@ -16,5 +22,5 @@
 @property (strong, nonatomic) IBOutlet UIButton *brandBtn;
 @property (strong, nonatomic) IBOutlet UIButton *otherBtn;
 @property (strong, nonatomic) IBOutlet UIButton *recommendBtn;
-
+@property (copy, nonatomic)DidBtnClick didBtnClick;
 @end

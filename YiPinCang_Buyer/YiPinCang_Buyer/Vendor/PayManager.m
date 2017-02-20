@@ -289,14 +289,18 @@
     //应用注册scheme,在AliSDKDemo-Info.plist定义URL types
     NSString *appScheme = @"YPCBuyer";
     // NOTE: 调用支付结果开始支付
+
     [[AlipaySDK defaultService] payOrder:body fromScheme:appScheme callback:^(NSDictionary *resultDic) {
         NSLog(@"reslut = %@",resultDic);
         if ([resultDic[@"result"] isEqualToString:@""]) {
+
             if (failur) {
+                
                 NSString * error = resultDic[@"memo"];
                 failur(error);
             }
         }else{
+
             if (success) {
                 success();
             }
@@ -323,15 +327,17 @@
     req.timeStamp           = timeSp.integerValue;
     req.package             = [resParams objectForKey:@"package"];
     req.sign                = [resParams objectForKey:@"sign"];
-    
+
     BOOL resutlts = [WXApi sendReq:req];
+    [YPC_Tools showSvpHud];
     if (resutlts) {
-        
+        [YPC_Tools dismissHud];
         if (success) {
             success();
         }
-        
-    }else{
+    }
+    else{
+        [YPC_Tools dismissHud];
         if (failur) {
             failur([resParams objectForKey:@"msg"]);
         }

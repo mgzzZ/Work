@@ -18,15 +18,15 @@
     if (self) {
      
         self.backgroundColor = [UIColor whiteColor];
-        self.layer.borderWidth = 1;
-        self.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
+//        self.layer.borderWidth = 1;
+//        self.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
         [self setup];
     }
     return self;
 }
 - (void)setup{
     self.clearingBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    self.clearingBtn.backgroundColor = [Color colorWithHex:@"#E4393C"];
+    self.clearingBtn.backgroundColor = [Color colorWithHex:@"#F00E36"];
     [self.clearingBtn setTitle:@"结算" forState:UIControlStateNormal];
     [self.clearingBtn addTarget:self action:@selector(clearingBtnClick) forControlEvents:UIControlEventTouchUpInside];
     [self.clearingBtn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
@@ -36,10 +36,10 @@
     .rightEqualToView(self)
     .topEqualToView(self)
     .bottomEqualToView(self)
-    .widthIs(122);
+    .widthIs(kWidth(100));
     self.seleteBtn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [self.seleteBtn setImage:[UIImage imageNamed:@"find_cart_button_nochouse"] forState:UIControlStateNormal];
-    [self.seleteBtn setImage:[UIImage imageNamed:@"mine_cart_icon_choice_red"] forState:UIControlStateSelected];
+    [self.seleteBtn setImage:[UIImage imageNamed:@"mmine_cart_button_unclicked"] forState:UIControlStateNormal];
+    [self.seleteBtn setImage:[UIImage imageNamed:@"mmine_cart_button_clicked"] forState:UIControlStateSelected];
     [self.seleteBtn addTarget:self action:@selector(seleteBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     self.seleteBtn.selected = NO;
     [self addSubview:self.seleteBtn];
@@ -47,7 +47,7 @@
     .leftEqualToView(self)
     .topEqualToView(self)
     .bottomEqualToView(self)
-    .widthIs(55);
+    .widthIs(40);
     self.seleteLab = [[UILabel alloc]init];
     self.seleteLab.text = @"全选";
     self.seleteLab.textColor = [Color colorWithHex:@"0x2c2c2c"];
@@ -57,14 +57,14 @@
     .leftSpaceToView(self.seleteBtn,0)
     .centerYEqualToView(self)
     .heightIs(20)
-    .widthIs(50);
+    .widthIs(70);
     self.priceLab = [[UILabel alloc]init];
     self.priceLab.textAlignment = NSTextAlignmentRight;
     self.priceLab.font = [UIFont systemFontOfSize:15];
     [self addSubview:self.priceLab];
     self.priceLab.sd_layout
-    .leftSpaceToView(self.seleteLab,10)
-    .rightSpaceToView(self.clearingBtn,15)
+    .leftSpaceToView(self.seleteLab,0)
+    .rightSpaceToView(self.clearingBtn,5)
     .topEqualToView(self)
     .bottomEqualToView(self);
     

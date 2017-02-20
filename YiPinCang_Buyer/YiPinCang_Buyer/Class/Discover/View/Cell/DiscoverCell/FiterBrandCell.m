@@ -30,12 +30,12 @@
         _dataArr = dataArr;
     }
     NSInteger row = 0;
-    if (dataArr.count % 4 == 0) {
-        row = dataArr.count / 4;
+    if (dataArr.count % 3 == 0) {
+        row = dataArr.count / 3;
     }else{
-        row = dataArr.count / 4 + 1;
+        row = dataArr.count / 3 + 1;
     }
-    self.collectionView.sd_layout.heightIs(row * 37);
+    self.collectionView.sd_layout.heightIs(row * 50);
     [self.collectionView reloadData];
 }
 - (void)setup{
@@ -48,7 +48,7 @@
     [self.contentView addSubview:self.collectionView];
     self.collectionView.sd_layout
     .centerYEqualToView(self.contentView)
-    .leftSpaceToView(self.contentView,50)
+    .leftSpaceToView(self.contentView,5)
     .rightEqualToView(self.contentView);
    
     [self.collectionView registerNib:[UINib nibWithNibName:NSStringFromClass([FiterBrandTypeCell class]) bundle:nil] forCellWithReuseIdentifier:@"FiterBrandTypeCell"];
@@ -120,11 +120,11 @@
 }
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
-    return (CGSize){(ScreenWidth - 17 * 5 - 40) / 4,27};
+    return (CGSize){(ScreenWidth - 17 * 4 ) / 3,27};
 }
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(5, 10, 0, 10);
+    return UIEdgeInsetsMake(15, 10, 0, 10);
 }
 
 

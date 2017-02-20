@@ -29,7 +29,9 @@
 }
 - (void)viewWillAppear:(BOOL)animated{
     [super viewWillAppear:animated];
-     [self getDataWithType:_orderType page:_page];
+    if (self.after) {
+       [self addMjRefresh];
+    }
 }
 - (void)viewDidLoad {
     [super viewDidLoad];
@@ -37,18 +39,21 @@
     self.rt_disableInteractivePop = YES;
     self.view.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
     [self initVar];
-    [self setup];
-    [self getDataWithType:_orderType page:_page];
+
+    [self addMjRefresh];
+    [self getDataWithType:self.orderType page:self.page];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotoOrderDetail) name:PaySuccess object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(gotoOrderDetailError) name:PayError object:nil];
     UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
-    [button setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+    [button setImage:IMAGE(@"back_icon") forState:UIControlStateNormal];
     [button sizeToFit];
     [button addTarget:self
                action:@selector(backClick)
      forControlEvents:UIControlEventTouchUpInside];
-    button.frame = CGRectMake(0, 0, 44, 44);
-    self.navigationItem.backBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:button];
+    self.navigationItem.leftBarButtonItem = [[UIBarButtonItem alloc]initWithCustomView:button];
+    if (_isRefresh) {
+        [self.tableView.mj_header beginRefreshing];
+    }
 }
 
 /**
@@ -59,7 +64,7 @@
     _ishave = NO;
     self.dataArr = [[NSMutableArray alloc]init];
     if (_orderType) {
-        self.navigationItem.title = @"我的订单";
+        self.navigationItem.title = @"我的订单";   
         return;
     }
     switch (self.selectIndex) {
@@ -90,21 +95,23 @@
     }
     
 }
-- (void)setup{
-    self.tableView = [[UITableView alloc]init];
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    self.tableView.emptyDataSetDelegate = self;
-    self.tableView.emptyDataSetSource = self;
-    [self.view addSubview:self.tableView];
-    self.tableView.tableFooterView = [UIView new];
-    self.tableView.separatorStyle = NO;
-    self.tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
-    WS(weakSelf);
-    [weakSelf addMjRefresh];
- 
+
+- (UITableView *)tableView{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc]init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        _tableView.emptyDataSetDelegate = self;
+        _tableView.emptyDataSetSource = self;
+        [self.view addSubview:_tableView];
+        _tableView.tableFooterView = [UIView new];
+        _tableView.separatorStyle = NO;
+        _tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+    }
+    return _tableView;
 }
+
 #pragma mark - 刷新加载
 - (void)addMjRefresh
 {
@@ -113,6 +120,7 @@
         weakSelf.page = @"1";
         [weakSelf getDataWithType:weakSelf.orderType page:weakSelf.page];
     }];
+   // [self.tableView.mj_header beginRefreshing];
 }
 - (void)getDataWithType:(NSString *)type page:(NSString *)page{
      WS(weakSelf);
@@ -152,7 +160,7 @@
                             [weakSelf.tableView.mj_header endRefreshing];
                        }
                           fail:^(NSError *error) {
-                              
+                              [weakSelf.tableView.mj_header endRefreshing];
                           }];
 }
 
@@ -189,6 +197,13 @@
             cell = [nib objectAtIndex:1];
             
         }
+        WS(weakself);
+        cell.didCollect = ^{
+            OrderListModel *model = weakself.dataArr[indexPath.row];
+            OrderDetailVC *order = [[OrderDetailVC alloc]init];
+            order.order_id = model.order_id;
+            [weakself.navigationController pushViewController:order animated:YES];
+        };
     }
     cell.btnclick = ^(OrderListModel *model,NSString *str){
         if ([str isEqualToString:@"立即付款"]) {
@@ -242,10 +257,14 @@
 }
 
 - (void)gotoOrderDetail{
+    self.page = @"1";
+    self.orderType = @"state_pay";
     [self getDataWithType:@"state_pay" page:@"1"];
 
 }
 - (void)gotoOrderDetailError{
+    self.page = @"1";
+    self.orderType = @"state_new";
     [self getDataWithType:@"state_new" page:@"1"];
 
 }
@@ -269,9 +288,7 @@
 #pragma mark- 取消
 
 - (void)cancelOrder:(OrderListModel *)model{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确认取消该订单?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/cancel"
                       refreshCache:YES
@@ -282,28 +299,23 @@
                                model.order_state = @"state_cancel";
                                [weakself.dataArr removeObject:model];
                                [weakself.tableView reloadData];
-                               
+                               if (weakself.dataArr.count == 0) {
+                                   weakself.tableView.mj_footer.hidden = YES;
+                               }
                                
                            }
                               fail:^(NSError *error) {
                                   
                               }];
-
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
+    } cancelHandler:nil destructiveHandler:nil];
 
 }
 
 #pragma mark- 删除
 
 - (void)deleteOrder:(OrderListModel *)model{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认删除该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确认删除该订单?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/delete"
                       refreshCache:YES
@@ -313,28 +325,22 @@
                            success:^(id response) {
                                [weakself.dataArr removeObject:model];
                                [weakself.tableView reloadData];
-                               
+                               if (weakself.dataArr.count == 0) {
+                                   weakself.tableView.mj_footer.hidden = YES;
+                               }
                                
                            }
                               fail:^(NSError *error) {
                                   
                               }];
-        
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
-    
+    } cancelHandler:nil destructiveHandler:nil];
    
 }
 
 //确认收货
 - (void)receiveOrder:(OrderListModel *)model{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定对该订单进行确认收货?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+ 
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确定对该订单进行确认收货?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/receive"
                       refreshCache:YES
@@ -350,13 +356,8 @@
                               fail:^(NSError *error) {
                                   
                               }];
-        
-    }];
+    } cancelHandler:nil destructiveHandler:nil];
     
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
     
 }
 - (void)didReceiveMemoryWarning {

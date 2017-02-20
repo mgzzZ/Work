@@ -16,4 +16,6 @@
  */
 @property (nonatomic,copy)NSString *orderType;
 @property (nonatomic,strong)NSString *payType;
+@property (nonatomic,assign)BOOL isRefresh;
+@property (nonatomic,assign)BOOL after;
 @end

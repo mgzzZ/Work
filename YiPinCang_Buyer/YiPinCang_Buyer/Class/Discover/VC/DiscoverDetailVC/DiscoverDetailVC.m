@@ -19,7 +19,8 @@
 #import "PushModel.h"
 #import "WebViewController.h"
 #import "LiveDetailHHHVC.h"
-
+#import "ShoppingCarVC.h"
+#import "LiveDetailHHHVC.h"
 @interface DiscoverDetailVC ()<UITableViewDelegate,UITableViewDataSource>
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
@@ -37,15 +38,23 @@
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,assign)BOOL isChooseSize;
 @property (nonatomic,copy)NSString *payType;//0是先选  1加入购物车  2立即购买
-
-
-
+@property (nonatomic,copy)NSString *carNumber;//该商品在购物车的数量
+@property (nonatomic,strong)UILabel *commentLab;
+@property (nonatomic,strong)UIButton *messageBtn;
+@property (nonatomic,assign)BOOL isSelete;//记录悬浮按钮
+@property (nonatomic,copy)NSString *goods_id;
+@property (nonatomic,copy)NSString *payCount;
+@property (nonatomic,copy)NSString *likeCount;
+@property (nonatomic,copy)NSString *isLike;
 @end
 
 @implementation DiscoverDetailVC
 - (void)dealloc
 {
     [[NSNotificationCenter defaultCenter]removeObserver:self];
+    if (self.backBlock) {
+        self.backBlock(self.likeCount,self.isLike,[NSString stringWithFormat:@"%zd",self.model.commentlist.count]);
+    }
     
 }
 - (void)viewDidLoad {
@@ -55,9 +64,23 @@
     self.automaticallyAdjustsScrollViewInsets = NO;
     self.isChooseSize = NO;
     self.view.backgroundColor = [UIColor whiteColor];
-   
+    self.carNumber = @"0";
+    self.goods_id = @"";
+    self.payCount = @"";
+    self.isSelete =NO;
     [self getData:@"1"];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(addComment:) name:@"comment" object:nil];
+    UIButton *shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    shareBtn.acceptEventInterval = 1.f;
+    shareBtn.frame = CGRectMake(0, 0, 25, 25);
+    [shareBtn setImage:IMAGE(@"mshare_button") forState:UIControlStateNormal];
+    [shareBtn addTarget:self action:@selector(messageBtnClick) forControlEvents:UIControlEventTouchUpInside];
+    UIBarButtonItem *share = [[UIBarButtonItem alloc]initWithCustomView:shareBtn];
+    self.navigationItem.rightBarButtonItems = @[share];
+    [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
+    [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
+    [self.navigationController.navigationBar mz_setBackgroundAlpha:1];
+    
 }
 
 - (void)viewDidDisappear:(BOOL)animated{
@@ -69,31 +92,44 @@
 }
 - (void)setup{
     WS(weakSelf);
-    self.tableView = [[UITableView alloc]init];
-
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    [self.view addSubview:self.tableView];
-    self.tableView.backgroundColor = [UIColor whiteColor];
+    _tableView = [[UITableView alloc]init];
+    _tableView.separatorStyle = UITableViewCellSeparatorStyleNone;
+    _tableView.delegate = self;
+    _tableView.dataSource = self;
+    [self.view addSubview:_tableView];
+    _tableView.backgroundColor = [UIColor whiteColor];
     
-    self.tableView.tableFooterView = [UIView new];
-    self.tableView.sd_layout
+    _tableView.tableFooterView = [UIView new];
+    _tableView.sd_layout
     .topSpaceToView(self.view,64)
     .rightEqualToView(self.view)
     .leftEqualToView(self.view)
     .bottomSpaceToView(self.view,58);
     
-    self.keyboardView = [[KeyboardTextView alloc] initWithTextViewFrame:CGRectMake(0, ScreenHeight - 58 , ScreenWidth ,58)];
-    
+    [self.view addSubview:self.keyboardView];
     [self.keyboardView setButtonClickedBlock:^(NSString *message) {
-        [YPCNetworking postWithUrl:@"shop/activity/sendcomment"
+        
+        NSString *url = @"";
+        NSDictionary *dic = @{};
+        if ([weakSelf.typeStr isEqualToString:@"淘好货"] || weakSelf.typeStr == nil) {
+            url = @"shop/activity/sendcomment";
+            dic = [YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                  @"strace_id":weakSelf.strace_id,
+                                                                  @"message":message,
+                                                                  @"replyto":weakSelf.replyto,
+                                                                  @"comment_type":weakSelf.comment_type
+                                                                  }];
+        }else{
+            url = @"shop/usercircle/storecirclecomment";
+            dic = [YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                  @"strace_id":weakSelf.strace_id,
+                                                                  @"message":message,
+                                                                  @"comment_type":@""
+                                                                  }];
+        }
+        [YPCNetworking postWithUrl:url
                       refreshCache:YES
-                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                                   @"strace_id":weakSelf.strace_id,
-                                                                                   @"message":message,
-                                                                                   @"replyto":weakSelf.replyto,
-                                                                                   @"comment_type":weakSelf.comment_type
-                                                                                   }]
+                            params:dic
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
                                    CommentListModel *model = [[CommentListModel alloc]init];
@@ -110,34 +146,88 @@
                                    [weakSelf.model.commentlist addObject:model];
                                    NSIndexPath *index = [NSIndexPath indexPathForRow:weakSelf.model.commentlist.count - 1 inSection:0];
                                    [weakSelf.tableView insertRowsAtIndexPaths:@[index] withRowAnimation:UITableViewRowAnimationNone];
+                                   weakSelf.commentLab.text = [NSString stringWithFormat:@"%zd",weakSelf.model.commentlist.count];
+                                   [YPC_Tools showSvpWithNoneImgHud:@"评论成功"];
                                }
                            }
                               fail:^(NSError *error) {
                                   
                               }];
+        
+        
     }];
-    
-    [self.view addSubview:self.keyboardView];
+
+   
+
     self.shopcarView = [[ShopCarView alloc]init];
     
+    NSDate* date = [NSDate dateWithTimeIntervalSinceNow:0];
+    NSTimeInterval a=[date timeIntervalSince1970]; // *1000 是精确到毫秒，不乘就是精确到秒
+    NSString *timeString = [NSString stringWithFormat:@"%.0f", a];
+    if ([YPCRequestCenter shareInstance].carEndtime.integerValue - timeString.integerValue > 0 ) {
+        self.shopcarView.car.badgeValue =  [YPCRequestCenter shareInstance].carNumber;
+    }
+    [self.shopcarView.carBtn addTarget:self action:@selector(pushCarVC) forControlEvents:UIControlEventTouchUpInside];
     self.shopcarView.shopcar = ^{
-        weakSelf.payType = @"1";
-        if (![YPCRequestCenter isLogin]) {
-            [weakSelf login];
+        if (weakSelf.model.total_storage.integerValue > 0) {
+            weakSelf.payType = @"1";
+            if (![YPCRequestCenter isLogin]) {
+                [weakSelf login];
+            }else{
+                if (weakSelf.goods_id.length == 0) {
+                   [weakSelf chooseSizeShow];
+                }else{
+                    [YPCNetworking postWithUrl:@"shop/cart/add"
+                                  refreshCache:YES
+                                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                               @"goods_id":weakSelf.goods_id,
+                                                                                               @"count":weakSelf.payCount,
+                                                                                               @"click_from_type":@"6"
+                                                                                               }]
+                                       success:^(id response) {
+                                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                                               NSString *carNumber = response[@"data"][@"num"];
+                                               NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                               NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                               NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                               
+                                               [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                               [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                               [YPCRequestCenter shareInstance].carNumber = carNumber;
+                                               
+                                               weakSelf.shopcarView.car.badgeValue = carNumber;
+                                               [weakSelf.shopcarView openAnimation];
+                                               [weakSelf chooseSizeHide];
+                                           }
+                                       }
+                                          fail:^(NSError *error) {
+                                              
+                                          }];
+                }
+            }
         }else{
-            [weakSelf chooseSizeShow];
-            
-        }
-    };
-    self.shopcarView.clearing = ^{
-        weakSelf.payType = @"2";
-        if (![YPCRequestCenter isLogin]) {
-            [weakSelf login];
-        }else{
-            [weakSelf chooseSizeShow];
-            
+            [YPC_Tools showSvpWithNoneImgHud:@"该商品已售光"];
         }
         
+    };
+    self.shopcarView.clearing = ^{
+        if (weakSelf.model.total_storage.integerValue > 0) {
+            weakSelf.payType = @"2";
+            if (![YPCRequestCenter isLogin]) {
+                [weakSelf login];
+            }else{
+                if (weakSelf.goods_id.length == 0) {
+                    [weakSelf chooseSizeShow];
+                }else{
+                    ClearingVC *clearing = [[ClearingVC alloc]init];
+                    NSString *str = [NSString stringWithFormat:@"%@|%@",weakSelf.goods_id,weakSelf.payCount];
+                    clearing.dataStr = str;
+                    [weakSelf.navigationController pushViewController:clearing animated:YES];
+                }
+            }
+        }else{
+            [YPC_Tools showSvpWithNoneImgHud:@"该商品已售光"];
+        }
     };
     
     [self.view addSubview:self.shopcarView];
@@ -148,6 +238,8 @@
     .heightIs(58);
     self.bgView = [[UIView alloc]initWithFrame:self.view.bounds];
     self.bgView.backgroundColor = [UIColor blackColor];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hiden)];
+    [self.bgView addGestureRecognizer:tap];
     [self.view addSubview:self.bgView];
     self.bgView.alpha = 0.3;
     self.bgView.hidden = YES;
@@ -165,7 +257,16 @@
                                                                                        }]
                                success:^(id response) {
                                    if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       weakSelf.shopcarView.car.badgeValue = @"1";
+                                       NSString *carNumber = response[@"data"][@"num"];
+                                       NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                       NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                       NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                 
+                                       [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                       [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                       [YPCRequestCenter shareInstance].carNumber = carNumber;
+                                       
+                                       weakSelf.shopcarView.car.badgeValue = carNumber;
                                        [weakSelf.shopcarView openAnimation];
                                        [weakSelf chooseSizeHide];
                                        
@@ -187,7 +288,14 @@
         }else{
             [weakSelf chooseSizeHide];
             UILabel *lab = [weakSelf.view viewWithTag:1000];
-            lab.text = payType;
+            weakSelf.payCount = count;
+            weakSelf.goods_id = goods_id;
+            if (payType.length == 0) {
+                lab.text = @"您已选择该商品,请进行购买.";
+            }else{
+                lab.text = payType;
+            }
+            
         }
         
     };
@@ -202,8 +310,26 @@
         web.homeUrl = weakSelf.chooseModel.specdesc_url;
         [weakSelf.navigationController pushViewController:web animated:YES];
     };
-
+    self.messageBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.view addSubview:self.messageBtn];
+    [self.messageBtn setImage:IMAGE(@"buypage_reminder_backgound") forState:UIControlStateNormal];
+    self.messageBtn.sd_layout
+    .rightSpaceToView(self.view,0)
+    .bottomSpaceToView(self.view,130 + 58)
+    .widthIs(80)
+    .heightIs(40);
+    [self.view bringSubviewToFront:self.messageBtn];
+    [self.messageBtn addTarget:self action:@selector(messageClick) forControlEvents:UIControlEventTouchUpInside];
+    self.messageBtn.hidden = YES;
+    if (self.model.total_storage.integerValue <= 0) {
+     
+        self.shopcarView.isSelected = NO;
+    }else{
+        self.shopcarView.isSelected = YES;
+    }
 }
+
+
 - (ChooseSize *)chooseSize{
     if (_chooseSize == nil) {
         _chooseSize =  [[ChooseSize alloc]initWithFrame:CGRectMake(0, ScreenHeight, ScreenWidth, 483) count:15 maxCount:20];
@@ -218,8 +344,12 @@
     self.headerView.backgroundColor = [UIColor whiteColor];
     [self.view addSubview:self.headerView];
     UIImageView *img = [[UIImageView alloc]init];
-    img.layer.cornerRadius = 23;
+    img.layer.cornerRadius = 20;
     img.layer.masksToBounds = YES;
+    
+    UIButton *txbtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [txbtn addTarget:self action:@selector(pushDetail) forControlEvents:UIControlEventTouchUpInside];
+    [self.headerView addSubview:txbtn];
     UILabel *nameLab = [[UILabel alloc]init];
     nameLab.textAlignment = NSTextAlignmentLeft;
     nameLab.textColor = [Color colorWithHex:@"0x2c2c2c"];
@@ -231,39 +361,43 @@
     titleLab.textAlignment = NSTextAlignmentLeft;
     titleLab.font = [UIFont systemFontOfSize:16];
     PhotoContainerView *phptosView = [[PhotoContainerView alloc]init];
+    phptosView.modeType = PhotoContainerModeTypeHave;
     UILabel *priceLab = [[UILabel alloc]init];
     priceLab.textColor = [Color colorWithHex:@"0xe4393c"];
     priceLab.textAlignment = NSTextAlignmentLeft;
     priceLab.font = [UIFont systemFontOfSize:15];
     UILabel *countLab = [[UILabel alloc]init];
-    countLab.textAlignment = NSTextAlignmentLeft;
+    countLab.textAlignment = NSTextAlignmentRight;
     countLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
     countLab.font = [UIFont systemFontOfSize:15];
-    [self.headerView sd_addSubviews:@[img,nameLab,titleLab,priceLab,countLab,phptosView,typeImg]];
-    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
-    [btn addTarget:self action:@selector(chooseSizeClick) forControlEvents:UIControlEventTouchUpInside];
-    UIImageView *nextImg = [[UIImageView alloc]initWithImage:IMAGE(@"mine_productdetails_icon_more")];
+    
+    OriginalPriceLab *orig = [[OriginalPriceLab alloc]init];
+    orig.textAlignment = NSTextAlignmentLeft;
+    orig.textColor = [Color colorWithHex:@"0xbfbfbf"];
+    orig.font = YPCPFFont(10);
+    
+    [self.headerView sd_addSubviews:@[img,nameLab,titleLab,priceLab,countLab,phptosView,typeImg,orig]];
     UILabel *timeLab = [[UILabel alloc]init];
     timeLab.textAlignment = NSTextAlignmentLeft;
     timeLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
     timeLab.font = [UIFont systemFontOfSize:13];
-    UILabel *commentLab = [[UILabel alloc]init];
-    commentLab.textAlignment = NSTextAlignmentRight;
-    commentLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
-    commentLab.font = [UIFont systemFontOfSize:13];
-    UIImageView *commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_commentnumber_dis")];
+    self.commentLab = [[UILabel alloc]init];
+    self.commentLab.textAlignment = NSTextAlignmentRight;
+    self.commentLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
+    self.commentLab.font = [UIFont systemFontOfSize:14];
+    UIImageView *commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_pinglun_button")];
     self.likeCountLab = [[UILabel alloc]init];
     self.likeCountLab.textAlignment = NSTextAlignmentRight;
     self.likeCountLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
-    self.likeCountLab.font = [UIFont systemFontOfSize:13];
-    UIImageView *likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_likes_dis")];
+    self.likeCountLab.font = [UIFont systemFontOfSize:14];
+    UIImageView *likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_like_button")];
     likeImg.tag = 10000;
-    UILabel *guding = [[UILabel alloc]init];
-    guding.text = @"选择尺码,颜色分类";
-    guding.tag = 1000;
-    guding.textColor = [Color colorWithHex:@"0x2c2c2c"];
-    guding.textAlignment = NSTextAlignmentLeft;
-    guding.font = [UIFont systemFontOfSize:13];
+    
+    UIView *topView = [[UIView alloc]init];
+    topView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    [self.headerView addSubview:topView];
+    
+    
     self.bottomImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_dialogbox")];
     if ([self.model.strace_comment isEqualToString:@"0"]) {
         self.bottomImg.hidden = YES;
@@ -273,22 +407,33 @@
     
     UIButton *likeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [likeBtn addTarget:self action:@selector(likeBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    
+    self.isLike = self.model.islike;
     if ([self.model.islike isEqualToString:@"1"]) {
         likeBtn.selected = YES;
-        [likeImg setImage:IMAGE(@"find_productdetails_icon_likes_cliked")];
+        [likeImg setImage:IMAGE(@"find_like_button_clicked")];
+        self.likeCountLab.textColor = [Color colorWithHex:@"#e4393c"];
     }else{
         likeBtn.selected = NO;
+        self.likeCountLab.textColor = [Color colorWithHex:@"#bfbfbf"];
     }
     
     UIButton *commentBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [commentBtn addTarget:self action:@selector(commentBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-    [self.headerView sd_addSubviews:@[btn,nextImg,timeLab,commentLab,commentImg,likeImg,self.likeCountLab,guding,self.bottomImg,likeBtn,commentBtn]];
+    [self.headerView sd_addSubviews:@[timeLab,self.commentLab,commentImg,likeImg,self.likeCountLab,self.bottomImg,likeBtn,commentBtn]];
     img.sd_layout
-    .widthIs(46)
-    .heightIs(45)
+    .widthIs(40)
+    .heightIs(40)
     .leftSpaceToView(self.headerView,15)
     .topSpaceToView(self.headerView,15);
+    
+    txbtn.sd_layout
+    .leftEqualToView(img)
+    .topEqualToView(img)
+    .bottomEqualToView(img)
+    .rightEqualToView(img);
+    
+    
+    
     nameLab.sd_layout
     .leftSpaceToView(img,10)
     .topEqualToView(img)
@@ -316,10 +461,11 @@
         typeImg.hidden = YES;
         titleLab.text = self.model.goods_name;
     }
-    
+    orig.text = [NSString stringWithFormat:@"¥%@",self.model.goods_marketprice];
     
     phptosView.sd_layout
     .leftEqualToView(nameLab);
+    phptosView.thumbPicPathStringsArray = self.model.strace_content_thumb;
     phptosView.picPathStringsArray = self.model.strace_content;
     phptosView.sd_layout
     .topSpaceToView(titleLab,10);
@@ -329,71 +475,71 @@
     [priceLab sizeToFit];
     priceLab.sd_layout
     .leftEqualToView(nameLab)
-    .topSpaceToView(phptosView,10)
+    .topSpaceToView(phptosView,13.5)
     .heightIs(20)
     .widthIs(priceLab.frame.size.width);
+    
+    [orig sizeToFit];
+    orig.sd_layout
+    .leftSpaceToView(priceLab,10)
+    .centerYEqualToView(priceLab)
+    .widthIs(orig.frame.size.width)
+    .heightIs(15);
+    
+    
     countLab.text = [NSString stringWithFormat:@"已售%@件",self.model.goods_salenum];
     countLab.sd_layout
-    .leftSpaceToView(priceLab,15)
+    .rightEqualToView(self.bgView)
     .centerYEqualToView(priceLab)
     .heightIs(20)
     .rightSpaceToView(self.headerView,15);
     
-    nextImg.sd_layout
-    .topSpaceToView(priceLab,10)
-    .rightSpaceToView(self.headerView,15)
-    .widthIs(25)
-    .heightIs(25);
     
-    guding.sd_layout
+    topView.sd_layout
     .leftEqualToView(nameLab)
-    .heightIs(30)
-    .centerYEqualToView(nextImg)
-    .rightSpaceToView(self.headerView,0);
+    .topSpaceToView(phptosView,47)
+    .heightIs(1)
+    .rightSpaceToView(self.headerView,15);
     
-    btn.sd_layout
-    .leftEqualToView(nameLab)
-    .heightIs(30)
-    .centerYEqualToView(nextImg)
-    .rightSpaceToView(self.headerView,0);
+
     
     NSString *time = [YPC_Tools timeWithTimeIntervalString:self.model.strace_time Format:@"YYYY-MM-dd"];
     timeLab.text = time;
-    
     [timeLab sizeToFit];
+    
     timeLab.sd_layout
     .leftEqualToView(nameLab)
-    .topSpaceToView(btn,10)
+    .topSpaceToView(topView,10)
     .widthIs(timeLab.frame.size.width)
     .heightIs(15);
     
-    commentLab.text = self.model.strace_comment;
-    [commentLab sizeToFit];
-    commentLab.sd_layout
+    self.commentLab.text = self.model.strace_comment;
+    [self.commentLab sizeToFit];
+    self.commentLab.sd_layout
     .rightSpaceToView(self.headerView,15)
-    .widthIs(commentLab.frame.size.width)
+    .widthIs(self.commentLab.frame.size.width)
     .centerYEqualToView(timeLab)
     .heightIs(15);
     
     commentImg.sd_layout
-    .rightSpaceToView(commentLab,5)
-    .widthIs(25)
-    .heightIs(25)
-    .centerYEqualToView(commentLab);
-    
+    .rightSpaceToView(self.commentLab,5)
+    .widthIs(19)
+    .heightIs(19)
+    .centerYEqualToView(self.commentLab);
+    self.likeCount =self.model.strace_cool;
     self.likeCountLab.text = self.model.strace_cool;
     [self.likeCountLab sizeToFit];
     self.likeCountLab.sd_layout
     .rightSpaceToView(commentImg,30)
-    .centerYEqualToView(commentLab)
+    .centerYEqualToView(self.commentLab)
     .widthIs(self.likeCountLab.frame.size.width)
     .heightIs(15);
    
     likeImg.sd_layout
     .rightSpaceToView(self.likeCountLab,5)
-    .widthIs(25)
-    .heightIs(25)
-    .centerYEqualToView(commentLab);
+    .widthIs(19)
+    .heightIs(19)
+    .centerYEqualToView(self.commentLab);
     
     likeBtn.sd_layout
     .leftEqualToView(likeImg)
@@ -403,8 +549,8 @@
     commentBtn.sd_layout
     .leftEqualToView(commentImg)
     .centerYEqualToView(commentImg)
-    .rightEqualToView(commentLab)
-    .heightIs(15);
+    .rightEqualToView(self.commentLab)
+    .heightIs(19);
     self.bottomImg.backgroundColor = [UIColor whiteColor];
     self.bottomImg.sd_layout
     .leftSpaceToView(self.headerView,30)
@@ -420,119 +566,67 @@
 }
 - (void)getData:(NSString *)page{
     WS(weakSelf);
-    if ([self.typeStr isEqualToString:@"淘好货"] || self.typeStr == nil) {
-        [YPCNetworking postWithUrl:@"shop/explore/livegoodsdetail"
-                      refreshCache:YES
-                            params:@{@"pagination":@{
-                                             @"page":page,
-                                             @"count":@"10"
-                                             },
-                                     @"strace_id":weakSelf.strace_id,
-                                     @"live_id":@""
-                                     }
-                           success:^(id response) {
-                               if ([YPC_Tools judgeRequestAvailable:response]) {
-                                   weakSelf.model = [DiscoverDetailModel mj_objectWithKeyValues:response[@"data"]];
-                                   
-                                   if (!weakSelf.tableView) {
-                                       
-                                       if (!weakSelf.headerView) {
-                                           [weakSelf setHeardView];
-                                           [weakSelf getDataChooseSize];
-                                       }
-                                       [weakSelf.tableView reloadData];
-                                       
-                                       
-                                   }else{
-                                       [weakSelf.tableView reloadData];
-                                   }
-                                   
-                               }else{
-                                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                                       [weakSelf.navigationController popViewControllerAnimated:YES];
-                                   });
-                               }
-                           }
-                              fail:^(NSError *error) {
-                                  
-                              }];
-
-    }else{
-        if (![YPCRequestCenter isLogin]) {
-            [YPCNetworking postWithUrl:@"shop/explore/stracegoodsdetail"
-                          refreshCache:YES
-                                params:@{@"pagination":@{
-                                                 @"page":page,
-                                                 @"count":@"10"
-                                                 },
-                                         @"strace_id":weakSelf.strace_id
-                                         }
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       weakSelf.model = [DiscoverDetailModel mj_objectWithKeyValues:response[@"data"]];
-                                       
-                                       if (!weakSelf.tableView) {
-                                           
-                                           if (!weakSelf.headerView) {
-                                               [weakSelf setHeardView];
-                                               [weakSelf getDataChooseSize];
-                                           }
-                                           [weakSelf.tableView reloadData];
-                                           
-                                           
-                                       }else{
-                                           [weakSelf.tableView reloadData];
-                                       }
-                                       
-                                   }else{
-                                       dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                                           [weakSelf.navigationController popViewControllerAnimated:YES];
-                                       });
-                                   }
-                               }
-                                  fail:^(NSError *error) {
-                                      
-                                  }];
-
+    NSDictionary *params = @{};
+    NSString *url = @"";
+    if ([YPCRequestCenter isLogin]) {
+        if ([self.typeStr isEqualToString:@"淘好货"] || self.typeStr == nil) {
+            
+            url = @"shop/explore/livegoodsdetail";
         }else{
-            [YPCNetworking postWithUrl:@"shop/explore/stracegoodsdetail"
-                          refreshCache:YES
-                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"pagination":@{
-                                                                                               @"page":page,
-                                                                                               @"count":@"10"
-                                                                                               },
-                                                                                       @"strace_id":weakSelf.strace_id
-                                                                                       }]
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       weakSelf.model = [DiscoverDetailModel mj_objectWithKeyValues:response[@"data"]];
-                                       
-                                       if (!weakSelf.tableView) {
-                                           
-                                           if (!weakSelf.headerView) {
-                                               [weakSelf setHeardView];
-                                               [weakSelf getDataChooseSize];
-                                           }
-                                           [weakSelf.tableView reloadData];
-                                           
-                                           
-                                       }else{
-                                           [weakSelf.tableView reloadData];
-                                       }
-                                       
-                                   }else{
-                                       dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-                                           [weakSelf.navigationController popViewControllerAnimated:YES];
-                                       });
-                                   }
-                               }
-                                  fail:^(NSError *error) {
-                                      
-                                  }];
-
+            url = @"shop/explore/stracegoodsdetail";
         }
+        params = [YPCRequestCenter getUserInfoAppendDictionary:@{@"pagination":@{
+                                                                         @"page":page,
+                                                                         @"count":@"1000"
+                                                                         },
+                                                                 @"strace_id":weakSelf.strace_id,
+                                                                 @"live_id":@""
+                                                                 }];
+    }else{
+        if ([self.typeStr isEqualToString:@"淘好货"] || self.typeStr == nil) {
+            
+            url = @"shop/explore/livegoodsdetail";
+        }else{
+            url = @"shop/explore/stracegoodsdetail";
+        }
+        params = @{@"pagination":@{
+                           @"page":page,
+                           @"count":@"10"
+                           },
+                   @"strace_id":weakSelf.strace_id,
+                   @"live_id":@""
+                   };
         
     }
+    [YPCNetworking postWithUrl:url
+                  refreshCache:YES
+                        params:params
+                       success:^(id response) {
+                           if ([YPC_Tools judgeRequestAvailable:response]) {
+                               weakSelf.model = [DiscoverDetailModel mj_objectWithKeyValues:response[@"data"]];
+                               
+                               if (!weakSelf.tableView) {
+                                   
+                                   if (!weakSelf.headerView) {
+                                       [weakSelf setHeardView];
+                                       [weakSelf getDataChooseSize];
+                                   }
+                                   [weakSelf.tableView reloadData];
+                                   
+                                   
+                               }else{
+                                   [weakSelf.tableView reloadData];
+                               }
+                               
+                           }else{
+                               dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                   [weakSelf.navigationController popViewControllerAnimated:YES];
+                               });
+                           }
+                       }
+                          fail:^(NSError *error) {
+                              YPCAppLog(@"%zd",error.code);
+                          }];
     
 }
 - (void)getDataChooseSize{
@@ -547,7 +641,7 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.chooseModel = [ChooseSizeModel mj_objectWithKeyValues:response[@"data"]];
                                NSInteger maxcount = weakSelf.model.total_storage.integerValue;
-                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goods_price img:weakSelf.model.strace_content[0] chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
+                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goods_price img:weakSelf.model.strace_content_thumb[0] chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
                            }
                            
                        }
@@ -569,6 +663,9 @@
     DiscoverCommentCell *cell = [tableView dequeueReusableCellWithIdentifier:cellId];
     if (!cell) {
         cell = [[DiscoverCommentCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellId];
+    }
+    if (indexPath.row == self.model.commentlist.count - 1 && self.isSelete) {
+        self.messageBtn.hidden = YES;
     }
     cell.model = self.model.commentlist[indexPath.row];
     cell.txBtn.tag = indexPath.row;
@@ -600,32 +697,70 @@
     if (![YPCRequestCenter isLogin]) {
         [self login];
     }else{
-        NSString *url= @"";
-        UIImageView *img = [self.view viewWithTag:10000];
-        if (sender.selected == NO) {
-            [img setImage:IMAGE(@"find_productdetails_icon_likes_cliked")];
-            sender.selected = YES;
-            url = @"shop/explore/livegoodslike";
-            
+        if ([self.typeStr isEqualToString:@"淘好货"] || _typeStr == nil) {
+            NSString *url= @"";
+            UIImageView *img = [self.view viewWithTag:10000];
+            if (sender.selected == NO) {
+                [img setImage:IMAGE(@"find_like_button_clicked")];
+                sender.selected = YES;
+                url = @"shop/explore/livegoodslike";
+                self.isLike = @"1";
+                self.likeCountLab.textColor = [Color colorWithHex:@"#e4393c"];
+            }else{
+                [img setImage:IMAGE(@"find_like_button")];
+                sender.selected = NO;
+                url = @"shop/explore/livegoodsunlike";
+                self.isLike = @"0";
+                self.likeCountLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
+            }
+            [YPCNetworking postWithUrl:url
+                          refreshCache:YES
+                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                       @"strace_id":weakSelf.strace_id
+                                                                                       }
+                                        ]                           success:^(id response) {
+                                    NSString *strace_cool = response[@"data"][@"strace_cool"];
+                                    
+                                    weakSelf.likeCountLab.text = strace_cool;
+                                    weakSelf.likeCount = strace_cool;
+                                    [weakSelf.likeCountLab sizeToFit];
+                                    weakSelf.likeCountLab.sd_layout.widthIs(weakSelf.likeCountLab.frame.size.width);
+                                }
+                                  fail:^(NSError *error) {
+                                      
+                                  }];
         }else{
-            [img setImage:IMAGE(@"find_productdetails_icon_likes")];
-            sender.selected = NO;
-            url = @"shop/explore/livegoodsunlike";
-            
+            NSString *url= @"";
+            UIImageView *img = [self.view viewWithTag:10000];
+            if (sender.selected == NO) {
+                [img setImage:IMAGE(@"find_like_button_clicked")];
+                sender.selected = YES;
+                self.isLike = @"1";
+                url = @"shop/usercircle/like";
+                self.likeCountLab.textColor = [Color colorWithHex:@"#e4393c"];
+            }else{
+                [img setImage:IMAGE(@"find_like_button")];
+                sender.selected = NO;
+                self.isLike = @"0";
+                url = @"shop/usercircle/unlike";
+                self.likeCountLab.textColor = [Color colorWithHex:@"0xBFBFBF"];
+            }
+            [YPCNetworking postWithUrl:url
+                          refreshCache:YES
+                                params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                       @"strace_id":weakSelf.strace_id
+                                                                                       }
+                                        ]                           success:^(id response) {
+                                    NSString *strace_cool = response[@"data"][@"strace_cool"];
+                                    weakSelf.likeCount = strace_cool;
+                                    weakSelf.likeCountLab.text = strace_cool;
+                                    [weakSelf.likeCountLab sizeToFit];
+                                    weakSelf.likeCountLab.sd_layout.widthIs(weakSelf.likeCountLab.frame.size.width);
+                                }
+                                  fail:^(NSError *error) {
+                                      
+                                  }];
         }
-        [YPCNetworking postWithUrl:url
-                      refreshCache:YES
-                            params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                                   @"strace_id":weakSelf.strace_id
-                                                                                   }
-]                           success:^(id response) {
-                               NSString *strace_cool = response[@"data"][@"strace_cool"];
-                               
-                               weakSelf.likeCountLab.text = strace_cool;
-                           }
-                              fail:^(NSError *error) {
-                                  
-                              }];
     }
 }
 - (void)commentBtnClick:(UIButton *)sender{
@@ -681,20 +816,17 @@
 
 - (void)login{
     WS(weakself);
-    LoginVC *login = [[LoginVC alloc]init];
-    UINavigationController *loginNav = [[UINavigationController alloc]initWithRootViewController:login];
-    login.navigationController.navigationBar.hidden = YES;
-    [self.navigationController presentViewController:loginNav animated:YES completion:nil];
-    login.back = ^{
-         [weakself chooseSizeShow];
-    };
-    
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+        [weakself chooseSizeShow];
+    }];
 }
 - (void)addComment:(NSNotification *)notification{
     NSDictionary *dic = [notification object];
     
     PushModel *model = [PushModel mj_objectWithKeyValues:dic];
     if ([model.extras.strace_id isEqualToString:self.strace_id]) {
+        self.messageBtn.hidden = NO;
+        self.isSelete = YES;
         CommentListModel *commentlistModel = [[CommentListModel alloc]init];
         commentlistModel.scomm_memberavatar = model.extras.avatar;
         commentlistModel.scomm_content = model.title;
@@ -706,6 +838,7 @@
         [self.model.commentlist addObject:commentlistModel];
         NSIndexPath *index = [NSIndexPath indexPathForRow:self.model.commentlist.count - 1 inSection:0];
         [self.tableView insertRowsAtIndexPaths:@[index] withRowAnimation:UITableViewRowAnimationNone];
+        self.commentLab.text = [NSString stringWithFormat:@"%zd",self.model.commentlist.count];
     }
     
 
@@ -715,6 +848,54 @@
     live.store_id = self.model.store_id;
     [self.navigationController pushViewController:live animated:YES];
 }
+
+- (void)pushCarVC{
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+        ShoppingCarVC *car = [[ShoppingCarVC alloc]init];
+        [weakSelf.navigationController pushViewController:car animated:YES];
+    }];
+}
+
+- (void)pushDetail{
+    LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+    live.store_id = self.model.store_id;
+    [self.navigationController pushViewController:live animated:YES];
+}
+
+- (void)hiden{
+    [self chooseSizeHide];
+    [self.chooseSize keyboredHiden];
+}
+
+
+#pragma mark - 分享
+- (void)messageBtnClick{
+    NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+    [YPCShare GoodsShareInWindowWithStraceName:self.model.goods_name StraceId:self.model.strace_id image:[[SDImageCache sharedImageCache] imageFromDiskCacheForKey:self.model.strace_content[0]] discount:self.model.goods_discount price:self.model.goods_price uid:uid viewController:self];
+}
+- (void)messageClick{
+    
+//    self.messageBtn.hidden = YES;
+    [self.tableView selectRowAtIndexPath:[NSIndexPath indexPathForRow:self.model.commentlist.count - 1 inSection:0]
+                                animated:YES
+                          scrollPosition:UITableViewScrollPositionBottom];
+}
+
+#pragma mark - 懒加载
+
+- (KeyboardTextView *)keyboardView{
+    if (_keyboardView) {
+        return _keyboardView;
+    
+    }
+    WS(weakSelf);
+     _keyboardView = [[KeyboardTextView alloc] initWithTextViewFrame:CGRectMake(0, ScreenHeight - 49 , ScreenWidth , 49)];
+    
+    
+    return _keyboardView;
+}
+
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];
     // Dispose of any resources that can be recreated.

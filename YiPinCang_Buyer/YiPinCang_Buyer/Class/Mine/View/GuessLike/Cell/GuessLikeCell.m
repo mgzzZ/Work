@@ -18,5 +18,13 @@
     [self.bgImg sd_setImageWithURL:[NSURL URLWithString:model.goods_image] placeholderImage:IMAGE(@"zhanweitu_img")];
     self.titleLab.text = model.goods_name;
     self.priceLab.text = [NSString stringWithFormat:@"¥%@",model.goods_price];
+    if ([model.hot isEqualToString:@"1"]  ) {
+        //热销
+        self.typeImg.hidden = NO;
+        
+    }else{
+        // 不是热销
+        self.typeImg.hidden = YES;
+    }
 }
 @end

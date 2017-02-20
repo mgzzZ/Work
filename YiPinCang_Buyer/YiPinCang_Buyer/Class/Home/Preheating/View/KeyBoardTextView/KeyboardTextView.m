@@ -285,9 +285,10 @@
 
 - (BOOL)growingTextViewShouldBeginEditing:(GrowingTextView *)growingTextView
 {
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self]]) {
+    if ([YPCRequestCenter isLogin]) {
         return YES;
-    }else {
+    }else{
+        [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self] success:^{}];
         return NO;
     }
 }

@@ -12,6 +12,7 @@
 
 @property (nonatomic, assign) CGFloat WH;
 @property (nonatomic, strong) NSArray *picPathStringsArray;
+@property (nonatomic, strong) NSArray *thumbPicPathStringsArray;
 @property (nonatomic, assign) PhotoContainerType containerType;
-
+@property (nonatomic, assign) PhotoContainerModeType modeType;//默认没有
 @end

@@ -9,10 +9,7 @@
 #import "ActivitySubscribeVC.h"
 #import "ActivitySubscribeCell.h"
 #import "ActivitySubscribeModel.h"
-#import "LivingVC.h"
-#import "PreheatingVC.h"
-#import "VideoPlayerVC.h"
-#import "TempHomePushModel.h"
+#import "LiveListVC.h"
 @interface ActivitySubscribeVC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 @property (nonatomic,strong)NSMutableArray *dataArr;
@@ -23,10 +20,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
-    self.navigationItem.title = @"活动订阅";
+    self.navigationItem.title = @"活动提醒";
     [self getData];
-    self.tableView.emptyDataSetDelegate = self;
-    self.tableView.emptyDataSetSource = self;
     self.tableView.tableFooterView = [UIView new];
 }
 
@@ -73,7 +68,7 @@
         cell.model = model;
         if ([model.live_state isEqualToString:@"进行中"]) {
             //直播中
-            [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_live")];
+            [cell.typeImg setImage:IMAGE(@"mien_live_icon")];
             [cell.leftImg setImage:IMAGE(@"mine_dynamic_view_icon")];
             [cell.rightImg setImage:IMAGE(@"mine_dynamic_like_icon")];
             cell.leftLab.text = [NSString stringWithFormat:@"%@人观看",model.live_users];
@@ -83,22 +78,22 @@
             cell.rightLab.hidden = NO;
         }else if ([model.live_state isEqualToString:@"预告"]){
             //预告
-            [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_trailer")];
-            [cell.leftImg setImage:IMAGE(@"mien_dynamic _follow_icon")];
+            [cell.typeImg setImage:IMAGE(@"mien_yugao_icon")];
+            [cell.leftImg setImage:IMAGE(@"hot_icon")];
             [cell.rightImg setImage:IMAGE(@"mine_dynamic_like_icon")];
             cell.leftLab.text = [NSString stringWithFormat:@"%@热度",model.live_users];
             cell.rightLab.text = [NSString stringWithFormat:@"%@人关注",model.live_like];
             cell.titleLab.text = [NSString stringWithFormat:@" %@",model.name];
-            cell.rightImg.hidden = NO;
-            cell.rightLab.hidden = NO;
+            cell.rightImg.hidden = YES;
+            cell.rightLab.hidden = YES;
         }else if ([model.live_state isEqualToString:@"回放"]){
             //回放
-            [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_playback")];
+            [cell.typeImg setImage:IMAGE(@"mien_huifang_icon")];
             [cell.leftImg setImage:IMAGE(@"mine_dynamic_view_icon")];
             [cell.rightImg setImage:IMAGE(@"mine_dynamic_like_icon")];
-            cell.rightImg.hidden = NO;
+            cell.rightImg.hidden = YES;
             cell.leftLab.text = [NSString stringWithFormat:@"%@人观看",model.live_users];
-            cell.rightLab.hidden = NO;
+            cell.rightLab.hidden = YES;
             cell.rightLab.text = [NSString stringWithFormat:@"%@人关注",model.live_like];
             cell.titleLab.text = [NSString stringWithFormat:@" %@",model.name];
         }else{
@@ -111,65 +106,30 @@
 
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     ActivitySubscribeModel *model = self.dataArr[indexPath.row];
-
+ 
     if ([model.live_state isEqualToString:@"进行中"]) {
         //直播中
-        [YPC_Tools showSvpHud];
-        LivingVC *live= [[LivingVC alloc]init];
-        TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-        newmodel.live_id = model.live_id;
-        newmodel.announcement_id = model.announcement_id;
-        newmodel.store_avatar = model.store_avatar;
-        newmodel.store_name =model.store_name;
-        newmodel.store_id = model.store_id;
-        live.tempModel = newmodel;
-        
-        [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:model.livingshowinitimg] options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-            if (finished && !error) {
-                dispatch_async(dispatch_get_main_queue(), ^{
-                    live.playerPHImg = image;
-                    [self.navigationController pushViewController:live animated:YES];
-                    [YPC_Tools dismissHud];
-                });
-            }else{
-                [YPC_Tools showSvpHudError:@"图片未下载成功"];
-            }
-            
-        }];
+        LiveListVC *livelistVC = [[LiveListVC alloc]init];
+        livelistVC.livelistType = LiveListOfLiving;
+        livelistVC.activity_id = model.fid;
+        livelistVC.ac_state = model.ac_state;
+        [self.navigationController pushViewController:livelistVC animated:YES];
 
     }else if ([model.live_state isEqualToString:@"预告"]){
         //预告
-        PreheatingVC *preheat = [[PreheatingVC alloc]init];
-        TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-        newmodel.live_id = model.live_id;
-        newmodel.name = model.name;
-        newmodel.store_avatar = model.store_avatar;
-        newmodel.store_name = model.store_name;
-        newmodel.starttime = model.starttime;
-        newmodel.endtime = model.endtime;
-        newmodel.activity_pic = model.activity_pic;
-        newmodel.live_msg = model.message;
-        newmodel.address = model.address;
-        newmodel.start = model.start;
-        newmodel.end = model.end;
-        newmodel.live_state = model.live_state;
-        preheat.tempModel = newmodel;
-        
-        [self.navigationController pushViewController:preheat animated:YES];
 
-
+        LiveListVC *livelistVC = [[LiveListVC alloc]init];
+        livelistVC.livelistType = LiveListOfPreHearting;
+        livelistVC.activity_id = model.fid;
+        livelistVC.ac_state = model.ac_state;
+        [self.navigationController pushViewController:livelistVC animated:YES];
     }else if ([model.live_state isEqualToString:@"回放"]){
         //回放
-        VideoPlayerVC *video = [[VideoPlayerVC alloc]init];
-        TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-        newmodel.live_id = model.live_id;
-        newmodel.store_id = model.store_id;
-        newmodel.store_avatar = model.store_avatar;
-        newmodel.store_name = model.store_name;
-        newmodel.video = model.video;
-        video.tempModel = newmodel;
-        [self.navigationController pushViewController:video animated:YES];
-
+        LiveListVC *livelistVC = [[LiveListVC alloc]init];
+        livelistVC.livelistType = LiveListOfEnd;
+        livelistVC.activity_id = model.fid;
+        livelistVC.ac_state = model.ac_state;
+        [self.navigationController pushViewController:livelistVC animated:YES];
     }else{
         
     }
@@ -187,9 +147,7 @@
 - (void)tableView:(UITableView *)tableView commitEditingStyle:(UITableViewCellEditingStyle)editingStyle forRowAtIndexPath:(NSIndexPath *)indexPath
 {
     
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消订阅该活动?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确认取消该活动?" BtnTitles:@[@"确定"] CancelBtnTitle:@"取消" DestructiveBtnTitle:@"" actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         // 从列表中删除
         ActivitySubscribeModel *model = self.dataArr[indexPath.row];
         
@@ -212,15 +170,10 @@
         // 从数据源中删除
         [self.dataArr removeObjectAtIndex:indexPath.row];
         [tableView deleteRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationFade];
+    } cancelHandler:nil destructiveHandler:nil];
 
-    }];
     
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
-    
-    }
+}
 
 - (NSMutableArray *)dataArr{
     if (_dataArr == nil) {
@@ -275,17 +228,7 @@
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
     return [[NSAttributedString alloc] initWithString:text attributes:attributes];
 }
-//- (NSAttributedString *)buttonTitleForEmptyDataSet:(UIScrollView *)scrollView forState:(UIControlState)state{
-//    
-//    NSDictionary *attributes = @{NSFontAttributeName: [UIFont boldSystemFontOfSize:17.0f]};
-//    return [[NSAttributedString alloc] initWithString:@"去订阅" attributes:attributes];
-//
-//}
-//
-//- (void)emptyDataSetDidTapButton:(UIScrollView *)scrollView{
-//    
-//    
-//}
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

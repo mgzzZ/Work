@@ -22,7 +22,7 @@
             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
             <subviews>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="XW1-Nv-XF9">
-                    <rect key="frame" x="0.0" y="74" width="375" height="46"/>
+                    <rect key="frame" x="0.0" y="20" width="375" height="46"/>
                     <subviews>
                         <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" placeholder="请输入昵称" minimumFontSize="17" clearButtonMode="always" translatesAutoresizingMaskIntoConstraints="NO" id="PpP-Mx-rSn">
                             <rect key="frame" x="15" y="0.0" width="360" height="46"/>
@@ -45,13 +45,13 @@
                     </constraints>
                 </view>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="*不超过16个字符" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="nUJ-gr-2w0">
-                    <rect key="frame" x="13" y="135" width="108" height="17"/>
+                    <rect key="frame" x="13" y="81" width="108" height="17"/>
                     <fontDescription key="fontDescription" type="system" pointSize="14"/>
                     <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
                 </label>
                 <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="0/16" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Oj3-1e-f0d">
-                    <rect key="frame" x="335" y="136.5" width="25" height="14.5"/>
+                    <rect key="frame" x="335" y="82.5" width="25" height="14.5"/>
                     <fontDescription key="fontDescription" type="system" pointSize="12"/>
                     <color key="textColor" red="0.59999999999999998" green="0.59999999999999998" blue="0.59999999999999998" alpha="1" colorSpace="custom" customColorSpace="sRGB"/>
                     <nil key="highlightedColor"/>
@@ -63,7 +63,7 @@
                 <constraint firstItem="XW1-Nv-XF9" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" id="3jn-GA-fQZ"/>
                 <constraint firstAttribute="trailing" secondItem="XW1-Nv-XF9" secondAttribute="trailing" id="I1Y-Rb-j8n"/>
                 <constraint firstAttribute="trailing" secondItem="Oj3-1e-f0d" secondAttribute="trailing" constant="15" id="KOL-MD-7cB"/>
-                <constraint firstItem="XW1-Nv-XF9" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="74" id="bIB-Cq-VFU"/>
+                <constraint firstItem="XW1-Nv-XF9" firstAttribute="top" secondItem="i5M-Pr-FkT" secondAttribute="top" constant="20" id="bIB-Cq-VFU"/>
                 <constraint firstItem="nUJ-gr-2w0" firstAttribute="leading" secondItem="i5M-Pr-FkT" secondAttribute="leading" constant="13" id="hLU-um-DVa"/>
                 <constraint firstItem="nUJ-gr-2w0" firstAttribute="top" secondItem="XW1-Nv-XF9" secondAttribute="bottom" constant="15" id="j8p-A4-MOv"/>
             </constraints>

@@ -30,6 +30,7 @@
         self.tableView = [[UITableView alloc]init];
         self.tableView.delegate = self;
         self.tableView.dataSource = self;
+        self.tableView.separatorStyle = NO;
         [self addSubview:self.tableView];
         self.tableView.tableFooterView = [UIView new];
         self.tableView.sd_layout
@@ -37,7 +38,7 @@
         .leftEqualToView(self)
         .rightEqualToView(self)
         .heightIs(0);
-        }
+    }
 }
 - (void)setDataDic:(NSMutableDictionary *)dataDic{
     if (_dataDic != dataDic) {
@@ -48,16 +49,16 @@
     [self.tableView reloadData];
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
-    return 15;
+    return 20;
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
-    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 15)];
-    view.backgroundColor = [Color colorWithHex:@"0xefefef"];
+    UIView *view = [[UIView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 20)];
+    view.backgroundColor = [Color colorWithHex:@"0xffffff"];
     UILabel *lab = [[UILabel alloc]init];
     [view addSubview:lab];
     lab.textColor = [Color colorWithHex:@"0x2c2c2c"];
-    lab.font = [UIFont systemFontOfSize:13];
+    lab.font = [UIFont fontWithName:@"PingFangSC-Semibold" size:15];
     lab.textAlignment = NSTextAlignmentLeft;
     lab.text = self.keysArr[section];
     lab.sd_layout
@@ -79,13 +80,13 @@
     NSString * key = self.keysArr[indexPath.section];
     NSArray *arr = [self.dataDic valueForKey:key][indexPath.row];
     NSInteger row = 0;
-    if (arr.count % 4 == 0) {
-        row = arr.count / 4;
+    if (arr.count % 3 == 0) {
+        row = arr.count / 3;
     }else{
-        row = arr.count / 4 + 1;
+        row = arr.count / 3 + 1;
     }
     
-    return row * 47;
+    return row * 60;
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath{
     WS(weakSelf);

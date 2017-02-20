@@ -10,9 +10,9 @@
 #import "AreaModel.h"
 #import "CityModel.h"
 #import "ProvinceModel.h"
-@interface AddAreaVC ()<UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource>
+@interface AddAreaVC ()<UITextFieldDelegate,UIPickerViewDelegate,UIPickerViewDataSource,UITextViewDelegate>
 {
-    UIPickerView *_pickerView;
+
     NSDictionary *_areaDic;
     NSMutableArray *_provinceArr;
     
@@ -21,11 +21,15 @@
 @property (strong, nonatomic) IBOutlet UIButton *chooseBtn;
 @property (strong, nonatomic) IBOutlet UITextField *nameTextField;
 @property (strong, nonatomic) IBOutlet UITextField *phoneTextField;
-@property (strong, nonatomic) IBOutlet UITextField *areaTextField;
-@property (copy,nonatomic)NSString *area_id;
-@property (copy,nonatomic)NSString *city_id;
+@property (strong, nonatomic) IBOutlet UITextView *areaTextField;
+@property (strong, nonatomic) IBOutlet UITextField *areatext;
+
+@property (nonatomic,strong) UIPickerView *pickerView;
 @property (strong, nonatomic) IBOutlet UILabel *areaLab;
 @property (nonatomic,strong)UIView *bgView;
+@property (nonatomic,assign)NSInteger didOne;
+@property (nonatomic,assign)NSInteger didTwo;
+@property (nonatomic,assign)NSInteger didThree;
 @end
 
 @implementation AddAreaVC
@@ -33,16 +37,19 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view from its nib.
+    self.didOne = 0;
+    self.didTwo = 0;
+    self.didThree = 0;
     if ([self.type isEqualToString:@"1"]) {
         self.navigationItem.title = @"新建收货地址";
          self.is_default = @"0";
     }else{
         self.navigationItem.title = @"更改收货地址";
-       
         self.nameTextField.text = self.name;
         self.areaTextField.text = self.address;
         self.phoneTextField.text = self.phone;
-        self.areaLab.text = self.area;
+        self.areatext.text = self.area;
+        
         if ([self.is_default isEqualToString:@"1"]) {
             self.chooseBtn.selected = YES;
              self.is_default = @"1";
@@ -51,8 +58,23 @@
              self.is_default = @"0";
         }
     }
-    
+
     [self loading];
+    
+    UIButton *btn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [btn setTitle:@"完成" forState:UIControlStateNormal];
+    btn.titleLabel.font = YPCPFFont(16);
+    [btn setTitleColor:[UIColor whiteColor] forState:UIControlStateNormal];
+    btn.acceptEventInterval = 1.f;
+    [btn sizeToFit];
+    [btn addTarget:self
+                        action:@selector(saveBtnClick:)
+              forControlEvents:UIControlEventTouchUpInside];
+    
+    UIBarButtonItem *shopCarItem = [[UIBarButtonItem alloc] initWithCustomView:btn];
+    self.navigationItem.rightBarButtonItem = shopCarItem;
+
+    
 }
 - (void)loading
 {
@@ -61,7 +83,7 @@
         [self prepareData];
         dispatch_queue_t mainQueue = dispatch_get_main_queue();
         dispatch_async(mainQueue, ^{
-
+            
         });
         
     });
@@ -90,29 +112,20 @@
     }
     
 }
-- (void)uiConfig
-{
-    
-    //picker view 有默认高度216
-    if (!_pickerView) {
-        self.bgView = [[UIView alloc]init];
-        self.bgView.backgroundColor = [UIColor blackColor];
-        self.bgView.alpha = 0.3;
-        self.bgView.hidden = YES;
-        [self.view addSubview:self.bgView];
-        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(cancel:)];
-        [self.bgView addGestureRecognizer:tap];
-        self.bgView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
-        _pickerView = [[UIPickerView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 300, ScreenWidth, 216)];
+
+- (UIPickerView *)pickerView{
+    if (_pickerView == nil) {
+        _pickerView = [[UIPickerView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 216)];
         _pickerView.delegate = self;
         _pickerView.backgroundColor = [UIColor whiteColor];
         _pickerView.dataSource = self;
-        _pickerView.hidden = YES;
+        _pickerView.hidden = NO;
         [_pickerView selectRow:0 inComponent:0 animated:YES];
-        [self.view addSubview:_pickerView];
+        
     }
-    
+    return _pickerView;
 }
+
 - (NSInteger)numberOfComponentsInPickerView:(UIPickerView*)pickerView
 {
     return 3;
@@ -160,7 +173,9 @@
         NSString *str = [cityModel.code description];
         NSArray *arr = _areaDic[str];
         AreaModel *areaModel = [[AreaModel alloc]init];
-        [areaModel setValuesForKeysWithDictionary:arr[row]];
+        if (row < arr.count) {
+            [areaModel setValuesForKeysWithDictionary:arr[row]];
+        }
         return areaModel.name;
     }
     
@@ -171,31 +186,16 @@
     {
         [pickerView reloadComponent:1];
         [pickerView reloadComponent:2];
+        self.didOne = [pickerView selectedRowInComponent:0];
         
     }else if(1 == component)
     {
         [pickerView reloadComponent:2];
+        self.didTwo = [pickerView selectedRowInComponent:1];
     }else{
-        NSInteger selectOne = [pickerView selectedRowInComponent:0];
-        NSInteger selectTwo = [pickerView selectedRowInComponent:1];
-        NSInteger selectThree = [pickerView selectedRowInComponent:2];
-        
-        ProvinceModel *model = _provinceArr[selectOne];
-        CityModel *cityModel = model.citiesArr[selectTwo];
-        NSString *str = [cityModel.code description];
-        NSArray *arr = _areaDic[str];
-        AreaModel *areaModel = [[AreaModel alloc]init];
-        [areaModel setValuesForKeysWithDictionary:arr[selectThree]];
-        self.areaLab.text = [NSString stringWithFormat:@"省:%@ 市:%@ 区:%@",model.name,cityModel.name,areaModel.name];
-        self.area_id = areaModel.code;
-        self.city_id = cityModel.code;
-        [UIView animateWithDuration:0.3 animations:^{
-            _pickerView.hidden = YES;
-            _bgView.hidden = YES;
-        }];
+      
+        self.didThree = [pickerView selectedRowInComponent:2];
     }
-    
-   
 }
 
 - (IBAction)chooseBtnClick:(UIButton *)sender {
@@ -219,7 +219,7 @@
         [YPC_Tools showSvpWithNoneImgHud:@"请输入正确手机号码"];
     }else if (self.areaTextField.text.length == 0){
         [YPC_Tools showSvpWithNoneImgHud:@"请输入详细地址"];
-    }else if ([self.areaLab.text isEqualToString:@"所在位置"]){
+    }else if (self.areatext.text.length == 0){
         [YPC_Tools showSvpWithNoneImgHud:@"请选择收货地址"];
     }else{
         if ([self.type isEqualToString:@"1"]) {
@@ -236,11 +236,15 @@
                                                                                        }]
                                success:^(id response) {
                                    if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       
-                                       [self.navigationController popViewControllerAnimated:YES];
                                        if (self.backreload) {
                                            self.backreload();
                                        }
+                                       NSString *address_id = response[@"data"][@"address_id"];
+                                       if (self.addBackreload) {
+                                           self.addBackreload([NSString stringWithFormat:@"%@ %@",self.nameTextField.text,self.phoneTextField.text],[NSString stringWithFormat:@"%@ %@",self.areatext.text,self.areaTextField.text],self.is_default,address_id,self.area_id,self.city_id);
+                                       }
+                                       [self.navigationController popViewControllerAnimated:YES];
+                                       
                                    }
                                    
                                }
@@ -262,11 +266,11 @@
                                                                                        }]
                                success:^(id response) {
                                    if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       
-                                       [self.navigationController popViewControllerAnimated:YES];
                                        if (self.backreload) {
                                            self.backreload();
                                        }
+                                       [self.navigationController popViewControllerAnimated:YES];
+                                       
                                    }
                                    
                                }
@@ -289,13 +293,58 @@
     [self.nameTextField resignFirstResponder];
     [self.phoneTextField resignFirstResponder];
     [self.areaTextField resignFirstResponder];
-    [self uiConfig];
-    [UIView animateWithDuration:0.3 animations:^{
-        _pickerView.hidden = NO;
-        _bgView.hidden = NO;
-    }];
+
+    WS(weakself);
+    LGAlertView *alertV = [[LGAlertView alloc] initWithViewAndTitle:nil
+                                                            message:nil
+                                                              style:LGAlertViewStyleActionSheet
+                                                               view:self.pickerView
+                                                       buttonTitles:nil
+                                                  cancelButtonTitle:@"取消"
+                                             destructiveButtonTitle:@"完成"
+                                                      actionHandler:nil
+                                                      cancelHandler:nil
+                                                 destructiveHandler:^(LGAlertView *alertView) {
+                                                     if (weakself.didOne < _provinceArr.count) {
+                                                         ProvinceModel *model = _provinceArr[weakself.didOne];
+                                                         if (weakself.didTwo < model.citiesArr.count) {
+                                                             CityModel *cityModel = model.citiesArr[weakself.didTwo];
+                                                             NSString *str = [cityModel.code description];
+                                                             NSArray *arr = _areaDic[str];
+                                                             AreaModel *areaModel = [[AreaModel alloc]init];
+                                                             if (weakself.didThree < arr.count) {
+                                                                 [areaModel setValuesForKeysWithDictionary:arr[weakself.didThree]];
+                                                                 weakself.areatext.text = [NSString stringWithFormat:@"%@ %@ %@",model.name,cityModel.name,areaModel.name];
+                                                                 weakself.area_id = areaModel.code;
+                                                                 weakself.city_id = cityModel.code;
+                                                             }
+                                                             
+                                                         }
+                                                     }
+                                                    
+                                                 }];
+    alertV.cancelButtonFont = LightFont(16);
+    alertV.cancelButtonTitleColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.cancelButtonTitleColorHighlighted = [UIColor whiteColor];
+    alertV.cancelButtonBackgroundColor = [UIColor whiteColor];
+    alertV.cancelButtonBackgroundColorHighlighted = [Color colorWithHex:@"#3B3B3B"];
+    alertV.cancelButtonTextAlignment = NSTextAlignmentCenter;
     
+    alertV.destructiveButtonFont = LightFont(16);
+    alertV.destructiveButtonTitleColor = [Color colorWithHex:@"#3B3B3B"];
+    alertV.destructiveButtonTitleColorHighlighted = [UIColor whiteColor];
+    alertV.destructiveButtonBackgroundColor = [UIColor whiteColor];
+    alertV.destructiveButtonBackgroundColorHighlighted = [Color colorWithHex:@"#3B3B3B"];
+    alertV.destructiveButtonTextAlignment = NSTextAlignmentCenter;
+    
+    [alertV showAnimated:YES completionHandler:nil];
+
 }
+
+- (void)touchesBegan:(NSSet<UITouch *> *)touches withEvent:(UIEvent *)event{
+    [self.view endEditing:YES];
+}
+
 - (BOOL)textFieldShouldReturn:(UITextField *)textField{
     [textField resignFirstResponder];
     return YES;

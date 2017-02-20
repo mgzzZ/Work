@@ -15,6 +15,7 @@
 
 @property (nonatomic, strong) NSArray *imgArr;
 @property (nonatomic, strong) NSArray *nameArr;
+@property (nonatomic, copy) NSString *sizeStr;
 @end
 
 @implementation SetVC
@@ -42,19 +43,10 @@
     }else {
         sectionCount = 2;
     }
-    
-    [self setUp];
+    [self.tableView reloadData];
 }
-- (void)setUp{
-    self.tableView = [[UITableView alloc]init];
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    [self.view addSubview:self.tableView];
-    self.tableView.scrollEnabled = NO;
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
-    self.tableView.tableFooterView = [UIView new];
-    self.tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
-}
+
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return sectionCount;
 }
@@ -88,9 +80,15 @@
             cell.nameLab.textColor = [UIColor blackColor];
             cell.nextImg.hidden = YES;
             cell.countLab.hidden = NO;
-            CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
-            NSString *message = size > 1 ? [NSString stringWithFormat:@"%.2fM", size] : [NSString stringWithFormat:@"%.2fK", size * 1024.0];
-            cell.countLab.text = message;
+            cell.countLab.text = @"计算中...";
+            dispatch_async(dispatch_get_global_queue(0, 0), ^{
+                CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
+                NSString *message = size > 1 ? [NSString stringWithFormat:@"%.2fM", size] : [NSString stringWithFormat:@"%.2fK", size * 1024.0];
+                dispatch_async(dispatch_get_main_queue(), ^{
+                    cell.countLab.text = message;
+                    self.sizeStr = message;
+                });
+            });
         }
             break;
             case 1:
@@ -117,26 +115,19 @@
         case 0:
         {
             if (indexPath.row == 0) {
+                if (self.sizeStr.length == 0) {
+                    return;
+                }
+                NSString *message = [NSString stringWithFormat:@"确定要清理手机中的缓存%@?", self.sizeStr];
                 
-                CGFloat size = [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject] + [self folderSizeAtPath:NSTemporaryDirectory()];
-                
-                NSString *message = size > 1 ? [NSString stringWithFormat:@"确定要清理手机中的缓存%.2fM?", size] : [NSString stringWithFormat:@"确定要清理手机中的缓存%.2fK?", size * 1024.0];
-                
-                UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:message preferredStyle:(UIAlertControllerStyleAlert)];
-                
-                UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
-                    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).lastObject];
-                    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSLibraryDirectory, NSUserDomainMask, YES).lastObject];
+                [YPC_Tools customAlertViewWithTitle:@"提示:" Message:message BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
+                    [self cleanCaches:NSSearchPathForDirectoriesInDomains(NSCachesDirectory, NSUserDomainMask, YES).lastObject];
                     [self cleanCaches:NSTemporaryDirectory()];
+                    [[SDImageCache sharedImageCache] cleanDisk];
+                    [YPCNetworking clearCaches];
                     SetCell *cell = [tableView cellForRowAtIndexPath:indexPath];
                     cell.countLab.text = [NSString stringWithFormat:@"%.2fk",0.00];
-                }];
-                
-                UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-                [alert addAction:action];
-                [alert addAction:cancel];  
-                [self showDetailViewController:alert sender:nil];
-                
+                } cancelHandler:nil destructiveHandler:nil];
             }else if (indexPath.row == 2)
             {
                 
@@ -178,6 +169,25 @@
             break;
     }
 }
+
+
+
+
+- (UITableView *)tableView{
+    if (_tableView == nil   ) {
+        _tableView = [[UITableView alloc]init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        [self.view addSubview:self.tableView];
+        _tableView.scrollEnabled = NO;
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+        _tableView.tableFooterView = [UIView new];
+        _tableView.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
+    }
+    return _tableView;
+}
+
+
 // 计算目录大小
 - (CGFloat)folderSizeAtPath:(NSString *)path{
     // 利用NSFileManager实现对文件的管理
@@ -210,8 +220,7 @@
             // 将文件删除
             [fileManager removeItemAtPath:absolutePath error:nil];
         }
-        [[SDImageCache sharedImageCache] cleanDisk];
-        [YPCNetworking clearCaches];
+        
     }
 }
 - (void)didReceiveMemoryWarning {

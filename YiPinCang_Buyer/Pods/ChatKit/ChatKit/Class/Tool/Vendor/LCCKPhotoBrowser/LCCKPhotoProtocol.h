@@ -5,9 +5,9 @@
 //  Created by Michael Waterfall on 02/01/2012.
 //  Copyright (c) 2012 __MyCompanyName__. All rights reserved.
 //
-@import UIKit;
-@import Foundation;
+
 #import <Foundation/Foundation.h>
+#import <UIKit/UIKit.h>
 #import "LCCKPBConstants.h"
 
 // Name of notification used when a photo has completed loading process

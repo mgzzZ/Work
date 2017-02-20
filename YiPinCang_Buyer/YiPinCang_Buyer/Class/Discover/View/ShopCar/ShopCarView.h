@@ -16,7 +16,9 @@ typedef void(^ClearingBlock)();
 @property (nonatomic,strong)UIImageView *car;
 @property (nonatomic,strong)UIButton *leftBtn;
 @property (nonatomic,strong)UIButton *rightBtn;
+@property (nonatomic,strong)UIButton *carBtn;
 @property (nonatomic,copy)ShopCarBlock shopcar;
 @property (nonatomic,copy)ClearingBlock clearing;
+@property (nonatomic,assign)BOOL isSelected;
 - (void)openAnimation;
 @end

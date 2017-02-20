@@ -26,6 +26,8 @@
         [self.merchandiseImg sd_setImageWithURL:[NSURL URLWithString:goodsModel.goods_image] placeholderImage:YPCImagePlaceHolder];
 
     }else{
+        UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(didCollectionView)];
+        [self.collectionView addGestureRecognizer:tap];
         self.countMoreLab.text = [NSString stringWithFormat:@"共%@件商品",model.goods_num];
          self.merchandiseMoreTypeLab.text = model.state_desc;
         [self.collectionView reloadData];
@@ -175,6 +177,7 @@
     // Initialization code
     self.collectionView.delegate = self;
     self.collectionView.dataSource = self;
+    self.collectionView.showsHorizontalScrollIndicator = YES;
     [self.collectionView registerNib:[UINib nibWithNibName:@"OrderImgCell" bundle:nil] forCellWithReuseIdentifier:@"orderimgs"];
     self.collectionView.backgroundColor = [UIColor whiteColor];
   
@@ -186,7 +189,7 @@
 
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath {
     
-    return CGSizeMake(67, 67);
+    return CGSizeMake(80, 80);
 }
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
@@ -216,6 +219,13 @@
     
     return cell;
 }
+
+- (void)didCollectionView{
+    if (self.didCollect) {
+        self.didCollect();
+    }
+}
+
 - (IBAction)leftMoreBtnClick:(UIButton *)sender {
     
     if (self.btnclick) {

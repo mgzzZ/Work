@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Constraints to layout margins" minToolsVersion="6.0"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -28,7 +28,7 @@
                         <nil key="textColor"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_cart_detai_button_specifications_dropdown" translatesAutoresizingMaskIntoConstraints="NO" id="S5y-sJ-wMO">
+                    <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_cart_detai_button_specifications_dropdown" translatesAutoresizingMaskIntoConstraints="NO" id="S5y-sJ-wMO">
                         <rect key="frame" x="295" y="10.5" width="20" height="20"/>
                         <constraints>
                             <constraint firstAttribute="width" constant="20" id="292-QY-6px"/>
@@ -36,7 +36,7 @@
                         </constraints>
                     </imageView>
                     <textField opaque="NO" clipsSubviews="YES" contentMode="scaleToFill" contentHorizontalAlignment="left" contentVerticalAlignment="center" textAlignment="right" minimumFontSize="17" translatesAutoresizingMaskIntoConstraints="NO" id="9zv-J0-shV">
-                        <rect key="frame" x="100" y="0.0" width="185" height="41.5"/>
+                        <rect key="frame" x="100" y="0.0" width="205" height="41.5"/>
                         <nil key="textColor"/>
                         <fontDescription key="fontDescription" type="system" pointSize="15"/>
                         <textInputTraits key="textInputTraits"/>
@@ -44,7 +44,7 @@
                 </subviews>
                 <constraints>
                     <constraint firstItem="9zv-J0-shV" firstAttribute="leading" secondItem="JkG-qo-B7F" secondAttribute="trailing" constant="10" id="5kA-Nm-2nu"/>
-                    <constraint firstItem="S5y-sJ-wMO" firstAttribute="leading" secondItem="9zv-J0-shV" secondAttribute="trailing" constant="10" id="Cbc-eo-RU0"/>
+                    <constraint firstAttribute="trailing" secondItem="9zv-J0-shV" secondAttribute="trailing" constant="15" id="Jn0-LF-baq"/>
                     <constraint firstItem="9zv-J0-shV" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="QUq-SJ-X3G"/>
                     <constraint firstItem="JkG-qo-B7F" firstAttribute="bottom" secondItem="H2p-sc-9uM" secondAttribute="bottomMargin" id="aJo-So-41r"/>
                     <constraint firstAttribute="trailing" secondItem="S5y-sJ-wMO" secondAttribute="trailing" constant="5" id="e2R-kV-UTP"/>

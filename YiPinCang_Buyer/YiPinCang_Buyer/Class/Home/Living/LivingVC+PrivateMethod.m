@@ -14,24 +14,56 @@
 {
     WS(weakSelf);
     [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"正在连接聊天室..."}];
-    AVIMClient *client = [LCChatKit sharedInstance].client;
-    [client openWithCallback:^(BOOL succeeded, NSError *error) {
-        AVIMConversationQuery *query = [client conversationQuery];
-        [query getConversationById:conversationId callback:^(AVIMConversation *conversation, NSError *error) {
-            if (succeeded) {
-                [conversation joinWithCallback:^(BOOL succeeded, NSError *error) {
-                    if (succeeded) {
-                        weakSelf.danmuconversation = conversation;
-                        [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"加入聊天室成功"}];
-                    }else {
-                        // TOTO 加入聊天室失败
-                    }
-                }];
-            }else {
-                // TOTO 加入聊天室失败
-            }
+    if ([YPCRequestCenter isLogin]) {
+        AVIMClient *client = [LCChatKit sharedInstance].client;
+        [client openWithCallback:^(BOOL succeeded, NSError *error) {
+            AVIMConversationQuery *query = [client conversationQuery];
+            [query getConversationById:conversationId callback:^(AVIMConversation *conversation, NSError *error) {
+                if (succeeded) {
+                    [conversation joinWithCallback:^(BOOL succeeded, NSError *error) {
+                        if (succeeded) {
+                            weakSelf.danmuconversation = conversation;
+                            [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"加入聊天室成功"}];
+                        }else {
+                            // TOTO 加入聊天室失败
+                        }
+                    }];
+                }else {
+                    // TOTO 加入聊天室失败
+                }
+            }];
         }];
-    }];
+    }else {
+        NSString *udid = [[[UIDevice currentDevice] identifierForVendor] UUIDString];
+        self.transientClient = [[AVIMClient alloc] initWithClientId:udid];
+        self.transientClient.delegate = self;
+        WS(weakSelf);
+        [self.transientClient openWithCallback:^(BOOL succeeded, NSError *error) {
+            AVIMConversationQuery *query = [weakSelf.transientClient conversationQuery];
+            [query getConversationById:conversationId callback:^(AVIMConversation *conversation, NSError *error) {
+                if (succeeded) {
+                    [conversation joinWithCallback:^(BOOL succeeded, NSError *error) {
+                        if (succeeded) {
+                            [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:@{@"message" : @"加入聊天室成功"}];
+                            YPCAppLog(@"进入暂态聊天室");
+                        }else {
+                            // TOTO 加入聊天室失败
+                        }
+                    }];
+                }else {
+                    // TOTO 加入聊天室失败
+                }
+            }];
+        }];
+    }
+}
+
+- (void)conversation:(AVIMConversation *)conversation didReceiveTypedMessage:(AVIMTypedMessage *)message {
+    NSMutableDictionary *dic = [NSMutableDictionary dictionaryWithDictionary:message.attributes];
+    if (message.text) {
+        [dic setValuesForKeysWithDictionary:@{@"message" : message.text}];
+        [NotificationCenter postNotificationName:DidReceiveDanmakuFormLeanCloudCusstomMessage object:dic];
+    }
 }
 
 - (void)followLivingGroup
@@ -40,7 +72,7 @@
     [YPCNetworking postWithUrl:@"shop/showstore/followstore/add"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"store_id" : self.tempModel.store_id
+                                                                               @"store_id" : self.rtmpModel.store_id
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {

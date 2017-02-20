@@ -33,4 +33,9 @@
 @property (nonatomic, copy) NSString *class_id;
 @property (nonatomic, copy) NSString *live_state;
 @property (nonatomic, copy) NSString *video;
+@property (nonatomic, copy) NSString *live_msg;
+@property (nonatomic, copy) NSString *store_avatar;
+@property (nonatomic, copy) NSString *store_name;
+@property (nonatomic, copy) NSString *store_collect;
+@property (nonatomic, copy) NSString *isfollowSeller;
 @end

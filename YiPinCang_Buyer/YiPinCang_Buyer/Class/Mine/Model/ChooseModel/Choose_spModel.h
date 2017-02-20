@@ -16,4 +16,9 @@
 @property (nonatomic,copy)NSString *sp_value_name;
 
 @property (nonatomic,assign)BOOL isSelete;
+
+@property (nonatomic,copy)NSString *spType;
+
+@property (nonatomic,assign)BOOL isDid;
+
 @end

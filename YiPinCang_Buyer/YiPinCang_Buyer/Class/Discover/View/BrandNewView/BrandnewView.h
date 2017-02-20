@@ -9,10 +9,9 @@
 #import <UIKit/UIKit.h>
 #import "LiveDetailListDataModel.h"
 #import "GuessModel.h"
-#import "TempHomePushModel.h"
 typedef void(^DidBannerView)(NSString *str,UrlSechmeType type,NSString *activityType);
 
-typedef void(^DidBrandcellBlock)(NSIndexPath *index,LiveDetailListDataModel *model,NSString *type,TempHomePushModel *tempModel,NSString *livingshowinitimg);
+typedef void(^DidBrandcellBlock)(NSIndexPath *index,LiveDetailListDataModel *model,NSString *type);
 
 typedef void(^DidLikeBlock)(NSIndexPath *index,GuessModel *model);
 

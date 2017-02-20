@@ -2,7 +2,7 @@
 //  LCCKLastMessageTypeManager.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/22.
+//  v0.8.5 Created by ElonChan on 16/3/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -63,12 +63,12 @@ static NSMutableDictionary *attributedStringCache = nil;
     do {
         if (typeTitleKey.length > 0) {
             title = typeTitleKey;
-            title = [NSString stringWithFormat:@"[%@]",title];
+            title = [NSString stringWithFormat:@"[%@]", title];
             break;
         }
         
         title = LCCKLocalizedStrings(@"unknownMessageType");
-        title = [NSString stringWithFormat:@"[%@]",title];
+        title = [NSString stringWithFormat:@"[%@]", title];
         break;
     } while (NO);
     return title;

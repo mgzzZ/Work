@@ -2,7 +2,7 @@
 //  LCCKContactListViewController.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/2/22.
+//  v0.8.5 Created by ElonChan on 16/2/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -10,7 +10,12 @@
 #import "LCCKContactCell.h"
 #import "LCCKAlertController.h"
 #import "LCCKUIService.h"
-#import "LCCKDeallocBlockExecutor.h"
+
+#if __has_include(<CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>)
+#import <CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>
+#else
+#import "CYLDeallocBlockExecutor.h"
+#endif
 
 NSString *const LCCKContactListViewControllerContactsDidChanged = @"LCCKContactListViewControllerContactsDidChanged";
 static NSString *const LCCKContactListViewControllerIdentifier = @"LCCKContactListViewControllerIdentifier";
@@ -100,7 +105,7 @@ static NSString *const LCCKContactListViewControllerIdentifier = @"LCCKContactLi
     //TODO:
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(dataSourceUpdated:) name:LCCKNotificationContactListDataSourceUpdated object:nil];
     __unsafe_unretained __typeof(self) weakSelf = self;
-    [self lcck_executeAtDealloc:^{
+    [self cyl_executeAtDealloc:^{
         [[NSNotificationCenter defaultCenter] removeObserver:weakSelf];
     }];
     return self;
@@ -708,12 +713,12 @@ static NSString *const LCCKContactListViewControllerIdentifier = @"LCCKContactLi
 #pragma mark - UISearchDisplayDelegate
 
 // return YES to reload table. called when search string/option changes. convenience methods on top UISearchBar delegate methods
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(nullable NSString *)searchString NS_DEPRECATED_IOS(3_0,8_0){
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchString:(nullable NSString *)searchString {
     [self filterContentForSearchText:searchString];
     return YES;
 }
 
-- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption NS_DEPRECATED_IOS(3_0,8_0){
+- (BOOL)searchDisplayController:(UISearchDisplayController *)controller shouldReloadTableForSearchScope:(NSInteger)searchOption {
     return YES;
 }
 

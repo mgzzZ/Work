@@ -27,6 +27,7 @@
     contentTV.emptyDataSetSource = contentTV;
     contentTV.emptyDataSetDelegate= contentTV;
     contentTV.tableFooterView = [UIView new];
+    contentTV.contentInset = UIEdgeInsetsMake(0, 0, 25, 0);
     return contentTV;
 }
 
@@ -55,9 +56,7 @@
                           fail:^(NSError *error) {
                               
                           }];
-    
-    
-    
+
 }
 
 - (void)json{
@@ -85,8 +84,16 @@
     return 42;
 }
 
+- (CGFloat)tableView:(UITableView *)tableView heightForFooterInSection:(NSInteger)section{
+    return 0;
+}
+
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
-    return 81;
+    return 101;
+}
+
+- (UIView *)tableView:(UITableView *)tableView viewForFooterInSection:(NSInteger)section{
+    return [UIView new];
 }
 
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
@@ -94,12 +101,13 @@
     view.layer.borderWidth = 1;
     view.backgroundColor = [UIColor whiteColor];
     view.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
+    
     LiveDetailSectionModel *model = self.model.list[section];
     UILabel *nameLab = [[UILabel alloc]init];
-    [view addSubview:nameLab];
-    
     nameLab.font = [UIFont systemFontOfSize:16];
     nameLab.textAlignment = NSTextAlignmentCenter;
+    [view addSubview:nameLab];
+    
     UIView *leftView = [[UIView alloc]init];
     leftView.backgroundColor = [Color colorWithHex:@"0x2c2c2c"];
     [view addSubview:leftView];
@@ -108,47 +116,23 @@
     [view addSubview:rightView];
     if ([model.type isEqualToString:@"start_activity"]) {
         //直播中
-        
         nameLab.text = @"直播中";
-        [nameLab sizeToFit];
-        nameLab.sd_layout
-        .centerXEqualToView(view)
-        .centerYEqualToView(view)
-        .widthIs(nameLab.size.width)
-        .heightIs(42);
     }else if ([model.type isEqualToString:@"will_activity"]){
         //预告
         nameLab.text = @"直播预告";
-        [nameLab sizeToFit];
-        nameLab.sd_layout
-        .centerXEqualToView(view)
-        .centerYEqualToView(view)
-        .widthIs(nameLab.size.width)
-        .heightIs(42);
     }else if ([model.type isEqualToString:@"end_activity"]){
         //回放
         nameLab.text = @"往期直播";
-        [nameLab sizeToFit];
-        
-        nameLab.sd_layout
-        .centerXEqualToView(view)
-        .centerYEqualToView(view)
-        .widthIs(nameLab.size.width)
-        .heightIs(42);
-        
-    }else{
-        
+    }else {
+        nameLab.text = @"";
     }
-    leftView.sd_layout
-    .rightSpaceToView(nameLab,5)
-    .widthIs(18)
-    .heightIs(2)
-    .centerYEqualToView(view);
-    rightView.sd_layout
-    .leftSpaceToView(nameLab,5)
-    .widthIs(18)
-    .heightIs(2)
-    .centerYEqualToView(view);
+    
+    [nameLab sizeToFit];
+    
+    nameLab.frame = CGRectMake(ScreenWidth / 2 - nameLab.width / 2, 0, nameLab.width, 42.f);
+    leftView.frame = CGRectMake(nameLab.x - 23, 20.f, 18.f, 2.f);
+    rightView.frame = CGRectMake(nameLab.maxX + 5, 20.f, 18.f, 2.f);
+    
     return view;
 }
 
@@ -164,18 +148,18 @@
     cell.playImg.hidden = NO;
     if ([model.type isEqualToString:@"start_activity"]) {
         //直播中
-        [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_live")];
+        [cell.typeImg setImage:IMAGE(@"zhi")];
         [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
-        [cell.rightImg setImage:IMAGE(@"livememberdetails_list_zan_icon")];
+        
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看中",listModel.live_users];
         cell.rightLab.text = listModel.live_like;
-        cell.titleLab.text = listModel.name;
-        cell.rightImg.hidden = NO;
-        cell.rightLab.hidden = NO;
+        cell.titleLab.text = [NSString stringWithFormat:@" %@",listModel.name];
+        cell.rightImg.hidden = YES;
+        cell.rightLab.hidden = YES;
     }else if ([model.type isEqualToString:@"will_activity"]){
         //预告
-        [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_trailer")];
-        [cell.leftImg setImage:IMAGE(@"homepage_yure_hot_icon")];
+        [cell.typeImg setImage:IMAGE(@"yu")];
+        [cell.leftImg setImage:IMAGE(@"hot_icon")];
         [cell.rightImg setImage:IMAGE(@"livememberdetails_list_follow_icon")];
         cell.leftLab.text = [NSString stringWithFormat:@"%@热度",listModel.live_users];
         cell.rightLab.text = [NSString stringWithFormat:@"%@人关注",listModel.live_like];
@@ -184,7 +168,7 @@
         cell.rightLab.hidden = NO;
     }else if ([model.type isEqualToString:@"end_activity"]){
         //回放
-        [cell.typeImg setImage:IMAGE(@"livemembers_details_icon_playback")];
+        [cell.typeImg setImage:IMAGE(@"hui_icon")];
         [cell.leftImg setImage:IMAGE(@"livememberdetails_list_numbers_icon")];
         cell.rightImg.hidden = YES;
         cell.leftLab.text = [NSString stringWithFormat:@"%@人观看",listModel.live_users];
@@ -243,8 +227,14 @@
     }
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
-    
-    return scrollView.frame.origin.y +50;
+    if (iPhone5) {
+        return scrollView.frame.origin.y + 100;
+    }else if(iPhone6){
+        return scrollView.frame.origin.y + 105;
+    }else if (iPhone6P){
+        return scrollView.frame.origin.y + 110;
+    }
+    return 0;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

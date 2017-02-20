@@ -26,7 +26,7 @@
     .leftEqualToView(self)
     .rightEqualToView(self)
     .topSpaceToView(self,0)
-    .heightIs(42);
+    .heightIs(60);
     UILabel *guessLab = [[UILabel alloc]init];
     guessLab.text = @"猜你喜欢";
     guessLab.font = [UIFont systemFontOfSize:18];
@@ -60,7 +60,7 @@
     _collectView = [[UICollectionView alloc]initWithFrame:CGRectZero collectionViewLayout:layout];
     _collectView.delegate = self;
     _collectView.dataSource = self;
-    _collectView.scrollEnabled = YES;
+    _collectView.scrollEnabled = NO;
     _collectView.backgroundColor = [UIColor whiteColor];
     [self addSubview:_collectView];
     _collectView.sd_layout
@@ -69,12 +69,12 @@
     .rightEqualToView(self)
     .bottomEqualToView(self);
     [self.collectView registerNib:[UINib nibWithNibName:NSStringFromClass([GuessLikeCell class]) bundle:nil] forCellWithReuseIdentifier:@"GuessLikeCell"];
-    WS(weakself);
-    self.collectView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
-        if (weakself.refresh) {
-            weakself.refresh();
-        }
-    }];
+//    WS(weakself);
+//    self.collectView.mj_footer = [MJRefreshAutoNormalFooter footerWithRefreshingBlock:^{
+//        if (weakself.refresh) {
+//            weakself.refresh();
+//        }
+//    }];
 
 }
 
@@ -89,6 +89,9 @@
 
 
 #pragma mark- colllection delegate&dataSource
+
+
+
 - (NSInteger)collectionView:(UICollectionView *)collectionView numberOfItemsInSection:(NSInteger)section{
     
     return  self.dataArr.count;
@@ -109,14 +112,14 @@
     if (self.didSelect) {
         self.didSelect(indexPath);
     }
-}
+}	
 - (CGSize)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout sizeForItemAtIndexPath:(NSIndexPath *)indexPath
 {
     return (CGSize){(ScreenWidth - 46) / 2,(ScreenWidth - 46) / 2 * 182 / 137 +60};
 }
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(20, 14, 20, 14);
+    return UIEdgeInsetsMake(0, 14, 20, 14);
 }
 
 

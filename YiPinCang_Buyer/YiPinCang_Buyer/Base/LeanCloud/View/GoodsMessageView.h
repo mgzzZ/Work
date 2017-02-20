@@ -11,7 +11,7 @@
 
 @interface GoodsMessageView : UIView
 
-+ (id)GoodsMessageView;
++ (id)GoodsMessageViewWithGoodsCount:(NSInteger)goodsCount;
 
 - (void)configureWithModel:(OrderDetailModel *)model andDataIndex:(NSString *)index;
 

@@ -2,7 +2,7 @@
 //  LCCKBaseViewController.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (wechat:chenyilong1010) on 16/2/26.
+//  v0.8.5 Created by ElonChan  on 16/2/26.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -65,7 +65,7 @@
 
 - (void)clickedBarButtonItemAction:(UIBarButtonItem *)sender event:(UIEvent *)event {
     if (self.barButtonItemAction) {
-        self.barButtonItemAction(sender, event);
+        self.barButtonItemAction(self, sender, event);
     }
 }
 

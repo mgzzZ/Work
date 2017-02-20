@@ -18,5 +18,6 @@
 @property (nonatomic, copy) NSString *goods_price;
 @property (nonatomic, copy) NSString *goods_state;
 @property (nonatomic, copy) NSString *goods_serial;
+@property (nonatomic, copy) NSString *goods_marketprice;
 @property (nonatomic, strong) NSArray *p;
 @end

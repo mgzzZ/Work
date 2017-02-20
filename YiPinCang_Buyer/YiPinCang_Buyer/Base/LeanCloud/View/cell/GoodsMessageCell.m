@@ -11,6 +11,7 @@
 #import "GoodsMessageView.h"
 #import "OrderDetailModel.h"
 #import "OrderDetailVC.h"
+#import "OrderGoodsInfoModel.h"
 
 @interface GoodsMessageCell ()
 @property (nonatomic, weak) GoodsMessageView *gmView;
@@ -20,8 +21,8 @@
 
 static CGFloat LCCK_MSG_SPACE_TOP = 10;
 static CGFloat LCCK_MSG_SPACE_BTM = 10;
-static CGFloat LCCK_MSG_SPACE_LEFT = 20;
-static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
+static CGFloat LCCK_MSG_SPACE_LEFT = 0;
+static CGFloat LCCK_MSG_SPACE_RIGHT = 0;
 
 @implementation GoodsMessageCell
 
@@ -77,7 +78,7 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
         return _gmView;
     }
     WS(weakSelf);
-    GoodsMessageView *gmV = [GoodsMessageView GoodsMessageView];
+    GoodsMessageView *gmV = [GoodsMessageView GoodsMessageViewWithGoodsCount:[self.dataModel.goodsinfo.firstObject goods].count];
     [gmV setGoodsMesViewClickBlock:^(id object) {
         
         id ob = [weakSelf nextResponder];
@@ -86,7 +87,7 @@ static CGFloat LCCK_MSG_SPACE_RIGHT = 20;
         }
         UIViewController *currentVC = (LCCKBaseConversationViewController *)ob;
         OrderDetailVC *detailVC = [OrderDetailVC new];
-        detailVC.order_id = [weakSelf.dataModel.goodsinfo[weakSelf.index.integerValue] store].order_id;
+        detailVC.order_id = [(OrderGoodsInfoModel *)weakSelf.dataModel.goodsinfo[weakSelf.index.integerValue] store].order_id;
         [currentVC.navigationController pushViewController:detailVC animated:YES];
         
     }];

@@ -12,6 +12,8 @@
 @property (strong, nonatomic) IBOutlet UIImageView *imgV;
 @property (strong, nonatomic) IBOutlet UILabel *titleL;
 @property (strong, nonatomic) IBOutlet UILabel *priceL;
+@property (strong, nonatomic) IBOutlet OriginalPriceLab *originalPriceLab;
+
 
 @end
 
@@ -28,6 +30,11 @@
     [self.imgV sd_setImageWithURL:[NSURL URLWithString:_tempModel.goods_image] placeholderImage:YPCImagePlaceHolder];
     self.titleL.text = [NSString stringWithFormat:@"　　　%@", _tempModel.goods_name];
     self.priceL.text = [NSString stringWithFormat:@"¥%@", _tempModel.goods_price];
+    self.originalPriceLab.text = [NSString stringWithFormat:@"¥%@",_tempModel.goods_marketprice];
+    [self.originalPriceLab sizeToFit];
+    self.originalPriceLab.frame = CGRectMake(self.originalPriceLab.frame.origin.x, self.originalPriceLab.frame.origin.y, self.originalPriceLab.frame.size.width, self.originalPriceLab.frame.size.height);
+    self.originalPriceLab.sd_layout.widthIs(self.originalPriceLab.frame.size.width);
+    self.originalPriceLab.lineColor = [Color colorWithHex:@"0xbfbfbf"];
 }
 
 - (IBAction)buyBtnClickAction:(UIButton *)sender {

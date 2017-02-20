@@ -59,7 +59,7 @@
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
     [SVProgressHUD setDefaultMaskType:SVProgressHUDMaskTypeClear];
-    [SVProgressHUD setMinimumDismissTimeInterval:2.f];
+    [SVProgressHUD setMinimumDismissTimeInterval:1.5f];
     [SVProgressHUD showImage:nil status:str];
     [SVProgressHUD setDefaultAnimationType:SVProgressHUDAnimationTypeNative];
 }
@@ -72,19 +72,19 @@
 + (void)showSvpHudWarning:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setMinimumDismissTimeInterval:2.f];
+    [SVProgressHUD setMinimumDismissTimeInterval:1.5f];
     [SVProgressHUD showInfoWithStatus:str];
 }
 + (void)showSvpHudError:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setMinimumDismissTimeInterval:2.f];
+    [SVProgressHUD setMinimumDismissTimeInterval:1.5f];
     [SVProgressHUD showErrorWithStatus:str];
 }
 + (void)showSvpHudSuccess:(NSString *)str
 {
     [SVProgressHUD setDefaultStyle:SVProgressHUDStyleDark];
-    [SVProgressHUD setMinimumDismissTimeInterval:2.f];
+    [SVProgressHUD setMinimumDismissTimeInterval:1.5f];
     [SVProgressHUD showSuccessWithStatus:str];
 }
 + (void)dismissHud
@@ -453,7 +453,7 @@
         
         UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
         __weak __typeof(button) weakBtn = button;
-        [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+        [weakBtn setImage:IMAGE(@"back_icon") forState:UIControlStateNormal];
         [weakBtn sizeToFit];
         [weakBtn addTarget:self
                     action:@selector(naviRightAction:)
@@ -494,7 +494,7 @@
 
                                    UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
                                    __weak __typeof(button) weakBtn = button;
-                                   [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+                                   [weakBtn setImage:IMAGE(@"back_icon") forState:UIControlStateNormal];
                                    [weakBtn sizeToFit];
                                    [weakBtn addTarget:self
                                                action:@selector(naviRightAction:)
@@ -509,32 +509,25 @@
                                        [YPC_Tools shareInstance].floatVC.conversationVC = viewController;
                                        [YPC_Tools shareInstance].floatVC.orderId = orderId;
                                        [YPC_Tools shareInstance].floatVC.index = index;
-                                       [viewController addChildViewController:[YPC_Tools shareInstance].floatVC];
                                        [viewController.view addSubview:[YPC_Tools shareInstance].floatVC.view];
                                    }
                                }];
                                [conversationViewController setViewControllerWillDeallocBlock:^(__kindof LCCKBaseViewController *viewController) {
-                                   [[YPC_Tools shareInstance].floatVC removeFromWindow];
-                                   [YPC_Tools shareInstance].floatVC = nil;
+                                   YPCAppLog(@"Leancloud---Delloc");
+                                   if (orderId && index) {
+                                       [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = YES;
+                                       [[YPC_Tools shareInstance].floatVC removeFromWindow];
+                                       [YPC_Tools shareInstance].floatVC = nil;
+                                   }
                                }];
                                [conversationViewController setViewDidAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
-                                   [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = NO;
+                                   
                                }];
                                [conversationViewController setViewWillDisappearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
-                                   [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = YES;
+                                   if (orderId && index) {
+                                       [YPC_Tools shareInstance].floatVC.isHiddenOnWindow = YES;
+                                   }
                                }];
-//                               if (orderId) {
-//                                   [conversationViewController setViewDidAppearBlock:^(__kindof LCCKBaseViewController *viewController, BOOL aAnimated) {
-//                                       GoodsMessage *gMessage = [GoodsMessage GoodsMessageWithOrderId:orderId index:index conversationType:[viewController getConversationIfExists].lcck_type];
-//                                       [viewController sendCustomMessage:gMessage progressBlock:^(NSInteger percentDone) {
-//                                       } success:^(BOOL succeeded, NSError *error) {
-//                                           [viewController sendLocalFeedbackTextMessge:@"商品订单发送成功"];
-//                                       } failed:^(BOOL succeeded, NSError *error) {
-//                                           [viewController sendLocalFeedbackTextMessge:@"商品订单发送失败"];
-//                                       }];
-//                                   }];
-//                               }
-                               
                            }
                        } fail:^(NSError *error) {
                            [YPC_Tools showSvpHudError:@"打开会话失败"];
@@ -544,6 +537,8 @@
 {
     UIViewController *VC = objc_getAssociatedObject(sender, @"backObject");
     [VC.navigationController popViewControllerAnimated:YES];
+    [[YPC_Tools shareInstance].floatVC removeFromWindow];
+    [YPC_Tools shareInstance].floatVC = nil;
 }
 
 + (UIViewController *)getControllerWithView:(id)view
@@ -561,7 +556,7 @@
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {
-    return [UIImage imageNamed:@"blankpage_informations_icon"];
+    return [UIImage imageNamed:@"mine_huifu_zhangwitu"];
 }
 - (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView
 {
@@ -571,11 +566,28 @@
 {
     return YES;
 }
-- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
-{
-    NSString *text = @"您还没有任何消息呢~";
-    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
-    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+//- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
+//{
+//    NSString *text = @"您还没有任何消息呢~";
+//    NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
+//    return [[NSAttributedString alloc] initWithString:text attributes:attributes];
+//}
+
++ (UIImage *)handleImageWithURLStr:(UIImage *)hImage {
+    
+    NSData *imageData = UIImagePNGRepresentation(hImage);
+    NSData *newImageData = imageData;
+    // 压缩图片data大小
+    newImageData = UIImageJPEGRepresentation([UIImage imageWithData:newImageData scale:0.1], 0.1f);
+    UIImage *image = [UIImage imageWithData:newImageData];
+    
+    // 压缩图片分辨率(因为data压缩到一定程度后，如果图片分辨率不缩小的话还是不行)
+    CGSize newSize = CGSizeMake(200, 200);
+    UIGraphicsBeginImageContext(newSize);
+    [image drawInRect:CGRectMake(0,0,newSize.width,newSize.height)];
+    UIImage* newImage = UIGraphicsGetImageFromCurrentImageContext();
+    UIGraphicsEndImageContext();
+    return newImage;
 }
 
 @end

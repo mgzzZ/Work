@@ -2,7 +2,7 @@
 //  NSObject+LCCKExtension.h
 //  Pods
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/8/10.
+//  v0.8.5 Created by ElonChan on 16/8/10.
 //
 //
 
@@ -29,5 +29,7 @@ typedef void (^LCCKShouldDisplayTimestampCallBack)(BOOL shouldDisplayTimestamp, 
 - (void)lcck_shouldDisplayTimestampForMessages:(NSArray *)messages callback:(LCCKShouldDisplayTimestampCallBack)callback;
 
 - (NSDictionary *)lcck_JSONValue;
+
+- (BOOL)lcck_isCreatorForCurrentGroupConversaton;
 
 @end

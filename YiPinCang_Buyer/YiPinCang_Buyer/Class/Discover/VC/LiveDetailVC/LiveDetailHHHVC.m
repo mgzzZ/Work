@@ -19,13 +19,13 @@
 #import "LiveNoteModel.h"
 #import "LiveShareModel.h"
 #import "DiscoverDetailVC.h"
+#import "Pre_stracesModel.h"
+#import "PreheatingDetailVC.h"
+#import "LiveListVC.h"
+#import "PhotoLivingVC.h"
 #import "LivingVC.h"
 #import "PreheatingVC.h"
 #import "VideoPlayerVC.h"
-#import "TempHomePushModel.h"
-#import "LoginVC.h"
-#import "Pre_stracesModel.h"
-#import "PreheatingDetailVC.h"
 @interface LiveDetailHHHVC ()
 @property (nonatomic,strong)HHHorizontalPagingView *pagingView;
 @property (nonatomic,strong)LiveListView *listTab;
@@ -37,29 +37,26 @@
 @end
 
 @implementation LiveDetailHHHVC
-- (void)viewWillAppear:(BOOL)animated{
-    [super viewWillAppear:animated];
-    self.navigationController.navigationBar.subviews.firstObject.alpha = 0;
-}
 
-
-- (void)viewDidDisappear:(BOOL)animated{
-    [super viewDidDisappear:animated];
-    self.navigationController.navigationBar.subviews.firstObject.alpha = 1;
+- (void)dealloc
+{
+    YPCAppLog(@"%@ ------> Dealloc", NSStringFromClass([self class]));
 }
 
 - (void)viewDidLoad {
     [super viewDidLoad];
     // Do any additional setup after loading the view.
+    [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
+    [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
+    [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
     [self getData];
     [self pagingDelegate];
     UIButton *rightBtn1 = [UIButton buttonWithType:UIButtonTypeCustom];
     rightBtn1.frame = CGRectMake(0, 0, 25, 25);
-    [rightBtn1 setImage:IMAGE(@"mine_productdetails_icon_share") forState:UIControlStateNormal];
+    [rightBtn1 setImage:IMAGE(@"mshare_button") forState:UIControlStateNormal];
     [rightBtn1 addTarget:self action:@selector(shareBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     UIBarButtonItem *message = [[UIBarButtonItem alloc]initWithCustomView:rightBtn1];
-//    self.navigationItem.rightBarButtonItem= message;
-
+    self.navigationItem.rightBarButtonItem= message;
 }
 
 #pragma mark - 方法
@@ -70,19 +67,25 @@
         switch (eventView.tag) {
             case LikeBtnTag:
             {
-                YPCAppLog(@"关注");
-                if (weakself.headerView.leftBtn.selected) {
-                    [weakself followstore_cancel];
-                    weakself.headerView.leftBtn.selected = NO;
-                }else{
-                    weakself.headerView.leftBtn.selected = YES;
-                    [weakself followstore_add];
-                }
+                [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:weakself.view] success:^{
+                    YPCAppLog(@"关注");
+                    if (weakself.headerView.leftBtn.selected) {
+                        [weakself followstore_cancel];
+                        weakself.headerView.leftBtn.selected = NO;
+                    }else{
+                        weakself.headerView.leftBtn.selected = YES;
+                        [weakself followstore_add];
+                    }
+                }];
+                
             }
                 break;
             case MessageTag:{
                 YPCAppLog(@"私信");
-                [YPC_Tools openConversationWithCilentId:weakself.model.info.hx_uname ViewController:weakself andOrderId:nil andOrderIndex:nil];
+                [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:weakself.view] success:^{
+                    [YPC_Tools openConversationWithCilentId:weakself.model.info.hx_uname ViewController:weakself andOrderId:nil andOrderIndex:nil];
+                }];
+                
             }
                 break;
             default:
@@ -94,7 +97,12 @@
 
 //分享
 - (void)shareBtnClick:(UIButton *)sender{
-    
+    NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+    [YPCShare StoreShareInWindowWithStoreName:self.model.info.store_name
+                                      StoreId:self.model.info.store_id
+                                        image:self.headerView.txImg
+                                          uid:uid
+                               viewController:self];
 }
 
 #pragma mark - 获取头部试图数据
@@ -117,7 +125,7 @@
                            weakSelf.headerView.fansLab.text = [NSString stringWithFormat:@"粉丝%@人",weakSelf.model.info.store_collect];
                            weakSelf.headerView.leftBtn.tag = LikeBtnTag;
                            weakSelf.headerView.rightBtn.tag = MessageTag;
-                           if ([weakSelf.model.info.isfollow isEqualToString:@"0"]) {
+                           if ([weakSelf.model.info.isfollow isEqualToString:@"0"] || weakSelf.model.info.isfollow.length == 0) {
                                weakSelf.headerView.leftBtn.selected = NO;
                            }else{
                                weakSelf.headerView.leftBtn.selected = YES;
@@ -143,6 +151,9 @@
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                               
+                               NSString *count = response[@"data"][@"follower_count"];
+                               weakSelf.headerView.fansLab.text = [NSString stringWithFormat:@"粉丝%@人",count];
                            }
                           
                            
@@ -160,6 +171,8 @@
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                               NSString *count = response[@"data"][@"follower_count"];
+                               weakSelf.headerView.fansLab.text = [NSString stringWithFormat:@"粉丝%@人",count];
                            }
                            
                            
@@ -185,9 +198,20 @@
             [segmentButton setTitleColor:[UIColor redColor] forState:UIControlStateSelected];
             [buttonArray addObject:segmentButton];
         }
-
+        WS(weakself);
         _pagingView = [HHHorizontalPagingView pagingViewWithHeaderView:self.headerView headerHeight:265 segmentButtons:buttonArray segmentHeight:15 contentViews:@[self.listTab, self.activityColl,self.shareTab,self.noteTab]];
-        _pagingView.segmentTopSpace = 20;
+        _pagingView.segmentTopSpace = 64;
+        _pagingView.scrollViewDidScrollBlock = ^(CGFloat offset){
+            if (offset > -100) {
+            CGFloat alpha = MIN(1, 1 - ((-110 + 64 - offset) / 64));
+               [[YPC_Tools getControllerWithView:weakself.view].navigationController.navigationBar mz_setBackgroundAlpha:alpha];
+                weakself.navigationItem.title = weakself.model.info.store_name;
+            }else{
+                [[YPC_Tools getControllerWithView:weakself.view].navigationController.navigationBar mz_setBackgroundAlpha:0];
+                weakself.navigationItem.title = @"";
+            }
+
+        };
         [self.view addSubview:_pagingView];
     }
     return _pagingView;
@@ -201,64 +225,12 @@
         _listTab.store_id = self.store_id;
         _listTab.didcell = ^(NSIndexPath *index,LiveDetailListDataModel *model, NSString *typeStr){
             if ([typeStr isEqualToString:@"直播中"]) {
-                // 先判断正在直播中
-                if (![YPCRequestCenter isLogin]) {
-                    [weakself login];
-                }else{
-                    [YPC_Tools showSvpHud];
-                    LivingVC *live= [[LivingVC alloc]init];
-                    TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-                    newmodel.live_id = model.live_id;
-                    newmodel.announcement_id = model.announcement_id;
-                    newmodel.store_avatar = weakself.model.info.store_avatar;
-                    newmodel.store_name = weakself.model.info.store_name;
-                    newmodel.store_id = weakself.model.info.store_id;
-                    live.tempModel = newmodel;
-                    
-                    [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:model.livingshowinitimg] options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                        if (finished && !error) {
-                            dispatch_async(dispatch_get_main_queue(), ^{
-                                live.playerPHImg = image;
-                                [weakself.navigationController pushViewController:live animated:YES];
-                                [YPC_Tools dismissHud];
-                            });
-                        }else{
-                            [YPC_Tools showSvpHudError:@"图片未下载成功"];
-                        }
-                        
-                    }];
-                    
-                    
-                }
+                [weakself pushToLivingViewControllerWithIndexPath:index model:model];
                 
             }else if ([typeStr isEqualToString:@"预告"]){
-                PreheatingVC *preheat = [[PreheatingVC alloc]init];
-                TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-                newmodel.live_id = model.live_id;
-                newmodel.name = model.name;
-                newmodel.store_avatar = weakself.model.info.store_avatar;
-                newmodel.store_name = weakself.model.info.store_name;
-                newmodel.starttime = model.starttime;
-                newmodel.endtime = model.endtime;
-                newmodel.activity_pic = model.activity_pic;
-                newmodel.live_msg = model.message;
-                newmodel.address = model.address;
-                newmodel.start = model.start;
-                newmodel.end = model.end;
-                newmodel.live_state = model.live_state;
-                preheat.tempModel = newmodel;
-
-                [weakself.navigationController pushViewController:preheat animated:YES];
+                [weakself pushToPreHeartingViewControllerWithIndexPath:index model:model];
             }else if ([typeStr isEqualToString:@"回放"]){
-                VideoPlayerVC *video = [[VideoPlayerVC alloc]init];
-                TempHomePushModel *newmodel = [[TempHomePushModel alloc]init];
-                newmodel.live_id = model.live_id;
-                newmodel.store_id = weakself.model.info.store_id;
-                newmodel.store_avatar = weakself.model.info.store_avatar;
-                newmodel.store_name = weakself.model.info.store_name;
-                newmodel.video = model.video;
-                video.tempModel = newmodel;
-                [weakself.navigationController pushViewController:video animated:YES];
+                [weakself pushToEndActivityViewControllerWithIndexPath:index model:model];
             }else{
                 //其他
             }
@@ -310,12 +282,9 @@
         _noteTab = [LiveNoteView contentTableView];
         _noteTab.store_id = self.store_id;
         _noteTab.notedidcell = ^(NSIndexPath *index,LiveNoteModel *model){
-            NSMutableDictionary *dic = [NSMutableDictionary dictionary];
-            dic = model.mj_keyValues;
-            Pre_stracesModel *preModel = [Pre_stracesModel mj_objectWithKeyValues:dic];
             PreheatingDetailVC *detailVC = [PreheatingDetailVC new];
             detailVC.detailType = detailStyleUserCircle;
-            detailVC.tempModel = preModel;
+            detailVC.tempStrace_ID = model.strace_id;
             [weakself.navigationController pushViewController:detailVC animated:YES];
         };
     }
@@ -328,12 +297,55 @@
     }
     return _headerView;
 }
-- (void)login{
-    LoginVC *login = [[LoginVC alloc]init];
-    UINavigationController *loginNav = [[UINavigationController alloc]initWithRootViewController:login];
-    login.navigationController.navigationBar.hidden = YES;
-    [self.navigationController presentViewController:loginNav animated:YES completion:nil];
+
+
+#pragma mark - ParviteMethod
+- (void)pushToLivingViewControllerWithIndexPath:(NSIndexPath *)indexPath model:(LiveDetailListDataModel *)model
+{
+    if (model.activity_type.integerValue == 0) {
+        // 图文直播
+        PhotoLivingVC *pVC = [PhotoLivingVC new];
+        pVC.liveId = model.live_id;
+        [self.navigationController pushViewController:pVC animated:YES];
+        
+    }else if (model.activity_type.integerValue == 1) {
+        // 实时直播
+        WS(weakSelf);
+        [[SDWebImageDownloader sharedDownloader]
+         downloadImageWithURL:[NSURL URLWithString:model.livingshowinitimg]
+         options:SDWebImageDownloaderUseNSURLCache
+         progress:nil
+         completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+             if (finished && !error) {
+                 dispatch_async(dispatch_get_main_queue(), ^{
+                     LivingVC *lVC = [LivingVC new];
+                     lVC.liveId = model.live_id;
+                     lVC.playerPHImg = image;
+                     [weakSelf.navigationController pushViewController:lVC animated:YES];
+                     [YPC_Tools dismissHud];
+                 });
+             }else {
+                 [YPC_Tools showSvpHudError:@"加载失败, 请重试"];
+             }
+         }];
+    }
 }
+
+- (void)pushToPreHeartingViewControllerWithIndexPath:(NSIndexPath *)indexPath model:(LiveDetailListDataModel *)model
+{
+    PreheatingVC *pVC = [PreheatingVC new];
+    pVC.liveId = model.live_id;
+    [self.navigationController pushViewController:pVC animated:YES];
+}
+
+- (void)pushToEndActivityViewControllerWithIndexPath:(NSIndexPath *)indexPath model:(LiveDetailListDataModel *)model
+{
+    VideoPlayerVC *vVC = [VideoPlayerVC new];
+    vVC.liveId = model.live_id;
+    [self.navigationController pushViewController:vVC animated:YES];
+}
+
+
 #pragma mark - end
 
 

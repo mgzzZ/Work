@@ -15,7 +15,3 @@
 @implementation BrandModel
 
 @end
-
-@implementation StoreModel
-
-@end

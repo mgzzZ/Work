@@ -27,6 +27,8 @@
 @property (nonatomic, copy) NSString *video;
 @property (nonatomic, copy) NSString *aspect;
 @property (nonatomic, copy) NSArray *strace_content;
+@property (nonatomic, copy) NSArray *strace_content_thumb;
 @property (nonatomic, copy) NSArray *commentlist;
 @property (nonatomic, copy) NSString *islike;
+@property (nonatomic, copy) NSString *isfollowSeller;
 @end

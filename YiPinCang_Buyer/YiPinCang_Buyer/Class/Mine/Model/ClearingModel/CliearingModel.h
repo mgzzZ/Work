@@ -23,4 +23,5 @@
 @property (nonatomic,copy)NSString *inv_price;//发票价格
 @property (nonatomic,strong)InvModel *inv_info;
 @property (nonatomic,copy)NSString *total_price;
+@property (nonatomic,copy)NSString *express_data;
 @end

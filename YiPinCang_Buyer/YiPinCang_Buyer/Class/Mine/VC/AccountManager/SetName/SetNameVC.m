@@ -18,6 +18,8 @@
 - (void)viewDidLoad {
     [super viewDidLoad];
     self.title = @"修改昵称";
+    [self setEdgesForExtendedLayout:UIRectEdgeNone];
+    [self setExtendedLayoutIncludesOpaqueBars:NO];
     
     self.nameTF.text = [YPCRequestCenter shareInstance].model.member_truename;
     self.nameLenghLabel.text = [NSString stringWithFormat:@"%ld/16", self.nameTF.text.length];
@@ -27,18 +29,32 @@
 
 - (void)textFieldChangeVaule:(UITextField *)TF
 {
-    self.nameTF.text = [TF.text clearSpaceAndReturn];
+//    self.nameTF.text = [TF.text clearSpaceAndReturn];
+    self.nameLenghLabel.text = [NSString stringWithFormat:@"%ld/16", self.nameTF.text.length];
+}
+
+- (void)textFieldDidChange:(UITextField *)textField
+{
+    if (textField == self.nameTF) {
+        if (textField.text.length > 16) {
+            textField.text = [textField.text substringToIndex:16];
+        }
+    }
+    self.nameTF.text = [textField.text clearSpaceAndReturn];
     self.nameLenghLabel.text = [NSString stringWithFormat:@"%ld/16", self.nameTF.text.length];
 }
 
 - (BOOL)textField:(UITextField *)textField shouldChangeCharactersInRange:(NSRange)range replacementString:(NSString *)string
 {
-    if (string.length + textField.text.length > 16) {
-        [YPC_Tools showSvpWithNoneImgHud:@"昵称不能超过16个字"];
+    if (string.length == 0) return YES;
+    
+    NSInteger existedLength = textField.text.length;
+    NSInteger selectedLength = range.length;
+    NSInteger replaceLength = string.length;
+    if (existedLength - selectedLength + replaceLength > 16) {
         return NO;
-    }else {
-        return YES;
     }
+    return YES;
 }
 
 - (BOOL)textFieldShouldReturn:(UITextField *)textField

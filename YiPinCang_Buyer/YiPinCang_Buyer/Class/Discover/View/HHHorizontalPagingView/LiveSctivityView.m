@@ -33,16 +33,18 @@
 @property (nonatomic,copy)NSString *bind;
 @property (nonatomic,copy)NSString *page;
 @property (nonatomic,assign)BOOL isHave;
+@property (nonatomic,assign)CGFloat topHeight;
 @end
 
 @implementation LiveSctivityView
 
 + (LiveSctivityView *)contentTableView{
     BrandFlowLayout * layout = [[BrandFlowLayout alloc]init];
-    layout.naviHeight = 50;
+    layout.naviHeight = 84;
     layout.headerReferenceSize = CGSizeMake(ScreenWidth, 42);
     LiveSctivityView *contentTV = [[LiveSctivityView alloc]initWithFrame:CGRectZero collectionViewLayout:layout];
     contentTV.backgroundColor = [UIColor whiteColor];
+    contentTV.contentInset = UIEdgeInsetsMake(0, 0, 25, 0);
     contentTV.dataSource = contentTV;
     contentTV.delegate = contentTV;
     contentTV.backgroundColor = [Color colorWithHex:@"0xefefef"];
@@ -51,6 +53,7 @@
     contentTV.emptyDataSetDelegate = contentTV;
     [contentTV registerNib:[UINib nibWithNibName:NSStringFromClass([LiveDetailLiveActivityCell class]) bundle:nil] forCellWithReuseIdentifier:@"LiveDetailLiveActivityCell"];
     [contentTV registerClass:[UICollectionReusableView class] forSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView"];
+    contentTV.topHeight = 42;
     return contentTV;
 }
 
@@ -90,9 +93,12 @@
                                }
                                NSMutableArray *arr = [LiveActivityModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                                [weakSelf.dataArr addObjectsFromArray:arr];
-                               if (weakSelf.dataArr.count != 0 && weakSelf.isHave == NO) {
+                               if (weakSelf.dataArr.count != 0 && weakSelf.mj_footer == nil) {
                                    [weakSelf upRefresh];
                                    weakSelf.isHave = YES;
+                               }
+                               if (weakSelf.dataArr.count == 0 ) {
+                                   weakSelf.mj_footer = nil;
                                }
                                [weakSelf reloadData];
                                if (arr.count < 10) {
@@ -102,8 +108,6 @@
                                }
                                [weakSelf.mj_header endRefreshing];
                            }
-                           
-                           
                        }
                           fail:^(NSError *error) {
                               
@@ -148,7 +152,7 @@
         _fiterBrandView = [[FiterBrandView alloc]init];
         _fiterBrandView.type = Brand;
         [self addSubview:self.fiterBrandView];
-        self.fiterBrandView.sd_layout.topSpaceToView(self.topView,42)
+        self.fiterBrandView.sd_layout.topSpaceToView(self,self.topHeight)
         .leftEqualToView(self)
         .rightEqualToView(self)
         .heightIs(0);
@@ -160,9 +164,18 @@
             }else{
                 weakSelf.bind = @"";
             }
+            if (brand.length == 0) {
+                [YPC_Tools showSvpWithNoneImgHud:@"请先选择品牌!"];
+            }else{
+               weakSelf.brand = brand;
+            }
             weakSelf.topView.priceBtn.selected = NO;
-            weakSelf.brand = brand;
-             [weakSelf getData:weakSelf.page isRefresh:YES];
+            if (weakSelf.brand.length != 0) {
+                [weakSelf getData:weakSelf.page isRefresh:YES];
+            }else{
+                [weakSelf chooseHiden];
+            }
+            
         };
     }
     return _fiterBrandView;
@@ -201,7 +214,7 @@
 }
 - (UIEdgeInsets)collectionView:(UICollectionView *)collectionView layout:(UICollectionViewLayout*)collectionViewLayout insetForSectionAtIndex:(NSInteger)section
 {
-    return UIEdgeInsetsMake(20, 0, 20, 0);
+    return UIEdgeInsetsMake(0, 0, 20, 0);
 }
 
 
@@ -224,13 +237,93 @@
     {
         UICollectionReusableView *headerView = [collectionView dequeueReusableSupplementaryViewOfKind:UICollectionElementKindSectionHeader withReuseIdentifier:@"HeaderView" forIndexPath:indexPath];
         if (_topView == nil) {
-            self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, -20, ScreenWidth, 42)];
+            self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 42)];
             self.topView.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
             self.topView.bgView.layer.borderWidth = 1;
-            [self.topView.priceBtn addTarget:self action:@selector(priceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-            [self.topView.brandBtn addTarget:self action:@selector(brandBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-            [self.topView.otherBtn addTarget:self action:@selector(otherBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-            [self.topView.recommendBtn addTarget:self action:@selector(recommendBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+            WS(weakself);
+            self.topView.didBtnClick = ^(UIButton *clickBtn, NSInteger tag){
+                switch (tag) {
+                    case 1000:
+                    {
+                        clickBtn.selected = NO;
+                        [weakself chooseHiden];
+                        weakself.listorder = @"0";
+                        weakself.page = @"1";
+                        weakself.brand = @"";
+                        weakself.bind = @"";
+                        [weakself getData:weakself.page isRefresh:weakself];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"0x666666"] forState:UIControlStateNormal];
+
+                    }
+                        break;
+                    case 1001:
+                    {
+                        
+                        if (clickBtn.selected == NO) {
+                            weakself.fiterBrandView = nil;
+                            clickBtn.selected = YES;
+                            weakself.topView.brandBtn.selected = NO;
+                            weakself.topView.priceBtn.selected = NO;
+                            weakself.topView.recommendBtn.selected = YES;
+                            [weakself chooseHiden];
+                            [weakself segBrandViewHidenNo:weakself.sectionArr];
+                            [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                            [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"0x666666"] forState:UIControlStateNormal];
+                        }else{
+                            clickBtn.selected = NO;
+                            weakself.topView.recommendBtn.selected = NO;
+                            [weakself chooseHiden];
+                            weakself.listorder = @"0";
+                        }
+                    }
+                        break;
+                    case 1002:
+                    {
+                        weakself.topView.priceBtn.selected = NO;
+                        weakself.topView.otherBtn.selected = NO;
+                        weakself.topView.recommendBtn.selected = YES;
+                        if ([weakself.listorder isEqualToString:@"0"] || [weakself.listorder isEqualToString:@"3"] ) {
+                            weakself.listorder = @"1";
+                            [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
+                            [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                        }else if ([weakself.listorder isEqualToString:@"1"]){
+                            weakself.listorder = @"2";
+                            [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                            [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
+                        }else if ([weakself.listorder isEqualToString:@"2"]){
+                            weakself.listorder = @"0";
+                            [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#666666"] forState:UIControlStateNormal];
+                            [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                        }
+                        weakself.page = @"1";
+                        [weakself getData:weakself.page isRefresh:YES];
+                    }
+                        break;
+                    case 1003:
+                    {
+                        if (clickBtn.selected == NO) {
+                            weakself.listorder = @"3";
+                            clickBtn.selected = YES;
+                            weakself.topView.recommendBtn.selected = YES;
+                        }else{
+                            weakself.listorder = @"0";
+                            clickBtn.selected = NO;
+                            weakself.topView.recommendBtn.selected = NO;
+                        }
+                        [weakself chooseHiden];
+                        weakself.page = @"1";
+                        [weakself getData:weakself.page isRefresh:YES];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"0x666666"] forState:UIControlStateNormal];
+                    }
+                        break;
+                        
+                    default:
+                        break;
+                }
+            };
+            
             if ([self.listorder isEqualToString:@"1"]) {
                 
                 [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
@@ -252,6 +345,8 @@
     
     return reusableview;
 }
+
+
 
 //转换json
 - (void)segBrandData:(NSMutableArray *)listArr{
@@ -292,68 +387,15 @@
     }
 }
 #pragma mark- btn action
-- (void)recommendBtnClick:(UIButton *)sender{
-    sender.selected = NO;
-     [self chooseHiden];
-    self.listorder = @"0";
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
-- (void)priceBtnClick:(UIButton *)sender{
-    if (sender.selected == NO) {
-        sender.selected = YES;
-        sender.selected = YES;
-        self.topView.brandBtn.selected = NO;
-        self.topView.otherBtn.selected = NO;
-        self.topView.recommendBtn.selected = YES;
-        [self chooseHiden];
-        [self segBrandViewHidenNo:self.sectionArr];
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-    }else{
-        sender.selected = NO;
-        [self chooseHiden];
-    }
-}
 
-- (void)brandBtnClick:(UIButton *)sender{
-    
-    self.topView.priceBtn.selected = NO;
-    self.topView.otherBtn.selected = NO;
-    self.topView.recommendBtn.selected = YES;
-    if ([self.listorder isEqualToString:@"0"] || [self.listorder isEqualToString:@"3"] ) {
-        self.listorder = @"1";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
-    }else if ([self.listorder isEqualToString:@"1"]){
-        self.listorder = @"2";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
-    }else if ([self.listorder isEqualToString:@"2"]){
-        self.listorder = @"0";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-    }
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-}
-
-- (void)otherBtnClick:(UIButton *)sender{
-    if (sender.selected == NO) {
-        self.listorder = @"3";
-        sender.selected = YES;
-        self.topView.recommendBtn.selected = YES;
-    }else{
-        self.listorder = @"0";
-        sender.selected = NO;
-        self.topView.recommendBtn.selected = NO;
-    }
-    [self chooseHiden];
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
 - (void)cancelClick:(UIGestureRecognizer *)sender{
     self.topView.otherBtn.selected = NO;
     self.topView.priceBtn.selected = NO;
-   
+    self.topView.recommendBtn.selected = NO;
+    self.topView.priceBtn.selected = NO;
+    self.topView.otherBtn.selected = NO;
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+    [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
     [self chooseHiden];
 }
 
@@ -384,22 +426,39 @@
         self.fiterBrandView.resetBtn.hidden = YES;
     } completion:^(BOOL finished) {
         if (finished) {
+            [self.fiterBrandView removeFromSuperview];
             self.fiterBrandView = nil;
         }
     }];
+    [self.bgView removeFromSuperview];
+    self.bgView = nil;
     [self.bgView removeGestureRecognizer:_tap];
     self.btnType = @"0";
 }
 // 展示 筛选品牌
 - (void)segBrandViewHidenNo:(NSArray *)arr{
-    
+    [self addSubview:self.bgView];
     [self.bgView addGestureRecognizer:_tap];
     self.fiterBrandView.dataDic = self.brandDic;
     CGFloat height = 0;
-    if (arr.count * 80 > 282) {
-        height = 282;
-    }else{
-        height = arr.count * 80;
+    if (iPhone5) {
+        if (arr.count * 80 > 150) {
+            height = 150;
+        }else{
+            height = arr.count * 80;
+        }
+    }else if(iPhone6){
+        if (arr.count * 80 > 200) {
+            height = 200;
+        }else{
+            height = arr.count * 80;
+        }
+    }else if(iPhone6P){
+        if (arr.count * 80 > 282) {
+            height = 282;
+        }else{
+            height = arr.count * 80;
+        }
     }
     [UIView animateWithDuration:0.3 animations:^{
         
@@ -426,9 +485,27 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     if (self.bgView.hidden == NO) {
         [self segBrandViewHiden];
+        self.topView.otherBtn.selected = NO;
+        self.topView.priceBtn.selected = NO;
+        self.topView.recommendBtn.selected = NO;
+        self.topView.priceBtn.selected = NO;
+        self.topView.otherBtn.selected = NO;
+        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+        [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
+        [self chooseHiden];
     }
     
+
+    
+    if (scrollView.contentOffset.y <= -75) {
+        self.topHeight = 42;
+    }else if(scrollView.contentOffset.y > -75 && scrollView.contentOffset.y < 0){
+        self.topHeight = 125 - fabs(scrollView.contentOffset.y) ;
+    }else{
+        self.topHeight = 125 + fabs(scrollView.contentOffset.y);
+    }
 }
+
 #pragma mark - 懒加载
 
 
@@ -441,11 +518,11 @@
         
         _tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(cancelClick:)];
         _bgView.sd_layout
-        .topSpaceToView(self,62)
+        .topSpaceToView(self,self.topHeight)
         .leftEqualToView(self)
         .rightEqualToView(self)
-        .bottomEqualToView(self);
-        self.bgView.hidden = YES;
+        .heightIs(1000);
+        _bgView.hidden = YES;
         
     }
     return _bgView;
@@ -472,8 +549,14 @@
     return _valueArr;
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
-    
-    return scrollView.frame.origin.y +50;
+    if (iPhone5) {
+        return scrollView.frame.origin.y + 100;
+    }else if(iPhone6){
+        return scrollView.frame.origin.y + 105;
+    }else if (iPhone6P){
+        return scrollView.frame.origin.y + 110;
+    }
+    return 0;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

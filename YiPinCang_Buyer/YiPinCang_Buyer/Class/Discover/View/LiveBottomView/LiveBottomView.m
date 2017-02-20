@@ -19,6 +19,7 @@
 @property (nonatomic,strong)UILabel *funsLab;
 @property (nonatomic,strong)UIButton *fllowBtn;
 @property (nonatomic,strong)UIButton *messageBtn;
+@property (nonatomic,strong)UIButton *txBtn;
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,strong)LiveSimpleModel *model;
 @end
@@ -90,13 +91,7 @@
     LiveSimpleData *model = self.model.list.data[indexPath.row];
     if (self.didcell) {
         [self animationHiden];
-        TempHomePushModel *tempModel = [[TempHomePushModel alloc]init];
-        tempModel.live_id = model.live_id;
-        tempModel.store_id = model.store_id;
-        tempModel.store_avatar = self.model.info.store_avatar;
-        tempModel.store_name = self.model.info.store_name;
-        tempModel.video = self.model.info.video;
-        self.didcell(tempModel);
+        self.didcell(model.live_id);
     }
 }
 
@@ -157,6 +152,7 @@
 }
 
 -  (UIView *)headerView{
+    
     if (_headerView == nil) {
         _headerView = [[UIView alloc]init];
         _headerView.backgroundColor = [UIColor whiteColor];
@@ -174,6 +170,7 @@
         .bottomEqualToView(_headerView)
         .rightEqualToView(_headerView)
         .heightIs(1);
+        
         _txImg = [[UIImageView alloc]init];
         [_headerView addSubview:_txImg];
         _txImg.sd_layout
@@ -183,6 +180,15 @@
         .heightIs(44);
         _txImg.layer.cornerRadius = 22;
         _txImg.layer.masksToBounds = YES;
+        _txImg.userInteractionEnabled = YES;
+        _txBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        [_headerView addSubview:_txBtn];
+        [_txBtn addTarget:self action:@selector(txBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        _txBtn.sd_layout
+        .centerXEqualToView(_headerView)
+        .topSpaceToView(_headerView,14)
+        .widthIs(44)
+        .heightIs(44);
         
         _nameLab = [[UILabel alloc]init];
         [_headerView addSubview:_nameLab];
@@ -285,23 +291,36 @@
         }
     }];
 }
-- (void)fllowBtnClick:(UIButton *)sender{
-    if (sender.selected) {
-        //取消关注
-        sender.selected = NO;
-        [self followstore_cancel];
-    }else{
-        //关注
-        sender.selected = YES;
-        [self followstore_add];
+
+- (void)txBtnClick:(UIButton *)sender{
+    if (self.didTxBtnClick) {
+        self.didTxBtnClick(self.model.info.store_id);
     }
+}
+
+- (void)fllowBtnClick:(UIButton *)sender{
+
+    [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self] success:^{
+        if (sender.selected) {
+            //取消关注
+            sender.selected = NO;
+            [self followstore_cancel];
+        }else{
+            //关注
+            sender.selected = YES;
+            [self followstore_add];
+        }
+    }];
 }
 - (void)pushMessageClick{
    
-    if (self.pushMessage) {
-        [self animationHiden];
-        self.pushMessage(self.model.info.hx_uname);
-    }
+    [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self] success:^{
+        if (self.pushMessage) {
+            [self animationHiden];
+            self.pushMessage(self.model.info.hx_uname);
+        }
+    }];
+    
 }
 - (void)followstore_add{
     WS(weakSelf);

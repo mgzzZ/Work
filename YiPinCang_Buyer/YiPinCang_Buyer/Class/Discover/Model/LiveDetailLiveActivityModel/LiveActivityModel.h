@@ -12,6 +12,7 @@
 @property (nonatomic,copy)NSString *strace_id;
 @property (nonatomic,copy)NSString *strace_title;
 @property (nonatomic,strong)NSArray *strace_content;
+@property (nonatomic,strong)NSArray *strace_content_thumb;
 @property (nonatomic,copy)NSString *strace_time;
 @property (nonatomic,copy)NSString *strace_cool;
 @property (nonatomic,copy)NSString *strace_comment;
@@ -21,10 +22,11 @@
 @property (nonatomic,copy)NSString *storage;
 @property (nonatomic,copy)NSString *salenum;
 @property (nonatomic,copy)NSString *aspect;
-
 @property (nonatomic,copy)NSString *brand_id;
 @property (nonatomic,copy)NSString *brand_name;
 @property (nonatomic,copy)NSString *live_id;
 @property (nonatomic,copy)NSString *prestate;
 @property (nonatomic,copy)NSString *strace_contentStr;
+@property (nonatomic,copy)NSString *goods_marketprice;
+@property (nonatomic,copy)NSString *goods_discount;
 @end

@@ -11,6 +11,7 @@
 #import "LoginSetPasswordVC.h"
 #import "LeanChatFactory.h"
 #import "JPUSHService.h"
+#import "LoginVC.h"
 
 static int countDown = 59;
 @interface WriteCodeVC ()
@@ -103,6 +104,7 @@ static int countDown = 59;
 - (IBAction)nextBtnClick:(id)sender {
     
     WS(weakSelf);
+    [YPC_Tools showSvpHud];
     if (_codeTextfield.text.length == 0) {
         [YPC_Tools showSvpWithNoneImgHud:@"请输入验证码"];
     }else{
@@ -118,16 +120,20 @@ static int countDown = 59;
                                    if ([_from isEqualToString:@"1"]) {
                                        SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
                                        setpassword.token = _token;
+                                       [YPC_Tools dismissHud];
                                        [weakSelf.navigationController pushViewController:setpassword animated:YES];
                                    }else if ([_from isEqualToString:@"2"]) {
                                        LoginSetPasswordVC *Login = [[LoginSetPasswordVC alloc]init];
                                        Login.from = _from;
                                        Login.token = _token;
+                                       Login.phoneNum = self.phoneNumber;
+                                       [YPC_Tools dismissHud];
                                        [weakSelf.navigationController pushViewController:Login animated:YES];
                                    }else if ([_from isEqualToString:@"3"]) { // 快速登录
                                        if ([response[@"data"][@"ismemeber"] integerValue] == 0) {
                                            SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
                                            setpassword.token = _token;
+                                           [YPC_Tools dismissHud];
                                            [weakSelf.navigationController pushViewController:setpassword animated:YES];
                                        }else {
                                            [weakSelf fastSignin];
@@ -147,29 +153,45 @@ static int countDown = 59;
 - (void)fastSignin
 {
     WS(weakSelf);
-    [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-        if (registrationID) {
-            [YPCNetworking postWithUrl:@"shop/user/fastsignin"
-                          refreshCache:YES
-                                params:@{
-                                         @"token" : _token,
-                                         @"registration_id" : registrationID
-                                         }
-                               success:^(id response) {
-                                   if ([YPC_Tools judgeRequestAvailable:response]) {
-                                       [YPCRequestCenter setUserInfoWithResponse:response];
-                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                           [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                           [weakSelf dismissViewControllerAnimated:YES completion:nil];
-                                       } failed:^(NSError *error) {
-                                           YPCAppLog(@"%@", [error description]);
+//    [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+        [YPCNetworking postWithUrl:@"shop/user/fastsignin"
+                      refreshCache:YES
+                            params:@{
+                                     @"token" : _token,
+                                     @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
+                                     }
+                           success:^(id response) {
+                               if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   [YPCRequestCenter setUserInfoWithResponse:response];
+                                   [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                       
+                                       [weakSelf.navigationController.childViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                                           if ([[obj class] isEqual:[LoginVC class]]) {
+                                               __block LoginVC *vc = obj;
+                                               if (vc.SuccessLoginBlock) {
+                                                   vc.SuccessLoginBlock();
+                                               }
+                                               
+                                               [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                               [YPC_Tools dismissHud];
+                                               [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                               
+                                               *stop = YES;
+                                           }
                                        }];
-                                   }
-                               } fail:^(NSError *error) {
-                                   YPCAppLog(@"%@", [error description]);
-                               }];
-        }
-    }];
+                                       
+                                   } failed:^(NSError *error) {
+                                       YPCAppLog(@"%@", [error description]);
+                                       [YPC_Tools showSvpWithNoneImgHud:@"登录失败"];
+                                       [YPC_Tools dismissHud];
+                                   }];
+                               }
+                           } fail:^(NSError *error) {
+                               YPCAppLog(@"%@", [error description]);
+                               [YPC_Tools showSvpWithNoneImgHud:@"登录失败"];
+                               [YPC_Tools dismissHud];
+                           }];
+//    }];
 }
 
 #pragma mark - 设置手机号
@@ -185,16 +207,19 @@ static int countDown = 59;
                                    [YPC_Tools showSvpWithNoneImgHud:@"更换手机号成功"];
                                    [[YPCRequestCenter shareInstance].model setMember_mobile:response[@"data"][@"phone"]];
                                    dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                       [YPC_Tools dismissHud];
                                        [weakSelf dismissViewControllerAnimated:YES completion:nil];
                                    });
                                }else { // 绑定手机号
                                    SetPasswordVC *setpassword = [[SetPasswordVC alloc]init];
                                    setpassword.setType = SetPasswordBinding;
                                    setpassword.token = _token;
+                                   [YPC_Tools dismissHud];
                                    [weakSelf.navigationController pushViewController:setpassword animated:YES];
                                }
                            }
                        } fail:^(NSError *error) {
+                           [YPC_Tools showSvpWithNoneImgHud:@"设置失败"];
                            YPCAppLog(@"%@", [error description]);
                        }];
 }

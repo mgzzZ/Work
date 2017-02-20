@@ -2,7 +2,7 @@
 //  LCCKConversationListViewModel.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/22.
+//  v0.8.5 Created by ElonChan on 16/3/22.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -30,7 +30,12 @@
 #else
     #import "UIImageView+WebCache.h"
 #endif
-#import "LCCKDeallocBlockExecutor.h"
+
+#if __has_include(<CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>)
+#import <CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>
+#else
+#import "CYLDeallocBlockExecutor.h"
+#endif
 
 
 
@@ -56,7 +61,7 @@
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:LCCKNotificationUnreadsUpdated object:nil];
     [[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(refresh) name:LCCKNotificationConversationListDataSourceUpdated object:nil];
     __unsafe_unretained __typeof(self) weakSelf = self;
-    [self lcck_executeAtDealloc:^{
+    [self cyl_executeAtDealloc:^{
         [[NSNotificationCenter defaultCenter] removeObserver:weakSelf];
     }];
     _conversationListViewController = conversationListViewController;
@@ -102,11 +107,11 @@
         NSURL *conversationGroupAvatarURL = [NSURL URLWithString:conversationGroupAvatarURLKey];
         [cell.avatarImageView sd_setImageWithURL:conversationGroupAvatarURL placeholderImage:[self imageInBundleForImageName:@"Placeholder_Group" ]];
     }
-    
+    cell.remindMuteImageView.hidden = !conversation.muted;
     cell.nameLabel.text = conversation.lcck_displayName;
     if (conversation.lcck_lastMessage) {
         cell.messageTextLabel.attributedText = [LCCKLastMessageTypeManager attributedStringWithMessage:conversation.lcck_lastMessage conversation:conversation userName:displayName];
-        cell.timestampLabel.text = [[NSDate dateWithTimeIntervalSince1970:conversation.lcck_lastMessage.sendTimestamp / 1000] lcck_timeAgoSinceNow];
+        cell.timestampLabel.text = [conversation.lcck_lastMessageAt lcck_timeAgoSinceNow];
     }
     if (conversation.lcck_unreadCount > 0) {
         if (conversation.muted) {
@@ -114,9 +119,6 @@
         } else {
             cell.badgeView.badgeText = conversation.lcck_badgeText;
         }
-    }
-    if (conversation.muted == YES) {
-        cell.remindMuteImageView.hidden = NO;
     }
     LCCKConfigureCellBlock configureCellBlock = [[LCCKConversationListService sharedInstance] configureCellBlock];
     if (configureCellBlock) {
@@ -194,7 +196,9 @@
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath {
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
     AVIMConversation *conversation = [self.dataArray objectAtIndex:indexPath.row];
-    [conversation markAsReadInBackground];
+//    [conversation markAsReadInBackground];
+    //FIXME:
+//    [conversation markAsReadInBackgroundForMessage:conversation.lcck_lastMessage];
 //    [self refreshIfNeeded];
     ![LCCKConversationListService sharedInstance].didSelectConversationsListCellBlock ?: [LCCKConversationListService sharedInstance].didSelectConversationsListCellBlock(indexPath, conversation, self.conversationListViewController);
 }

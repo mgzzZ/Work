@@ -14,10 +14,11 @@
 #import "MerchandiseDetailVC.h"
 #import "SetVC.h"
 #import "AccounManagerVC.h"
-#import "HCPageVC.h"
 #import "ShoppingCarVC.h"
 #import "FollowVC.h"
 #import "ActivitySubscribeVC.h"
+#import "MyCommentVC.h"
+
 static NSString *Identifier = @"identifier";
 @interface MineVC ()<UITableViewDelegate,UITableViewDataSource>
 {
@@ -39,10 +40,26 @@ static NSString *Identifier = @"identifier";
 @property (strong, nonatomic) IBOutlet UIImageView *yetSend;
 @property (strong, nonatomic) IBOutlet UIImageView *yetSuccess;
 
-
+@property (nonatomic, strong) UILabel *commentLbl;
 @end
 
 @implementation MineVC
+
+- (UILabel *)commentLbl
+{
+    if (_commentLbl) {
+        return _commentLbl;
+    }
+    _commentLbl = [UILabel new];
+    _commentLbl.backgroundColor = [UIColor redColor];
+    _commentLbl.textColor = [UIColor whiteColor];
+    _commentLbl.font = [UIFont systemFontOfSize:[UIFont smallSystemFontSize]];
+    _commentLbl.textAlignment = NSTextAlignmentCenter;
+    _commentLbl.layer.cornerRadius = 8.f;
+    _commentLbl.layer.masksToBounds = YES;
+    _commentLbl.hidden = YES;
+    return _commentLbl;
+}
 
 #pragma mark - VC声明周期
 - (void)viewDidLoad {
@@ -55,10 +72,11 @@ static NSString *Identifier = @"identifier";
     [self viewConfig];
     
     _cellNameArr    = @[
-                        @[@"活动订阅", @"我的关注"], @[@"帮助中心", @"设置"]
+                        @[@"活动提醒", @"我的关注"],@[@"我的评论"], @[@"帮助中心", @"设置"]
                         ];
     _cellImgArr     = @[
                         @[@"mine_icon_activitiessubscribe", @"mine_myfollow_icon"],
+                        @[@"mine_comments_icon"],
                         @[@"mine_icon_helpcenter", @"mine_set_icon"]
                         ];
     
@@ -77,7 +95,7 @@ static NSString *Identifier = @"identifier";
         [self getData];
         self.loginBtn.hidden = YES;
         self.avatarBgView.hidden = NO;
-        [self.avatarImgv sd_setImageWithURL:[NSURL URLWithString:[YPCRequestCenter shareInstance].model.member_avatar] placeholderImage:IMAGE(@"mine_img_avatar")];
+        [self.avatarImgv sd_setImageWithURL:[NSURL URLWithString:[YPCRequestCenter shareInstance].model.member_avatar] placeholderImage:IMAGE(@"mine_avatar_zhanweitu_img")];
         self.desL.text = [YPCRequestCenter shareInstance].model.member_truename;
     }else {
         self.loginBtn.hidden = NO;
@@ -125,6 +143,13 @@ static NSString *Identifier = @"identifier";
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                NSString *cart = response[@"data"][@"cart_num"];
+                               NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                               NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                               NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                               [YPCRequestCenter shareInstance].carNumber = cart;
+                               [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                               [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                               weakSelf.naviShopCar.badgeValue = cart;
                                NSString *order_new = response[@"data"][@"order_new"];
                                NSString *order_pay = response[@"data"][@"order_pay"];
                                NSString *order_send = response[@"data"][@"order_send"];
@@ -132,9 +157,20 @@ static NSString *Identifier = @"identifier";
                                weakSelf.waitSend.badgeValue = order_pay;
                                weakSelf.yetSend.badgeValue = order_send;
                                weakSelf.naviShopCar.badgeValue = cart;
+                               
+                               if (weakSelf.commentLbl) {                                   
+                                   if ([response[@"data"][@"unread_comment"] integerValue] > 0) {
+                                       if ([response[@"data"][@"unread_comment"] integerValue] > 99) {
+                                           weakSelf.commentLbl.text = @"99";
+                                       }else {
+                                           weakSelf.commentLbl.text = response[@"data"][@"unread_comment"];
+                                       }
+                                       weakSelf.commentLbl.hidden = NO;
+                                   }else {
+                                       weakSelf.commentLbl.hidden = YES;
+                                   }
+                               }
                            }
-                           
-                           
                        }
                           fail:^(NSError *error) {
                               
@@ -142,7 +178,7 @@ static NSString *Identifier = @"identifier";
 }
 
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
-    return 2;
+    return 3;
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
     switch (section) {
@@ -150,10 +186,10 @@ static NSString *Identifier = @"identifier";
             return 2;
             break;
         case 1:
-            return 2;
+            return 1;
             break;
         case 2:
-            return 0;
+            return 2;
             break;
         default:
             break;
@@ -171,6 +207,15 @@ static NSString *Identifier = @"identifier";
     tvAccessoryImgV.frame = CGRectMake(0, 0, 25, 25);
     tvAccessoryImgV.image = IMAGE(@"mine_icon_more");
     cell.accessoryView = tvAccessoryImgV;
+    if (indexPath.section == 1) {
+        [cell.contentView addSubview:self.commentLbl];
+        [self.commentLbl mas_makeConstraints:^(MASConstraintMaker *make) {
+            make.left.equalTo(cell.contentView.mas_left).offset(128);
+            make.centerY.equalTo(cell.contentView.mas_centerY);
+            make.width.mas_equalTo(16);
+            make.height.mas_equalTo(16);
+        }];
+    }
     return cell;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
@@ -187,6 +232,7 @@ static NSString *Identifier = @"identifier";
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     [tableView deselectRowAtIndexPath:indexPath animated:YES];
+    WS(weakSelf);
     switch (indexPath.section) {
         case 0:
         {
@@ -195,21 +241,21 @@ static NSString *Identifier = @"identifier";
                     //活动订阅
                 {
                     
-                    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+                    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                         ActivitySubscribeVC *activity= [[ActivitySubscribeVC alloc]init];
                         activity.hidesBottomBarWhenPushed = YES;
-                        [self.navigationController pushViewController:activity animated:YES];
-                    }
+                        [weakSelf.navigationController pushViewController:activity animated:YES];
+                    }];
                 }
                     break;
                 case 1:
                     //我的关注
                 {
-                    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+                    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                         FollowVC *foll = [[FollowVC alloc]init];
                         foll.hidesBottomBarWhenPushed = YES;
-                        [self.navigationController pushViewController:foll animated:YES];
-                    }
+                        [weakSelf.navigationController pushViewController:foll animated:YES];
+                    }];
                     
                 }
                     break;
@@ -220,19 +266,28 @@ static NSString *Identifier = @"identifier";
             break;
         case 1:
         {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+                MyCommentVC *commentVC = [MyCommentVC new];
+                commentVC.hidesBottomBarWhenPushed = YES;
+                [weakSelf.navigationController pushViewController:commentVC animated:YES];
+            }];
+        }
+            break;
+        case 2:
+        {
             switch (indexPath.row) {
                 case 0:{
                     //帮助中心
                     HelpCenterVC *help = [[HelpCenterVC alloc]init];
                     help.hidesBottomBarWhenPushed = YES;
-                    [self.navigationController pushViewController:help animated:YES];
+                    [weakSelf.navigationController pushViewController:help animated:YES];
                 }
                     break;
                 case 1:{
                     //设置
                     SetVC *set = [[SetVC alloc]init];
                     set.hidesBottomBarWhenPushed = YES;
-                    [self.navigationController pushViewController:set animated:YES];
+                    [weakSelf.navigationController pushViewController:set animated:YES];
                 }
                     break;
                 default:
@@ -260,54 +315,55 @@ static NSString *Identifier = @"identifier";
 #pragma mark -
 #pragma mark - btn action
 - (IBAction)orderBtnClickAction:(UIButton *)sender {
+    WS(weakSelf);
     switch (sender.tag) {
         case 100:{
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                 // 全部订单
                 OrderVC *order = [[OrderVC alloc]init];
                 order.hidesBottomBarWhenPushed = YES;
-                [self.navigationController pushViewController:order animated:YES];
-            }
+                [weakSelf.navigationController pushViewController:order animated:YES];
+            }];
         }
             break;
         case 101:{
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                 // 待付款
                 OrderListVC *order = [[OrderListVC alloc]init];
                 order.hidesBottomBarWhenPushed = YES;
                 order.orderType = @"state_new";
-                [self.navigationController pushViewController:order animated:YES];
-            }
+                [weakSelf.navigationController pushViewController:order animated:YES];
+            }];
         }
             break;
         case 102:{
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                 // 待发货
                 OrderListVC *order = [[OrderListVC alloc]init];
                 order.orderType = @"state_pay";
                 order.hidesBottomBarWhenPushed = YES;
-                [self.navigationController pushViewController:order animated:YES];
-            }
+                [weakSelf.navigationController pushViewController:order animated:YES];
+            }];
         }
             break;
         case 103:{
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                 // 已发货
                 OrderListVC *order = [[OrderListVC alloc]init];
                 order.orderType = @"state_send";
                 order.hidesBottomBarWhenPushed = YES;
-                [self.navigationController pushViewController:order animated:YES];
-            }
+                [weakSelf.navigationController pushViewController:order animated:YES];
+            }];
         }
             break;
         case 104:{
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
                 // 已完成
                 OrderListVC *order = [[OrderListVC alloc]init];
                 order.orderType = @"state_success";
                 order.hidesBottomBarWhenPushed = YES;
-                [self.navigationController pushViewController:order animated:YES];
-            }
+                [weakSelf.navigationController pushViewController:order animated:YES];
+            }];
         }
             break;
             
@@ -319,36 +375,39 @@ static NSString *Identifier = @"identifier";
  登录
  */
 - (IBAction)loginBtnClick:(UIButton *)sender {
-    [YPCRequestCenter isLoginAndPresentLoginVC:self];
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{}];
 }
 
 /**
  账户信息
  */
 - (IBAction)accountInfoClickAction:(UIButton *)sender {
+    WS(weakSelf);
     AccounManagerVC *accoun = [[AccounManagerVC alloc]init];
     accoun.hidesBottomBarWhenPushed = YES;
-    [self.navigationController pushViewController:accoun animated:YES];
+    [weakSelf.navigationController pushViewController:accoun animated:YES];
 }
 
 /**
  购物车
  */
 - (void)shopCarClickAction{
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
         ShoppingCarVC *shopcar = [[ShoppingCarVC alloc]init];
         shopcar.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:shopcar animated:YES];
-    }
+        [weakSelf.navigationController pushViewController:shopcar animated:YES];
+    }];
 }
 
 /**
  消息
  */
 - (void)mesBtnClickAction{
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-        [YPC_Tools pushConversationListViewController:self];
-    }
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+        [YPC_Tools pushConversationListViewController:weakSelf];
+    }];
 }
 
 /**
@@ -361,41 +420,6 @@ static NSString *Identifier = @"identifier";
         
     }
 }
-
-
-#if 0
-/**
- 收藏
- */
-- (void)likeBtnClick{
-    if (![YPCRequestCenter isLogin]) {
-        
-    }else{
-        HCPageVC *pageVC = [HCPageVC new];
-        pageVC.navigationItem.title = @"我的收藏";
-        pageVC.subViewType = PageSubViewCollect;
-        pageVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:pageVC animated:YES];
-    }
-}
-
-/**
- 足迹
- */
-- (void)footBtnClick{
-    if (![YPCRequestCenter isLogin]) {
-        
-    }else{
-        HCPageVC *pageVC = [HCPageVC new];
-        pageVC.navigationItem.title = @"我的足迹";
-        pageVC.subViewType = PageSubViewHistory;
-        pageVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:pageVC animated:YES];
-    }
-}
-#endif
-
-
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

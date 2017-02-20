@@ -7,10 +7,9 @@
 //
 
 #import "BaseNaviConfigVC.h"
-#import "TempHomePushModel.h"
 
 @interface PreheatingVC : BaseNaviConfigVC
 
-@property (nonatomic, strong) TempHomePushModel *tempModel;
+@property (nonatomic, strong) NSString *liveId;
 
 @end

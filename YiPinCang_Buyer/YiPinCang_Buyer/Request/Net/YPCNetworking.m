@@ -392,7 +392,12 @@ static inline NSString *cachePath() {
                         [self logWithFailError:error url:absolute params:params];
                     }
                 }
-            } else {
+            }else if(error.code == 3840){
+                [YPC_Tools showSvpWithNoneImgHud:@"网络繁忙,请稍后再试!"];
+                [self handleCallbackWithError:error fail:fail];
+//                NSString *str = [NSString stringWithFormat:@"%@ --> 3840 ❌",url];
+//                [YPC_Tools customAlertViewWithTitle:@"提示:" Message:str BtnTitles:nil CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:nil cancelHandler:nil destructiveHandler:nil];
+            }else {
                 [self handleCallbackWithError:error fail:fail];
                 
                 if ([self isDebug]) {
@@ -480,6 +485,11 @@ static inline NSString *cachePath() {
                         [self logWithFailError:error url:absolute params:params];
                     }
                 }
+            }else if(error.code == 3840){
+                [YPC_Tools showSvpWithNoneImgHud:@"网络繁忙,请稍后再试!"];
+                NSString *str = [NSString stringWithFormat:@"%@ --> 3840 ❌",url];
+                YPCAppLog(@"%@", str);
+//                [YPC_Tools customAlertViewWithTitle:@"提示:" Message:str BtnTitles:nil CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:nil cancelHandler:nil destructiveHandler:nil];
             } else {
                 [self handleCallbackWithError:error fail:fail];
                 

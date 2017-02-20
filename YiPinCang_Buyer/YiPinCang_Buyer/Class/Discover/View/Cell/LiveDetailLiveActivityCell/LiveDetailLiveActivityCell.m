@@ -29,6 +29,10 @@
     }else{
         self.numberLab.hidden = YES;
     }
+    self.originalPriceLab.text = [NSString stringWithFormat:@"¥%@",model.goods_marketprice];
+    [self.originalPriceLab sizeToFit];
+    self.originalPriceLab.sd_layout.widthIs(self.originalPriceLab.frame.size.width);
+    
 }
 - (void)awakeFromNib {
     [super awakeFromNib];

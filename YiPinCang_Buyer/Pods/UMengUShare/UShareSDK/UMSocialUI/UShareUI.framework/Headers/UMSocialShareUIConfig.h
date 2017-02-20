@@ -25,6 +25,16 @@ typedef void(^UMSocialSharePlatformSelectionBlock)(UMSocialPlatformType platform
 
 
 /**
+ *  分享面板的代码，目前只提供显示和隐藏
+ */
+@protocol UMSocialShareMenuViewDelegate <NSObject>
+@optional
+- (void)UMSocialShareMenuViewDidAppear;
+- (void)UMSocialShareMenuViewDidDisappear;
+@end
+
+
+/**
  *  点击平台的代理
  */
 @protocol UMSocialHandlePlatformTypeDelegate <NSObject>

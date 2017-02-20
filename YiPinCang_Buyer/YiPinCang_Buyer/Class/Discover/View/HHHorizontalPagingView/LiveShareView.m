@@ -28,10 +28,16 @@
     contentTV.emptyDataSetDelegate = contentTV;
     contentTV.emptyDataSetSource = contentTV;
     contentTV.tableFooterView = [UIView new];
+    contentTV.contentInset = UIEdgeInsetsMake(0, 0, 25, 0);
     return contentTV;
 }
 
-
+- (NSMutableArray *)dataArr{
+    if (_dataArr == nil) {
+        _dataArr = [NSMutableArray array];
+    }
+    return _dataArr;
+}
 
 
 
@@ -67,7 +73,7 @@
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                if (isRefresh) {
                                    [weakSelf.dataArr removeAllObjects];
-                                   [weakSelf reloadData];
+                                   
                                }else{
                                    [weakSelf reloadDataWithExistedHeightCache];
                                }
@@ -81,6 +87,7 @@
                                [weakSelf reloadData];
                                if (arr.count < 10) {
                                    [weakSelf.mj_footer endRefreshingWithNoMoreData];
+                                   weakSelf.mj_footer = nil;
                                }else{
                                    [weakSelf.mj_footer endRefreshing];
                                }
@@ -152,8 +159,14 @@
     return width;
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
-    
-    return scrollView.frame.origin.y +50;
+    if (iPhone5) {
+        return scrollView.frame.origin.y + 100;
+    }else if(iPhone6){
+        return scrollView.frame.origin.y + 105;
+    }else if (iPhone6P){
+        return scrollView.frame.origin.y + 110;
+    }
+    return 0;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

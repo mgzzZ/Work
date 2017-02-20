@@ -18,8 +18,10 @@ typedef void(^ChooseSizeBlock)();
 typedef void(^PayCountBlock)(NSString *num);
 
 @interface ShoppongCarCell : UITableViewCell
+@property (strong, nonatomic) IBOutlet OriginalPriceLab *originalPriceLab;
 @property (strong, nonatomic) IBOutlet UIButton *Choose1Btn;
 @property (strong, nonatomic) IBOutlet UIImageView *storeImg;
+@property (strong, nonatomic) IBOutlet UIButton *payBtn;
 @property (strong, nonatomic) IBOutlet UILabel *price1Lab;
 @property (strong, nonatomic) IBOutlet UILabel *nameLab;
 @property (strong, nonatomic) IBOutlet UILabel *typeLab;
@@ -31,12 +33,16 @@ typedef void(^PayCountBlock)(NSString *num);
 @property (weak, nonatomic) IBOutlet PPNumberButton *payCount2;
 @property (weak, nonatomic) IBOutlet UIView *bgView;
 @property (weak, nonatomic) IBOutlet UILabel *countLab;
+@property (strong, nonatomic) IBOutlet UIView *countView1;
+@property (weak, nonatomic) IBOutlet UIView *countView2;
+@property (strong, nonatomic) IBOutlet UILabel *scountLab1;
+@property (weak, nonatomic) IBOutlet UILabel *scountLab2;
 @property (nonatomic ,strong) dispatch_source_t timer;
 @property (weak, nonatomic) IBOutlet UILabel *price2Lab;
 @property (weak, nonatomic) IBOutlet UILabel *sizeLab2;
 @property (weak, nonatomic) IBOutlet UIButton *chooseSizeBtn;
 @property (nonatomic,strong)Shoppingcar_dataModel *model;
-
+@property (nonatomic,copy)NSString *type;
 @property (nonatomic,copy)DeleteBlock deleteBlock;
 @property (nonatomic,copy)ChooseSizeBlock chooseBlock;
 @property (nonatomic,copy)SeleteBtnClick seleteBlock;

@@ -14,5 +14,7 @@
 
 + (AppDelegate *) shareAppDelegate;
 
+@property (nonatomic, strong) NSURL *url;
+
 @end
 

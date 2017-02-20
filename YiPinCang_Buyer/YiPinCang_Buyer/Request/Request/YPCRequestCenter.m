@@ -79,7 +79,7 @@
         return info;
         
     }else {
-        NSLog(@"error : sID nil uID nil");
+//        NSLog(@"error : sID nil uID nil");
         NSDictionary *info = @{
                                @"session" : @{
                                        @"sid" : @"0",
@@ -134,16 +134,19 @@
     }
 }
 
-+ (BOOL)isLoginAndPresentLoginVC:(UIViewController *)vc
++ (void)isLoginAndPresentLoginVC:(UIViewController *)vc
+                         success:(YPCVoidBlock)success
 {
     if (![self isLogin]) {
         LoginVC *login = [LoginVC new];
+        [login setSuccessLoginBlock:^{
+            success();
+        }];
         UINavigationController *loginNav = [[UINavigationController alloc]initWithRootViewController:login];
         login.navigationController.navigationBar.hidden = YES;
         [vc presentViewController:loginNav animated:YES completion:nil];
-        return NO;
     }else {
-        return YES;
+        success();
     }
 }
 
@@ -161,28 +164,33 @@
 + (void)networkDidReceiveMessage:(NSNotification *)notification
 {
     NSDictionary *dic = [notification userInfo];
-    
-    switch ([dic[@"content_type"] integerValue]) {
-        case 0:
-            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
-            break;
-        case 1:
-            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
-            break;
-        case 2:
-            [NotificationCenter postNotificationName:@"comment" object:dic];//发现详情评论
-            break;
-        case 3:
-          
-            break;
-        case 4:
-          
-            break;
-        case 5:
-         
-            break;
-        default:
-            break;
+    if ([dic[@"content_type"] integerValue] == 1) {
+        switch ([dic[@"extras"][@"strace_type"] integerValue]) {
+                
+            case 1:
+                [NotificationCenter postNotificationName:@"comment" object:dic];//预热贴
+                break;
+            case 2:
+                [NotificationCenter postNotificationName:@"comment" object:dic];//商品贴
+                break;
+                
+            default:
+                break;
+        }
+    }else if([dic[@"content_type"] integerValue] == 2){
+        switch ([dic[@"extras"][@"strace_type"] integerValue]) {
+                
+            case 2:
+                [NotificationCenter postNotificationName:@"comment" object:dic];//预热贴
+                break;
+            case 4:
+                [NotificationCenter postNotificationName:@"comment" object:dic];//商品贴
+                break;
+                
+            default:
+                break;
+        }
     }
+   
 }
 @end

@@ -11,4 +11,6 @@
 @interface LoginSetPasswordVC : UIViewController
 @property (nonatomic,copy)NSString *token;
 @property (nonatomic,copy)NSString *from;
+
+@property (nonatomic, copy) NSString *phoneNum;
 @end

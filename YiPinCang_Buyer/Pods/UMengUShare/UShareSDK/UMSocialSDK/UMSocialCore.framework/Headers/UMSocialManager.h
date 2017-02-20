@@ -153,7 +153,7 @@
  *  @param completion   回调
  */
 - (void)authWithPlatform:(UMSocialPlatformType)platformType
-   currentViewController:(id)currentViewController
+   currentViewController:(UIViewController *)currentViewController
               completion:(UMSocialRequestCompletionHandler)completion;
 
 @end

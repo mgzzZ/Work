@@ -33,4 +33,6 @@
 @property (nonatomic,copy) NSString *livingshowinitimg;
 @property (nonatomic,copy) NSString *video;
 @property (nonatomic,copy) NSString *live_state;
+@property (nonatomic,copy) NSString *ac_state;
+@property (nonatomic,copy) NSString *fid;
 @end

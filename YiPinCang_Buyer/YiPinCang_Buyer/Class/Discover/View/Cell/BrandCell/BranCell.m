@@ -27,16 +27,6 @@
 
 - (void)setUp{
    
-    
-    UIView *view = [[UIView alloc]init];
-    view.backgroundColor= [Color colorWithHex:@"0xe3e3e3"];
-    view.alpha = 0.72;
-    [self.contentView addSubview:view];
-    view.sd_layout
-    .widthIs(23)
-    .heightIs(11)
-    .topSpaceToView(self.contentView,22.5)
-    .leftSpaceToView(self.contentView,7.5);
     self.numberLab = [[UILabel alloc]init];
     [self.contentView addSubview:self.numberLab];
     self.numberLab.textColor = [Color colorWithHex:@"#f00e3a"];
@@ -54,11 +44,13 @@
     self.nameLab.sd_layout
     .leftSpaceToView(self.numberLab,0)
     .topEqualToView(self.numberLab)
-    .rightEqualToView(self.contentView)
+    .rightSpaceToView(self.contentView,15)
     .autoHeightRatio(0);
     
     self.bgImgView = [[PhotoContainerView alloc]init];
     [self.contentView addSubview:self.bgImgView];
+    self.bgImgView.containerType = PhotoContainerTypeFindScreenWidth;
+    self.bgImgView.modeType = PhotoContainerModeTypeHave;
     self.bgImgView.sd_layout.leftSpaceToView(self.numberLab,0);
     
     UIView *lineView = [[UIView alloc]init];
@@ -87,7 +79,7 @@
     self.likeCountLab.textColor = [Color colorWithHex:@"0x666666"];
     self.likeCountLab.font = [UIFont systemFontOfSize:12];
     self.likeCountLab.sd_layout
-    .rightSpaceToView(self.contentView,15)
+    .rightSpaceToView(self.contentView,44 + 5)
     .heightIs(15)
     .centerYEqualToView(self.timeLab);
     
@@ -105,7 +97,7 @@
     self.commontCountLab.textColor = [Color colorWithHex:@"0x666666"];
     self.commontCountLab.font = [UIFont systemFontOfSize:12];
     self.commontCountLab.sd_layout
-    .rightSpaceToView(self.likeImg,15)
+    .rightSpaceToView(self.likeImg,15 + 5)
     .heightIs(15)
     .centerYEqualToView(self.timeLab);
     
@@ -118,6 +110,7 @@
     .rightSpaceToView(self.commontCountLab,5);
     
     self.payBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    self.payBtn.userInteractionEnabled = NO;
     [self.payBtn setImage:IMAGE(@"find_button") forState:UIControlStateNormal];
     [self.contentView addSubview:self.payBtn];
     self.payBtn.sd_layout
@@ -130,42 +123,44 @@
     self.priceLab = [[UILabel alloc]init];
     [self.contentView addSubview:self.priceLab];
     self.priceLab.textAlignment = NSTextAlignmentLeft;
-    self.priceLab.font = [UIFont systemFontOfSize:21];
-    self.priceLab.textColor = [Color colorWithHex:@"#F00E3A"];
+    self.priceLab.font = [UIFont systemFontOfSize:18];
+    self.priceLab.textColor = [Color colorWithHex:@"#333333"];
     self.priceLab.sd_layout
     .leftEqualToView(self.nameLab)
     .rightSpaceToView(self.payBtn,10)
-    .topSpaceToView(lineView,17)
-    .heightIs(24.5);
+    .topSpaceToView(lineView,10)
+    .heightIs(20);
     
-    UIImageView *img = [[UIImageView alloc]initWithImage:IMAGE(@"find_ssle_icon")];
-    [self.contentView addSubview:img];
-    img.sd_layout
+    
+    self.originalLab = [[OriginalPriceLab alloc]init];
+    [self.contentView addSubview:self.originalLab];
+    self.originalLab.textAlignment = NSTextAlignmentLeft;
+    self.originalLab.font = YPCPFFont(12);
+    self.originalLab.textColor = [Color colorWithHex:@"0xbfbfbf"];
+    self.originalLab.sd_layout
     .leftEqualToView(self.priceLab)
     .topSpaceToView(self.priceLab,5)
-    .widthIs(122)
-    .heightIs(15.5);
-    
-    self.countView = [[UIView alloc]init];
-    self.countView.backgroundColor = [Color colorWithHex:@"#f00e3a"];
-    self.countView.layer.cornerRadius = 7.75;
-    [self.contentView addSubview:self.countView];
-    self.countView.sd_layout
-    .leftEqualToView(img)
-    .topEqualToView(img)
-    .bottomEqualToView(img);
+    .heightIs(15);
     
     self.countLab = [[UILabel alloc]init];
     [self.contentView addSubview:self.countLab];
-    self.countLab.textAlignment = NSTextAlignmentLeft;
-    self.countLab.font = [UIFont fontWithName:@"PingFangSC-Regular" size:11];
+    self.countLab.textAlignment = NSTextAlignmentCenter;
+    self.countLab.font = [UIFont systemFontOfSize:11];
     self.countLab.textColor = [Color colorWithHex:@"#f00e3a"];
     self.countLab.sd_layout
-    .leftSpaceToView(self.priceLab,5)
-    .rightEqualToView(img)
-    .topEqualToView(img)
-    .bottomEqualToView(img);
+    .leftEqualToView(self.priceLab)
+    .widthIs(122)
+    .topSpaceToView(self.originalLab,5)
+    .heightIs(15.5);
     
+    self.shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+    [self.shareBtn setImage:IMAGE(@"huodongpage_share_icon") forState:UIControlStateNormal];
+    [self.contentView addSubview:self.shareBtn];
+    self.shareBtn.sd_layout
+    .rightSpaceToView(self.contentView,0)
+    .widthIs(44)
+    .heightIs(44)
+    .centerYEqualToView(self.timeLab);
     
     UIView *bottomView = [[UIView alloc]init];
     bottomView.backgroundColor = [Color colorWithHex:@"0xe3e3e3"];
@@ -174,7 +169,7 @@
     .leftEqualToView(self.contentView)
     .rightEqualToView(self.contentView)
     .heightIs(10)
-    .topSpaceToView(self.payBtn,23.5);
+    .topSpaceToView(self.countLab,11.5);
     
     [self setupAutoHeightWithBottomView:bottomView bottomMargin:0];
     
@@ -188,8 +183,10 @@
     if (model.strace_content.count == 1) {
         self.bgImgView.WH = model.aspect.floatValue;
         self.bgImgView.picPathStringsArray = model.strace_content;
+        self.bgImgView.thumbPicPathStringsArray = model.strace_content_thumb;
     }else{
         self.bgImgView.picPathStringsArray = model.strace_content;
+        self.bgImgView.thumbPicPathStringsArray = model.strace_content_thumb;
     }
     self.bgImgView.sd_layout.topSpaceToView(self.nameLab,10);
     self.likeCountLab.text = model.strace_cool;
@@ -200,10 +197,37 @@
     self.commontCountLab.sd_layout.widthIs(self.commontCountLab.frame.size.width);
     self.numberLab.text = model.goods_serial;
     self.timeLab.text = model.goods_uptime;
+    self.originalLab.text = [NSString stringWithFormat:@"¥%@",model.goods_marketprice];
+    [self.originalLab sizeToFit];
+    self.originalLab.sd_layout.widthIs(self.originalLab.frame.size.width);
+    if (_gradientView) {
+        [_gradientView removeFromSuperview];
+    }
+    self.gradientView = [[GradientView alloc]init];
+    self.gradientView.fillColor = [Color colorWithHex:@"#FCC6D1"];
+    self.gradientView.fromColor = [Color colorWithHex:@"#F5C6CD"];
+    self.gradientView.toColor = [Color colorWithHex:@"#FBDCD5"];
+    [self.contentView addSubview:self.gradientView];
+    self.gradientView.sd_layout
+    .leftEqualToView(self.priceLab)
+    .topSpaceToView(self.originalLab,5)
+    .widthIs(122)
+    .heightIs(15.5);
+    [self.contentView sendSubviewToBack:self.gradientView];
+    if (model.storage.floatValue == 0) {
+        [self.payBtn setImage:IMAGE(@"find_button1") forState:UIControlStateNormal];
+    }else{
+        [self.payBtn setImage:IMAGE(@"find_button") forState:UIControlStateNormal];
+       
+    }
+    CGFloat width = 0;
+    if (model.storage.floatValue + model.salenum.floatValue > 0) {
+        width = (model.salenum.floatValue / (model.storage.floatValue + model.salenum.floatValue)) * 122;
+    }
     
-    CGFloat width = (model.salenum.floatValue / model.storage.floatValue) * 122;
-    self.countView.sd_layout.widthIs(width);
+    self.gradientView.gradientWidth = width;
     self.countLab.text = [NSString stringWithFormat:@"已抢购 %@件",model.salenum];
+   
 }
 
 

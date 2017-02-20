@@ -2,14 +2,19 @@
 //  LCCKChatVoiceMessageCell.m
 //  LCCKChatExample
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) ( https://github.com/leancloud/ChatKit-OC ) on 15/11/16.
+//  v0.8.5 Created by ElonChan ( https://github.com/leancloud/ChatKit-OC ) on 15/11/16.
 //  Copyright © 2015年 https://LeanCloud.cn . All rights reserved.
 //
 
 #import "LCCKChatVoiceMessageCell.h"
 #import "LCCKMessageVoiceFactory.h"
 #import "LCCKAVAudioPlayer.h"
-#import "LCCKDeallocBlockExecutor.h"
+
+#if __has_include(<CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>)
+#import <CYLDeallocBlockExecutor/CYLDeallocBlockExecutor.h>
+#else
+#import "CYLDeallocBlockExecutor.h"
+#endif
 
 static void * const LCCKChatVoiceMessageCellVoiceMessageStateContext = (void*)&LCCKChatVoiceMessageCellVoiceMessageStateContext;
 
@@ -41,12 +46,14 @@ static void * const LCCKChatVoiceMessageCellVoiceMessageStateContext = (void*)&L
             make.right.equalTo(self.messageVoiceStatusImageView.mas_left).with.offset(-8);
             make.centerY.equalTo(self.messageContentView.mas_centerY);
         }];
+        self.messageVoiceSecondsLabel.textColor = self.conversationViewMessageRightTextColor;
         [self.messageIndicatorView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.center.equalTo(self.messageContentView);
             make.width.equalTo(@10);
             make.height.equalTo(@10);
         }];
     } else if (self.messageOwner == LCCKMessageOwnerTypeOther) {
+        self.messageVoiceSecondsLabel.textColor = self.conversationViewMessageLeftTextColor;
         [self.messageVoiceStatusImageView mas_makeConstraints:^(MASConstraintMaker *make) {
             make.left.equalTo(self.messageContentView.mas_left).with.offset(12);
             make.centerY.equalTo(self.messageContentView.mas_centerY);
@@ -82,7 +89,7 @@ static void * const LCCKChatVoiceMessageCellVoiceMessageStateContext = (void*)&L
     self.voiceMessageState = LCCKVoiceMessageStateNormal;
     [[LCCKAVAudioPlayer sharePlayer]  addObserver:self forKeyPath:@"audioPlayerState" options:NSKeyValueObservingOptionNew context:LCCKChatVoiceMessageCellVoiceMessageStateContext];
     __unsafe_unretained __typeof(self) weakSelf = self;
-    [self lcck_executeAtDealloc:^{
+    [self cyl_executeAtDealloc:^{
         [[LCCKAVAudioPlayer sharePlayer] removeObserver:weakSelf forKeyPath:@"audioPlayerState"];
     }];
 }
@@ -177,7 +184,7 @@ static void * const LCCKChatVoiceMessageCellVoiceMessageStateContext = (void*)&L
 - (UILabel *)messageVoiceSecondsLabel {
     if (!_messageVoiceSecondsLabel) {
         _messageVoiceSecondsLabel = [[UILabel alloc] init];
-        _messageVoiceSecondsLabel.font = [UIFont systemFontOfSize:14.0f];
+        _messageVoiceSecondsLabel.font = [LCCKSettingService sharedInstance].defaultThemeTextMessageFont;
         _messageVoiceSecondsLabel.text = @"0''";
     }
     return _messageVoiceSecondsLabel;

@@ -33,4 +33,5 @@ typedef void(^PushSizeHelpBlock)();
 @property (nonatomic,copy)CancelBlock cancel;
 @property (nonatomic,strong)ChooseSizeModel *model;
 @property (nonatomic,copy)PushSizeHelpBlock push;
+- (void)keyboredHiden;
 @end

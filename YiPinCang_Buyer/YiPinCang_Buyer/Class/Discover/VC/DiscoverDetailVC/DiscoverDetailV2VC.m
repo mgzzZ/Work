@@ -13,19 +13,18 @@
 #import "LiveDetailHHHVC.h"
 #import "DiscoverDetailVC.h"
 #import "WebViewController.h"
-#import "LivingVC.h"
-#import "PreheatingVC.h"
-#import "VideoPlayerVC.h"
 #import "TopView.h"
 #import "ClassSegView.h"
 #import "FiterBrandView.h"
 #import "BranCell.h"
 #import "DiscoverBrandLiskModel.h"
+#import <MediaPlayer/MediaPlayer.h>
+
 @interface DiscoverDetailV2VC ()<UITableViewDelegate,UITableViewDataSource,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
+
 @property (nonatomic,strong)BrandDetailHeaderView *headerView;
 @property (nonatomic,strong)UITableView *tableView;
 @property (nonatomic,strong)BrandDetailModel *model;
-@property (nonatomic, strong) dispatch_source_t timer;
 @property (nonatomic,strong)NSMutableArray *dataArr;
 @property (nonatomic,strong)TopView *topView;
 @property (nonatomic,strong)UIView *bgView;
@@ -44,44 +43,61 @@
 @property (nonatomic,strong)ClassSegView *classSegView;
 @property (nonatomic,assign)BOOL isHave;
 @property (nonatomic,assign)CGFloat offset;
+@property (nonatomic,assign)BOOL isTop;
+@property (nonatomic,copy)NSString *topStr;
+@property (nonatomic,assign)CGFloat KheaderViewHeight;
+@property (strong, nonatomic) MPMoviePlayerController *moviePlayer;
+@property (strong, nonatomic) UIButton *movieCoverBtn;
+@property (nonatomic, strong) UIActivityIndicatorView *loadingView;
 
 @end
 
 @implementation DiscoverDetailV2VC
-- (void)dealloc
-{
-    [self stopTimer];
-}
 - (void)viewDidLoad {
     [super viewDidLoad];
     [self.navigationController.navigationBar mz_setBackgroundImage:IMAGE(@"homepage_bar")];
     [self.navigationController.navigationBar mz_setBackgroundColor:[Color colorWithHex:@"#3B3B3B"]];
-    [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
-    self.view.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    self.navigationItem.title = @"品牌商品";
+    [self.navigationController.navigationBar mz_setBackgroundAlpha:0];
+    self.view.backgroundColor = [Color colorWithHex:@"0xe3e3e3"];
     self.btnType = @"0";
     self.class_id = @"";
     self.sectionStr = @"";
+    self.isTop = NO;
+    self.topStr = @"1";
     self.page = @"1";
     self.listorder = @"0";
-    [self getData:@"1" isRefresh:YES];
+    [self addMjRefresh];
     [self getDataOfBrand];
+    self.automaticallyAdjustsScrollViewInsets = NO;
+    self.KheaderViewHeight = ScreenWidth * 150 / 375;
+    self.page = @"1";
+    [self getData:self.page isRefresh:YES];
 }
 - (void)getData:(NSString *)page isRefresh:(BOOL)isRefresh{
     WS(weakSelf);
     
+    NSDictionary *parms = [YPCRequestCenter isLogin] > 0 ? [YPCRequestCenter getUserInfoAppendDictionary:@{@"live_id":weakSelf.live_id,
+                                                                                                           @"listorder":weakSelf.listorder,
+                                                                                                           @"class_id":weakSelf.class_id,
+                                                                                                           @"pagination":@{
+                                                                                                                   @"page":page,
+                                                                                                                   @"count":@"10"
+                                                                                                                   }
+                                                                                                           }] : @{@"live_id":weakSelf.live_id,
+                                                                                                                  @"listorder":weakSelf.listorder,
+                                                                                                                  @"class_id":weakSelf.class_id,
+                                                                                                                  @"pagination":@{
+                                                                                                                          @"page":page,
+                                                                                                                          @"count":@"10"
+                                                                                                                          }
+                                                                                                                  };
+    
     [YPCNetworking postWithUrl:@"shop/showstore/brandgoodsv2"
                   refreshCache:YES
-                        params:@{@"live_id":weakSelf.live_id,
-                                 @"listorder":weakSelf.listorder,
-                                 @"class_id":weakSelf.class_id,
-                                 @"pagination":@{
-                                         @"page":page,
-                                         @"count":@"10"
-                                         }
-                                 }
+                        params:parms
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
+                               
                                weakSelf.model = [BrandDetailModel mj_objectWithKeyValues:response[@"data"]];
                                [weakSelf.headerView.bgimg sd_setImageWithURL:[NSURL URLWithString:weakSelf.model.brand.bgurl] placeholderImage:IMAGE(@"find_logo_placeholder")];
                                [weakSelf.headerView.brandBtn setImage:[UIImage imageWithData:[NSData dataWithContentsOfURL:[NSURL URLWithString:weakSelf.model.brand.store_avatar]]] forState:UIControlStateNormal];
@@ -89,13 +105,16 @@
                                weakSelf.headerView.BrandTitleLab.text = weakSelf.message;
                                
                                if ([weakSelf.type isEqualToString:@"直播中"]) {
-                                   weakSelf.headerView.liveView.hidden = NO;
+                                   [weakSelf.headerView.typeImg setImage:IMAGE(@"find_live_icon")];
+                                   weakSelf.headerView.LiveImg.hidden = NO;
+                                   [weakSelf animationWithButton];
                                    
-                                   [weakSelf animationsStart];
-                                   
-                                   
+                               }else if ([weakSelf.type isEqualToString:@"预告"]){
+                                   [weakSelf.headerView.typeImg setImage:IMAGE(@"find_kan xianchang_icon")];
+                                   weakSelf.headerView.LiveImg.hidden = YES;
                                }else{
-                                   weakSelf.headerView.liveView.hidden = YES;
+                                   [weakSelf.headerView.typeImg setImage:IMAGE(@"find_kan huifang_icon")];
+                                   weakSelf.headerView.LiveImg.hidden = YES;
                                }
                                if ([weakSelf.model.brand.isfavor isEqualToString:@"1"]) {
                                    weakSelf.headerView.fllowBtn.selected = YES;
@@ -114,19 +133,18 @@
                                [weakSelf.dataArr addObjectsFromArray:weakSelf.model.list];
                                if (weakSelf.dataArr.count != 0 && weakSelf.isHave == NO) {
                                    [weakSelf upRefresh];
-                                   [weakSelf addMjRefresh];
                                    weakSelf.isHave = YES;
                                }
+                               [weakSelf.tableView.mj_header endRefreshing];
                                [weakSelf.tableView reloadData];
+
                                if (weakSelf.model.list.count < 10) {
                                    [weakSelf.tableView.mj_footer endRefreshingWithNoMoreData];
+                                   weakSelf.tableView.mj_footer = nil;
+                                   weakSelf.isHave = NO;
                                }else{
                                    [weakSelf.tableView.mj_footer endRefreshing];
                                }
-                               [weakSelf.tableView.mj_header endRefreshing];
-
-                               
-                               
                                
                            }
                            
@@ -134,6 +152,7 @@
                           fail:^(NSError *error) {
                               
                           }];
+    
 }
 - (void)getDataOfBrand{
     WS(weakSelf);
@@ -158,11 +177,15 @@
 #pragma mark - 刷新加载
 - (void)addMjRefresh
 {
+    [self.tableView.mj_header endRefreshing];
     WS(weakSelf);
     self.tableView.mj_header = [YPCRefreshHeader headerWithRefreshingBlock:^{
+       
         weakSelf.page = @"1";
         [weakSelf getData:weakSelf.page isRefresh:YES];
     }];
+//    [self.tableView.mj_header beginRefreshing];
+
 }
 - (void)upRefresh{
     
@@ -181,10 +204,113 @@
         self.topView.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
         self.topView.bgView.layer.borderWidth = 1;
         self.topView.recommendBtn.selected = NO;
-        [self.topView.priceBtn addTarget:self action:@selector(priceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.brandBtn addTarget:self action:@selector(brandBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.otherBtn addTarget:self action:@selector(otherBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.recommendBtn addTarget:self action:@selector(recommendBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+        WS(weakself);
+        self.topView.didBtnClick = ^(UIButton *clickBtn,NSInteger tag){
+            if (weakself.dataArr.count == 0) {
+                return;
+            }
+            switch (tag) {
+                case 1000:
+                {
+                    
+                    clickBtn.selected = NO;
+                    [weakself chooseHiden];
+                    weakself.class_id =@"";
+                    if (![weakself.listorder isEqualToString:@"0"]) {
+                        weakself.listorder = @"0";
+                        weakself.page = @"1";
+                        [weakself getData:weakself.page isRefresh:YES];
+                    }else{
+                        weakself.listorder = @"0";
+                    }
+                    [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                    [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
+                }
+                    break;
+                case 1001:
+                {
+                    if (clickBtn.selected == NO) {
+                        clickBtn.selected = YES;
+                        if (weakself.dataArr.count > 1) {
+                             weakself.bgView.backgroundColor = [UIColor blackColor];
+                            if ([weakself.topStr isEqualToString:@"1"]) {
+                                weakself.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+                            }
+                            weakself.isTop = YES;
+                            [weakself.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:NO];
+                            
+                        }else{
+                            if ([weakself.topStr isEqualToString:@"1"]) {
+                                weakself.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+                            }
+                            weakself.bgView.backgroundColor = [UIColor clearColor];
+                        }
+                        clickBtn.selected = YES;
+                        weakself.topView.brandBtn.selected = NO;
+                        weakself.topView.priceBtn.selected = NO;
+                        weakself.topView.recommendBtn.selected = YES;
+                        [weakself chooseHiden];
+                        [weakself segBrandViewHidenNo:weakself.sectionArr];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
+                    }else{
+                        clickBtn.selected = NO;
+                        [weakself chooseHiden];
+                        weakself.topView.recommendBtn.selected = NO;
+                        weakself.class_id =@"";
+                    }
+                }
+                    break;
+                case 1002:
+                {
+                    weakself.isTop = NO;
+                    weakself.topView.priceBtn.selected = NO;
+                    weakself.topView.otherBtn.selected = NO;
+                    
+                    if ([weakself.listorder isEqualToString:@"0"] || [weakself.listorder isEqualToString:@"3"]) {
+                        weakself.listorder = @"1";
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                        weakself.topView.recommendBtn.selected = YES;
+                    }else if ([weakself.listorder isEqualToString:@"1"]){
+                        weakself.listorder = @"2";
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
+                        weakself.topView.recommendBtn.selected = YES;
+                    }else if ([weakself.listorder isEqualToString:@"2"]){
+                        weakself.listorder = @"0";
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#666666"] forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                        weakself.topView.recommendBtn.selected = NO;
+                    }
+                    weakself.page = @"1";
+                    [weakself getData:weakself.page isRefresh:weakself];
+                }
+                    break;
+                case 1003:
+                {
+                    weakself.isTop = NO;
+                    if (clickBtn.selected == NO) {
+                        weakself.listorder = @"3";
+                        clickBtn.selected = YES;
+                        weakself.topView.recommendBtn.selected = YES;
+                    }else{
+                        weakself.listorder = @"0";
+                        clickBtn.selected = NO;
+                        weakself.topView.recommendBtn.selected = NO;
+                    }
+                    [weakself chooseHiden];
+                    weakself.page = @"1";
+                    [weakself getData:weakself.page isRefresh:YES];
+                    [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                    [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+        };
         [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
     }
     
@@ -207,6 +333,8 @@
     }
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     cell.model = self.dataArr[indexPath.row];
+    cell.shareBtn.tag = indexPath.row;
+    [cell.shareBtn addTarget:self action:@selector(shareBtnClick:) forControlEvents:UIControlEventTouchUpInside];
     return cell;
 }
 
@@ -215,12 +343,17 @@
     return [tableView cellHeightForIndexPath:indexPath model:model keyPath:@"model" cellClass:[BranCell class]  contentViewWidth:[self cellContentViewWith]];
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    WS(weakself);
     LiveActivityModel *model = self.dataArr[indexPath.row];
     DiscoverDetailVC *dic = [[DiscoverDetailVC alloc]init];
     dic.strace_id = model.strace_id;
+    dic.backBlock = ^(NSString *likeCount,NSString *isLike,NSString *commentCount){
+        model.strace_cool = likeCount;
+        model.strace_comment = commentCount;
+        [weakself.tableView reloadRowsAtIndexPaths:@[indexPath] withRowAnimation:UITableViewRowAnimationNone];
+    };
     dic.typeStr = @"淘好货";
     [self.navigationController pushViewController:dic animated:YES];
-
 }
 
 
@@ -248,24 +381,40 @@
 - (void)scrollViewDidScroll:(UIScrollView *)scrollView{
     CGFloat offset = scrollView.contentOffset.y;
     self.offset = offset;
-    CGPoint point = scrollView.contentOffset;
-    if (self.dataArr.count > 0 ) {
-        if (point.y <= 42.f) {
+    if (self.dataArr.count > 0) {
+        if (scrollView.contentOffset.y <= (self.KheaderViewHeight - 64) && scrollView.contentOffset.y >= 0) {
             scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-        }else if (point.y > 42.f){
-            scrollView.contentInset = UIEdgeInsetsMake(64, 0, 0, 0);
+            
+        }else if(scrollView.contentOffset.y >= self.KheaderViewHeight - 64) {
+           
+          scrollView.contentInset  = UIEdgeInsetsMake(64, 0, 0, 0);
+            
+            
         }
-    }else{
-        scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        
     }
-    if (offset > 215) {
-        CGFloat alpha = MIN(1, 1 - ((215 - 64.f - offset) / 64));
+    if (offset > 175) {
+        CGFloat alpha = MIN(1, 1 - ((175 - 64.f - offset) / 64));
         [[YPC_Tools getControllerWithView:self.view].navigationController.navigationBar mz_setBackgroundAlpha:alpha];
+        self.navigationItem.title = self.titleStr;
     }else{
-        [[YPC_Tools getControllerWithView:self.view].navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+        [[YPC_Tools getControllerWithView:self.view].navigationController.navigationBar mz_setBackgroundAlpha:0];
+         self.navigationItem.title = @"";
     }
 }
 
+- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
+    if (scrollView.contentOffset.y < 0) {
+        self.tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+        
+    }
+}
+
+- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
+{
+    scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
+    return YES;
+}
 
 - (void)followstore_add{
     WS(weakSelf);
@@ -277,8 +426,6 @@
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                            }
-                           
-                           
                        }
                           fail:^(NSError *error) {
                               
@@ -306,7 +453,7 @@
 
 - (BrandDetailHeaderView *)headerView{
     if (_headerView == nil) {
-        _headerView = [[BrandDetailHeaderView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 325)];
+        _headerView = [[BrandDetailHeaderView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 103 + ScreenWidth * 150 / 375)];
         [_headerView.fllowBtn addTarget:self action:@selector(fllowBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         [_headerView.brandBtn addTarget:self action:@selector(brandClick) forControlEvents:UIControlEventTouchUpInside];
         [_headerView.titleBtn addTarget:self action:@selector(titleBtnClick:) forControlEvents:UIControlEventTouchUpInside];
@@ -321,7 +468,8 @@
         _tableView.dataSource = self;
         _tableView.tableHeaderView = self.headerView;
         _tableView.tableFooterView = [UIView new];
-        _tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        _tableView.backgroundColor = [Color colorWithHex:@"0xe3e3e3"];
+        _tableView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
         [self.view addSubview:_tableView];
     }
     return _tableView;
@@ -336,16 +484,28 @@
         .rightEqualToView(self.view)
         .heightIs(0);
         _classSegView.hidden = YES;
-        if (self.offset < 260.00 && self.offset > 0) {
-            _classSegView.sd_layout.topSpaceToView(self.view,325 + 42 - self.offset);
-        }else if (self.offset > 260){
+        if (self.offset < self.KheaderViewHeight && self.offset > 0) {
+            _classSegView.sd_layout.topSpaceToView(self.view,self.KheaderViewHeight + 42 - self.offset);
+            self.isTop = NO;
+            self.topStr = @"2";
+        }else if (self.offset >= self.KheaderViewHeight){
             _classSegView.sd_layout.topSpaceToView(self.view,64 + 42);
+            self.isTop = NO;
+            self.topStr = @"2";
         }else{
-            _classSegView.sd_layout.topSpaceToView(self.view,325 + 42);
+            _classSegView.sd_layout.topSpaceToView(self.view,self.KheaderViewHeight + 42);
+            self.isTop = YES;
+            self.topStr = @"1";
         }
         _classSegView.classBackId = ^(NSString *class_id){
             weakSelf.class_id = class_id;
             weakSelf.page = @"1";
+            if (weakSelf.isTop) {
+                weakSelf.tableView.contentInset  = UIEdgeInsetsMake(0, 0, 0, 0);
+                
+                weakSelf.isTop = NO;
+            }
+            
             [weakSelf getData:weakSelf.page isRefresh:YES];
             [weakSelf segBrandViewHiden];
         };
@@ -355,18 +515,16 @@
 - (UIView *)bgView{
     if (_bgView == nil) {
         _bgView = [[UIView alloc]init];
-        _bgView.backgroundColor = [UIColor clearColor];
+        _bgView.backgroundColor = [UIColor blackColor];
         _bgView.alpha = 0.3;
         [self.view addSubview:_bgView];
-        
         _tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(cancelClick:)];
         _bgView.sd_layout
-        .topSpaceToView(self.view,60)
+        .topSpaceToView(self.view,64 + 42)
         .leftEqualToView(self.view)
         .rightEqualToView(self.view)
         .bottomEqualToView(self.view);
         self.bgView.hidden = YES;
-        
     }
     return _bgView;
 }
@@ -385,101 +543,17 @@
     return _sectionArr;
 }
 
-#pragma mark - 动画开始
-- (void)animationsStart{
-    WS(weakSelf);
-    dispatch_queue_t queue = dispatch_get_main_queue();
-    self.timer = dispatch_source_create(DISPATCH_SOURCE_TYPE_TIMER, 0, 0, queue);
-    dispatch_time_t start = dispatch_time(DISPATCH_TIME_NOW, (int64_t)(1.0 * NSEC_PER_SEC));
-    uint64_t interval = (uint64_t)(1.5f * NSEC_PER_SEC);
-    dispatch_source_set_timer(self.timer, start, interval, 0);
-    dispatch_source_set_event_handler(self.timer, ^{
-        [weakSelf start];
-    });
-    dispatch_resume(self.timer);
-}
-
-- (void)start
-{
-    POPBasicAnimation *animation = [POPBasicAnimation animationWithPropertyNamed:kPOPViewAlpha];
-    animation.toValue = [NSNumber numberWithFloat:0.2];
-    animation.fromValue = [NSNumber numberWithFloat:1];
-    animation.duration= 1.5;
-    [self.headerView.liveView pop_addAnimation:animation forKey:@"live"];
-}
-
--(void)stopTimer{
-    if(_timer){
-        dispatch_source_cancel(_timer);
-        _timer = nil;
-    }
-}
 
 #pragma mark- btn action
-- (void)recommendBtnClick:(UIButton *)sender{
-    sender.selected = NO;
-    [self chooseHiden];
-    if (![self.listorder isEqualToString:@"0"]) {
-        self.listorder = @"0";
-        self.page = @"1";
-        [self getData:self.page isRefresh:YES];
-    }else{
-        self.listorder = @"0";
-    }
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
 
-- (void)priceBtnClick:(UIButton *)sender{
-    sender.selected = YES;
-    self.topView.brandBtn.selected = NO;
-    self.topView.otherBtn.selected = NO;
-    self.topView.recommendBtn.selected = YES;
-    [self chooseHiden];
-    [self segBrandViewHidenNo:self.sectionArr];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
-
-- (void)brandBtnClick:(UIButton *)sender{
-    
-    self.topView.priceBtn.selected = NO;
-    self.topView.otherBtn.selected = NO;
-    
-    if ([self.listorder isEqualToString:@"0"] || [self.listorder isEqualToString:@"3"]) {
-        self.listorder = @"1";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
-        self.topView.recommendBtn.selected = YES;
-    }else if ([self.listorder isEqualToString:@"1"]){
-        self.listorder = @"2";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
-        self.topView.recommendBtn.selected = YES;
-    }else if ([self.listorder isEqualToString:@"2"]){
-        self.listorder = @"0";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-        self.topView.recommendBtn.selected = NO;
-    }
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-}
-
-- (void)otherBtnClick:(UIButton *)sender{
-    if (sender.selected == NO) {
-        self.listorder = @"3";
-        sender.selected = YES;
-        self.topView.recommendBtn.selected = YES;
-    }else{
-        self.listorder = @"0";
-        sender.selected = NO;
-        self.topView.recommendBtn.selected = NO;
-    }
-    [self chooseHiden];
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
 - (void)cancelClick:(UIGestureRecognizer *)sender{
     self.topView.otherBtn.selected = NO;
     self.topView.priceBtn.selected = NO;
-    
+    self.topView.recommendBtn.selected = NO;
+    self.topView.priceBtn.selected = NO;
+    self.topView.otherBtn.selected = NO;
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+    [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
     [self chooseHiden];
 }
 
@@ -554,18 +628,18 @@
     
     [self.bgView addGestureRecognizer:_tap];
     self.classSegView.dataDic = self.brandDic;
-    CGFloat height = 0;
-    if (arr.count * 80 > 282) {
-        height = 282;
-    }else{
-        height = arr.count * 80;
-    }
+//    CGFloat height = 0;
+//    if (arr.count * 80 > 282) {
+//        height = 282;
+//    }else{
+//        height = arr.count * 80;
+//    }
     [UIView animateWithDuration:0.3 animations:^{
         
         self.bgView.hidden = NO;
         self.classSegView.hidden = NO;
-        self.classSegView.sd_layout.heightIs(height);
-        self.classSegView.tableView.sd_layout.heightIs(height);
+        self.classSegView.sd_layout.heightIs(355);
+        self.classSegView.tableView.sd_layout.heightIs(355);
         
     }];
     
@@ -590,7 +664,7 @@
 
 - (void)fllowBtnClick:(UIButton *)sender{
     WS(weakself);
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:weakself]) {
+    [YPCRequestCenter isLoginAndPresentLoginVC:weakself success:^{        
         if ([weakself.model.brand.isfavor isEqualToString:@"1"]) {
             [weakself followstore_cancel];
             weakself.model.brand.isfavor = @"0";
@@ -602,47 +676,132 @@
             weakself.headerView.fllowBtn.selected = YES;
             weakself.headerView.fllowBtn.backgroundColor = [UIColor clearColor];
         }
-    }
+    }];
 }
 
 - (void)titleBtnClick:(UIButton *)sender{
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-        if ([self.type isEqualToString:@"直播中"]) {
-            LivingVC *live= [[LivingVC alloc]init];
-            live.tempModel = self.tempModel;
-            
-            [[SDWebImageDownloader sharedDownloader] downloadImageWithURL:[NSURL URLWithString:self.livingshowinitimg] options:SDWebImageDownloaderUseNSURLCache progress:nil completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                if (finished && !error) {
-                    dispatch_async(dispatch_get_main_queue(), ^{
-                        live.playerPHImg = image;
-                        [self.navigationController pushViewController:live animated:YES];
-                        [YPC_Tools dismissHud];
-                    });
-                }else{
-                    [YPC_Tools showSvpHudError:@"图片未下载成功"];
-                }
-                
-            }];
-            
-        }else if ([self.type isEqualToString:@"预告"]){
-            PreheatingVC *preheat = [[PreheatingVC alloc]init];
-            preheat.tempModel = self.tempModel;
-            [self.navigationController pushViewController:preheat animated:YES];
-            
-        }else{
-            VideoPlayerVC *video = [[VideoPlayerVC alloc]init];
-            video.tempModel = self.tempModel;
-            [self.navigationController pushViewController:video animated:YES];
-        }
-    }
-
+    [self videoPlayActionWithURL:self.model.brand.live_video_url];
 }
+
+#pragma mark - 播放视频Method
+- (void)videoPlayActionWithURL:(NSString *)urlStr
+{
+    if (![urlStr isEmpty]) {
+        // 设置视频播放器
+        self.moviePlayer = [[MPMoviePlayerController alloc] initWithContentURL:[NSURL URLWithString:urlStr]];
+        self.moviePlayer.allowsAirPlay = YES;
+        [self.moviePlayer setControlStyle:MPMovieControlStyleNone];
+        [self.moviePlayer.view setFrame:self.view.bounds];
+        self.moviePlayer.repeatMode = MPMovieRepeatModeOne;
+        NSEnumerator *frontToBackWindows = [UIApplication.sharedApplication.windows reverseObjectEnumerator];
+        for (UIWindow *window in frontToBackWindows) {
+            BOOL windowOnMainScreen = window.screen == UIScreen.mainScreen;
+            BOOL windowIsVisible = !window.hidden && window.alpha > 0;
+            BOOL windowLevelNormal = window.windowLevel == UIWindowLevelNormal;
+            if(windowOnMainScreen && windowIsVisible && windowLevelNormal) {
+                [window addSubview:self.moviePlayer.view];
+                break;
+            }
+        }
+        [self.moviePlayer play];
+        self.movieCoverBtn = [UIButton buttonWithType:UIButtonTypeCustom];
+        self.movieCoverBtn.frame = self.view.bounds;
+        self.movieCoverBtn.backgroundColor = [UIColor clearColor];
+        [self.moviePlayer.view addSubview:self.movieCoverBtn];
+        [self.movieCoverBtn addTarget:self action:@selector(dismissMoviePlayer) forControlEvents:UIControlEventTouchUpInside];
+        
+        [NotificationCenter addObserver:self selector:@selector(moviePlayerLoadStateDidChange) name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
+        
+        self.loadingView = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleWhiteLarge];
+        self.loadingView.center = self.movieCoverBtn.center;
+        [self.movieCoverBtn addSubview:self.loadingView];
+        [self.loadingView startAnimating];
+        
+        [YPC_Tools setStatusBarIsHidden:YES];
+    }else {
+        [YPC_Tools showSvpWithNoneImgHud:@"暂无视频,请稍等直播员上传~"];
+    }
+}
+
+/**
+ *  视频播放状态改变
+ */
+- (void)moviePlayerLoadStateDidChange
+{
+    switch (self.moviePlayer.loadState)
+    {
+        case MPMovieLoadStatePlayable:
+        {
+            /** 可播放 */;
+            [self.loadingView stopAnimating];
+        }
+            break;
+        case MPMovieLoadStatePlaythroughOK:
+        {
+            /** 状态为缓冲几乎完成，可以连续播放 */;
+            [self.loadingView stopAnimating];
+        }
+            break;
+        case MPMovieLoadStateStalled:
+        {
+            /** 缓冲中 */
+            [self.loadingView startAnimating];
+        }
+            break;
+        case MPMovieLoadStateUnknown:
+        {
+            /** 未知状态 */
+            [self.loadingView startAnimating];
+        }
+            break;
+    }
+}
+
+- (void)dismissMoviePlayer
+{
+    if (self.moviePlayer) {
+        [YPC_Tools setStatusBarIsHidden:NO];
+        [self.moviePlayer stop];
+        [self.moviePlayer.view removeFromSuperview];
+        [self.movieCoverBtn removeFromSuperview];
+        self.moviePlayer = nil;
+        self.movieCoverBtn = nil;
+        
+        [NotificationCenter removeObserver:self name:MPMoviePlayerLoadStateDidChangeNotification object:nil];
+    }
+}
+
 - (void)brandClick{
     WebViewController *web = [[WebViewController alloc]init];
     web.homeUrl =[NSString stringWithFormat: @"http://api.gongchangtemai.com/index.php?url=shop/showstore/brandinfo/%@",self.model.brand.brandstore_id];
     web.navTitle = @"品牌简介";
     [self.navigationController pushViewController:web animated:YES];
 
+}
+/*!
+ *
+ *    直播中动效
+ *
+ */
+- (void)animationWithButton
+{
+    [self.headerView.LiveImg setImage:IMAGE(@"homepage_icon_live1_children")];
+    NSArray *images = [[NSArray alloc] init];
+    images = [NSArray arrayWithObjects:
+              IMAGE(@"homepage_icon_live1"),
+              IMAGE(@"homepage_icon_live2"),
+              IMAGE(@"homepage_icon_live3"),
+              nil];
+    self.headerView.LiveImg.animationImages = images;
+    self.headerView.LiveImg.animationDuration = .5f;
+    self.headerView.LiveImg.animationRepeatCount = 0;
+    [self.headerView.LiveImg startAnimating];
+}
+
+- (void)shareBtnClick:(UIButton *)sender{
+    LiveActivityModel *model = self.dataArr[sender.tag];
+    NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+    [YPCShare GoodsShareInWindowWithStraceName:model.strace_title StraceId:model.strace_id image:[[SDImageCache sharedImageCache] imageFromDiskCacheForKey:model.strace_content[0]] discount:model.goods_discount price:model.goods_price uid:uid viewController:self];
 }
 
 - (void)didReceiveMemoryWarning {

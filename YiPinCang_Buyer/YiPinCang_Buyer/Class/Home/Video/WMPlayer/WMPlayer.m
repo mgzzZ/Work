@@ -64,11 +64,8 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 @property (nonatomic, strong) UISlider *volumeSlider;
 //显示缓冲进度
 @property (nonatomic, strong) UIProgressView *loadingProgress;
-//商品按钮
-@property (nonatomic, strong) UIButton *goodsBtn;
 //直播组头部信息
 @property (nonatomic, strong) UIImageView *avatorImgV;
-@property (nonatomic, strong) UIButton *shareBtn;
 
 @end
 
@@ -232,6 +229,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     //关闭按钮
     self.closeBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.closeBtn.acceptEventInterval = .5f;
+    self.closeBtn.hidden = YES;
     self.closeBtn.showsTouchWhenHighlighted = YES;
     [self.closeBtn setImage:IMAGE(@"homepage_live_close") forState:UIControlStateNormal];
     [self.closeBtn addTarget:self action:@selector(colseTheVideo:) forControlEvents:UIControlEventTouchUpInside];
@@ -246,8 +244,9 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     //分享按钮
     self.shareBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.shareBtn.acceptEventInterval = .5f;
+    self.shareBtn.hidden = YES;
     self.shareBtn.showsTouchWhenHighlighted = YES;
-//    [self.shareBtn setImage:IMAGE(@"productdetails_icon_share") forState:UIControlStateNormal];
+    [self.shareBtn setImage:IMAGE(@"mshare_button") forState:UIControlStateNormal];
     [self.shareBtn addTarget:self action:@selector(buttonClickAction:) forControlEvents:UIControlEventTouchUpInside];
     [self.topView addSubview:self.shareBtn];
     [self.shareBtn mas_makeConstraints:^(MASConstraintMaker *make) {
@@ -300,6 +299,7 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
     
     self.followBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     self.followBtn.acceptEventInterval = .5f;
+    self.followBtn.hidden = YES;
     self.followBtn.showsTouchWhenHighlighted = YES;
     [self.followBtn setImage:IMAGE(@"homepage_live_button_follow") forState:UIControlStateNormal];
     [self.followBtn addTarget:self action:@selector(buttonClickAction:) forControlEvents:UIControlEventTouchUpInside];
@@ -641,7 +641,6 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 {
     self.titleLabel.text = dataModel.name;
     [self.avatorImgV sd_setImageWithURL:[NSURL URLWithString:dataModel.avator] placeholderImage:YPCImagePlaceHolder];
-    self.goodsBtn.badgeValue = dataModel.goodsCount;
     if ([dataModel.isfollowSeller isEqualToString:@"0"]) {
         self.followBtn.hidden = NO;
         [self.topGroupInfoImgV mas_updateConstraints:^(MASConstraintMaker *make) {
@@ -1020,17 +1019,25 @@ static void *PlayViewStatusObservationContext = &PlayViewStatusObservationContex
 - (void)buttonClickAction:(UIButton *)sender
 {
     if (sender == self.shareBtn) {
-        self.ButtonClickedBlock(@"share");
+        if (self.ButtonClickedBlock) {
+            self.ButtonClickedBlock(@"share");
+        }
     }else if (sender == self.goodsBtn) {
-        self.ButtonClickedBlock(@"seeGoods");
+        if (self.ButtonClickedBlock) {
+            self.ButtonClickedBlock(@"seeGoods");
+        }
     }else if (sender == self.followBtn) {
-        self.ButtonClickedBlock(@"follow");
+        if (self.ButtonClickedBlock) {
+            self.ButtonClickedBlock(@"follow");
+        }
     }
 }
 
 - (void)seeAboutLivingStoreInfo:(UITapGestureRecognizer *)tap
 {
-    self.ButtonClickedBlock(@"seeAbout");
+    if (self.ButtonClickedBlock) {
+        self.ButtonClickedBlock(@"seeAbout");
+    }
 }
 
 

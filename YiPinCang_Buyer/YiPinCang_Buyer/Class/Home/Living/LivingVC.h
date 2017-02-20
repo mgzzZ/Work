@@ -8,7 +8,6 @@
 
 #import "BaseNaviConfigVC.h"
 #import <PLPlayerKit.h>
-#import "TempHomePushModel.h"
 #import "RTMPModel.h"
 #import "DanmakuView.h"
 #import "LivingGoodsView.h"
@@ -16,7 +15,7 @@
 
 @interface LivingVC : BaseNaviConfigVC
 
-@property (nonatomic, strong) TempHomePushModel *tempModel;
+@property (nonatomic, strong) NSString *liveId;
 @property (nonatomic, strong) UIImage *playerPHImg;
 
 @property (nonatomic, strong) RTMPModel *rtmpModel; // 推流相关初试数据
@@ -55,5 +54,7 @@
 @property (nonatomic, assign) BOOL playerIsOnWindow;
 // 是否已经在window上移除
 @property (nonatomic, assign) BOOL isRemoveFromWindow;
+
+@property (nonatomic, strong) AVIMClient *transientClient;
 
 @end

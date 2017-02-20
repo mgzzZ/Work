@@ -23,4 +23,6 @@
 @property (nonatomic,copy)NSString *brand_name;
 
 @property (nonatomic,copy)NSString *isfavor;
+@property (nonatomic,copy)NSString *activity_pic;
+@property (nonatomic,copy)NSString *live_video_url;
 @end

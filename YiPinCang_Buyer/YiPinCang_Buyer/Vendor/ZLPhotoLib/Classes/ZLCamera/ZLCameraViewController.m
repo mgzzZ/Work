@@ -160,7 +160,7 @@ static CGFloat BOTTOM_HEIGHT = 60;
     // Session
     self.session = [[AVCaptureSession alloc]init];
     
-    [self.session setSessionPreset:AVCaptureSessionPresetHigh];
+    [self.session setSessionPreset:AVCaptureSessionPresetPhoto];
     if ([self.session canAddInput:self.input])
     {
         [self.session addInput:self.input];
@@ -206,6 +206,18 @@ static CGFloat BOTTOM_HEIGHT = 60;
     if (self.session) {
         [self.session startRunning];
     }
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    [YPC_Tools setStatusBarIsHidden:YES];
+}
+
+- (void)viewWillDisappear:(BOOL)animated
+{
+    [super viewWillDisappear:animated];
+    [YPC_Tools setStatusBarIsHidden:NO];
 }
 
 #pragma mark 初始化按钮

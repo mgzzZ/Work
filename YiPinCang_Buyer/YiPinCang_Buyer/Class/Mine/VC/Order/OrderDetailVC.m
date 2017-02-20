@@ -15,14 +15,16 @@
 #import "LogisticsVC.h"
 #import "ChoosePayVC.h"
 #import "LiveDetailHHHVC.h"
+#import "AreaManagerVC.h"
+#import "ShoppingCarDetailVC.h"
 @interface OrderDetailVC ()<UITableViewDelegate,UITableViewDataSource>
 
-@property (nonatomic,strong)UITableView *tableView;
-@property (strong, nonatomic)OrderDetailModel *model;
-@property (nonatomic,strong)OrderFooter *footerView;
-@property (nonatomic,strong)OrderHeader *headerView;
-@property (nonatomic,strong)OrderDetailView *orderDetailView;
-@property (nonatomic,assign)BOOL isHave;//是否footersention
+@property (nonatomic, strong) UITableView *tableView;
+@property (strong, nonatomic) OrderDetailModel *model;
+@property (nonatomic, strong) OrderFooter *footerView;
+@property (nonatomic, strong) OrderHeader *headerView;
+@property (nonatomic, strong) OrderDetailView *orderDetailView;
+@property (nonatomic, assign) BOOL isHave;//是否footersention
 @property (nonatomic, strong) UIButton *rightBtn;
 @end
 
@@ -54,18 +56,14 @@
         [self setRightBar];
     }
     
-    __block BOOL isCrateImmediatelyMessage;
+    __block int isCrateImmediatelyMessage = 0;
     [self.rt_navigationController.rt_viewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
         if ([NSStringFromClass([obj class]) isEqualToString:@"OrderDetailVC"]) {
-            isCrateImmediatelyMessage = NO;
-            *stop = YES;
-        }else {
-            isCrateImmediatelyMessage = YES;
+            isCrateImmediatelyMessage++;
         }
     }];
     self.isHave = NO;
-    if (isCrateRightNavi) {
-        // TODO : 创建立即咨询按钮
+    if (isCrateImmediatelyMessage <= 1) {
         self.isHave = YES;
     }
     
@@ -89,21 +87,21 @@
     
    
     if ([self.model.invoice_info isEqualToString:@"不需要发票"]) {
-        self.footerView = [[OrderFooter alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 270 - 26)];
+        self.footerView = [[OrderFooter alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 196)];
         self.footerView.invNameLabHeight.constant = 0;
         self.footerView.invTitleLabHeight.constant = 0;
         
     }else{
-         self.footerView = [[OrderFooter alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 270)];
+         self.footerView = [[OrderFooter alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 196)];
         self.footerView.invNameLabHeight.constant = 13;
         self.footerView.invTitleLabHeight.constant = 13;
         self.footerView.invNameLab.text = [NSString stringWithFormat:@"发票抬头:%@",@""];
         self.footerView.invTitleLab.text = [NSString stringWithFormat:@"发票内容:%@",@"明细"];
     }
     self.footerView.invTypeLab.text = self.model.invoice_info;
-    self.footerView.orderPriceLab.text = [NSString stringWithFormat:@"¥%@",_model.order_amount];
+    self.footerView.orderPriceLab.text = [NSString stringWithFormat:@"¥%@",_model.goods_amount];
     self.footerView.sendPriceLab.text = [NSString stringWithFormat:@"¥%@",_model.shipping_fee];
-    self.footerView.payPriceLab.text = [NSString stringWithFormat:@"¥%@",_model.goods_amount];
+    self.footerView.payPriceLab.text = [NSString stringWithFormat:@"¥%@",_model.order_amount];
     self.footerView.titleLab.text = self.model.order_message;
     self.footerView.payTypeLab.text = self.model.payment_name;
     self.footerView.orderTypeLab.text = _model.state_desc;
@@ -117,16 +115,26 @@
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfState_pay];
         [self.view addSubview:self.orderDetailView];
         self.orderDetailView.time = self.model.remaintime;
+        if ([self.model.address_lock isEqualToString:@"1"]) {
+            [_headerView.changeAreaBtn addTarget:self action:@selector(changeAreaBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+             _headerView.changeAreaBtn.userInteractionEnabled = YES;
+            _headerView.typeImg.hidden = NO;
+        }else{
+            _headerView.changeAreaBtn.userInteractionEnabled = NO;
+            _headerView.typeImg.hidden = YES;
+        }
     }else if ([self.model.state_desc isEqualToString:@"已发货"]){
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 220)];
         _headerView.payViewHeight.constant = 153;
         _headerView.timeLabHeight.constant = 0;
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfSent];
         [self.view addSubview:self.orderDetailView];
+        _headerView.typeImg.hidden = YES;
     }else if ([self.model.state_desc isEqualToString:@"已完成"]){
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 242)];
         self.orderDetailView = [[OrderDetailView alloc]initWithFrame:CGRectMake(0, ScreenHeight - 49, ScreenWidth, 49) orderType:OrderTypeOfFinish];
         [self.view addSubview:self.orderDetailView];
+        _headerView.typeImg.hidden = YES;
     }else if ([self.model.state_desc isEqualToString:@"待发货"]){
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 210)];
         _headerView.payViewHeight.constant = 82 + 30 ;
@@ -137,6 +145,7 @@
         self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
         self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 0, 0));
+        _headerView.typeImg.hidden = YES;
     }else{
         _headerView = [[OrderHeader alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 171)];
         _headerView.payViewHeight.constant = 82;
@@ -147,6 +156,7 @@
         self.orderDetailView.hidden = YES;
         [self.view addSubview:self.orderDetailView];
         self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 0, 0));
+        _headerView.typeImg.hidden = YES;
     }
     _headerView.nameLab.text = [NSString stringWithFormat:@"收货人:%@ %@",self.model.reciver_info.reciver_name,self.model.reciver_info.mob_phone];
     _headerView.areaLab.text = [NSString stringWithFormat:@"详细地址:%@",self.model.reciver_info.address];
@@ -160,7 +170,7 @@
     _headerView.payPriceLab.text = [NSString stringWithFormat:@"付款时间:%@",payTime];
     _headerView.sendTimeLab.text = [NSString stringWithFormat:@"发货时间:%@",sendTime];
     _headerView.timeLab.text = [NSString stringWithFormat:@"收货时间:%@",finTime];
-
+  
     self.tableView.tableHeaderView = _headerView;
     self.tableView.tableFooterView = self.footerView;
     WS(weakself);
@@ -271,7 +281,7 @@
         btn.layer.borderWidth = 1;
         objc_setAssociatedObject(btn, @"index", [NSString stringWithFormat:@"%ld", section], OBJC_ASSOCIATION_RETAIN_NONATOMIC);
         [btn addTarget:self action:@selector(orderClick:) forControlEvents:UIControlEventTouchUpInside];
-        
+        btn.tag = section;
         btn.layer.borderColor = [Color colorWithHex:@"0X2C2C2C"].CGColor;
         [view addSubview:btn];
         btn.sd_layout
@@ -324,6 +334,15 @@
     return cell;
 }
 
+- (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
+    OrderGoodsInfoModel * model = self.model.goodsinfo[indexPath.section];
+    GoodsModel *goodsModel = model.goods[indexPath.row];
+    ShoppingCarDetailVC *car = [[ShoppingCarDetailVC alloc]init];
+    car.goods_id = goodsModel.goods_id;
+    car.is_goodsid = @"1";
+    [self.navigationController pushViewController:car animated:YES];
+}
+
 - (void)getData{
     WS(weakself);
     [YPCNetworking postWithUrl:@"shop/orders/detail"
@@ -372,9 +391,7 @@
 #pragma mark- 取消
 
 - (void)cancelOrder{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认取消该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确认取消该订单?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/cancel"
                       refreshCache:YES
@@ -391,22 +408,13 @@
                               fail:^(NSError *error) {
                                   
                               }];
-        
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
-    
+    } cancelHandler:nil destructiveHandler:nil];
 }
 
 #pragma mark- 删除
 
 - (void)deleteOrder{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确认删除该订单?" preferredStyle:(UIAlertControllerStyleAlert)];
-    
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确认删除该订单?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/delete"
                       refreshCache:YES
@@ -421,22 +429,13 @@
                               fail:^(NSError *error) {
                                   
                               }];
-        
-    }];
-    
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
-    
-    
+    } cancelHandler:nil destructiveHandler:nil];
 }
 
 //确认收货
 - (void)receiveOrder{
-    UIAlertController *alert = [UIAlertController alertControllerWithTitle:nil message:@"确定对该订单进行确认收货?" preferredStyle:(UIAlertControllerStyleAlert)];
     
-    UIAlertAction *action = [UIAlertAction actionWithTitle:@"确定" style:(UIAlertActionStyleDefault) handler:^(UIAlertAction *action) {
+    [YPC_Tools customAlertViewWithTitle:@"提示:" Message:@"确定对该订单进行确认收货?" BtnTitles:@[@"确认"] CancelBtnTitle:@"取消" DestructiveBtnTitle:nil actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
         WS(weakself);
         [YPCNetworking postWithUrl:@"shop/orders/receive"
                       refreshCache:YES
@@ -444,7 +443,7 @@
                                                                                    @"order_id":weakself.order_id
                                                                                    }]
                            success:^(id response) {
-                              weakself.model.order_state = @"state_noeval";
+                               weakself.model.order_state = @"state_noeval";
                                [YPC_Tools showSvpWithNoneImgHud:@"确认收货成功"];
                                
                                [weakself.navigationController popViewControllerAnimated:YES];
@@ -453,13 +452,9 @@
                               fail:^(NSError *error) {
                                   
                               }];
-        
-    }];
+    } cancelHandler:nil destructiveHandler:nil];
     
-    UIAlertAction *cancel = [UIAlertAction actionWithTitle:@"取消" style:(UIAlertActionStyleCancel) handler:nil];
-    [alert addAction:action];
-    [alert addAction:cancel];
-    [self showDetailViewController:alert sender:nil];
+
     
 }
 
@@ -470,7 +465,18 @@
     live.store_id = model.store.store_id;
     [self.navigationController pushViewController:live animated:YES];
 }
-
+- (void)changeAreaBtnClick:(UIButton *)sender{
+    WS(weakself);
+    AreaManagerVC *area = [[AreaManagerVC alloc]init];
+    area.from = @"待付款";
+    area.pay_sn = self.model.pay_sn;
+    area.backArea = ^(NSString *name,NSString *area,NSString *isDefault,NSString *address_id,NSString *area_id,NSString *city_id){
+        weakself.tableView = nil;
+        weakself.model = nil;
+        [weakself getData];
+    };
+    [self.navigationController pushViewController:area animated:YES];
+}
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

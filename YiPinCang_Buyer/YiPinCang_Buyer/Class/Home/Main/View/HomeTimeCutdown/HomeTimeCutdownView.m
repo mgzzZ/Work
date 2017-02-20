@@ -66,7 +66,7 @@
         if (totalTimes >= 0)
         {
             self.timeStart = YES;
-            self.titleL.text     = @"距离直播结束";
+            self.titleL.text     = @"距结束";
             
             [self day:end_hour/24 hour:end_hour%24 minute:end_min second:end_second];
         }
@@ -74,7 +74,7 @@
         else
         {
             self.timeStart = NO;
-            self.titleL.text     = @"距离直播开始";
+            self.titleL.text     = @"距开始";
             _totalTimes    = -totalTimes;
             [self day:-start_hour/24 hour:-start_hour%24 minute:-start_min second:-start_second];
         }
@@ -83,7 +83,7 @@
 
     }
     else if (result == NSOrderedAscending){
-        self.titleL.text     = @"活动已经结束";
+        self.titleL.text     = @"已结束";
         self.dayL1.text = @"0";
         self.dayL2.text = @"0";
         self.hourL1.text = @"0";

@@ -17,7 +17,9 @@
 #import "PreheatingVC.h"
 #import "LivingVC.h"
 #import "VideoPlayerVC.h"
-#import "TempHomePushModel.h"
+#import "LiveListVC.h"
+#import "PhotoLivingVC.h"
+#import "VideoPlayerVC.h"
 
 static NSString *SystemIdentifier = @"systemIdentifier";
 static NSString *OrderIdentifier = @"orderIdentifier";
@@ -224,70 +226,82 @@ static NSString *ActivityIdentifier = @"activityIdentifier";
 
 - (void)ActivityMessageMethodWithIndexPath:(NSIndexPath *)indexPath
 {
-    if ([self.dataArr[indexPath.row] live_state].integerValue == 0) {
-        
-        PreheatingVC *pVC = [PreheatingVC new];
-        
-        TempHomePushModel *model = [TempHomePushModel new];
-        [model setLive_id:[(ActivityMessageModel *)self.dataArr[indexPath.row] live_id]];
-        [model setLive_msg:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] live_msg]];
-        [model setStarttime:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] starttime]];
-        [model setEndtime:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] endtime]];
-        [model setActivity_pic:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] activity_pic]];
-        [model setStart:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] start]];
-        [model setEnd:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] end]];
-        [model setAddress:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] address]];
-        [model setName:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] name]];
-        [model setStore_avatar:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_avatar]];
-        [model setStore_name:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_name]];
-        
-        pVC.tempModel = model;
-        pVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:pVC animated:YES];
-    }else if ([self.dataArr[indexPath.row] live_state].integerValue == 1 || [self.dataArr[indexPath.row] live_state].integerValue == 4){
-        
-        if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-            WS(weakSelf);
-            [YPC_Tools showSvpHud];
-            LivingVC *lVC = [LivingVC new];
+    if ([self.dataArr[indexPath.row] jumptype].integerValue == 6) {
+        // 跳转直播组
+        if ([self.dataArr[indexPath.row] ac_state].integerValue == 0) {
+            // 预热
+            LiveListVC *listVC = [LiveListVC new];
+            listVC.livelistType = LiveListOfPreHearting;
+            listVC.activity_id = [self.dataArr[indexPath.row] activity_id];
+            listVC.ac_state = [self.dataArr[indexPath.row] ac_state];
+            listVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:listVC animated:YES];
             
-            TempHomePushModel *model = [TempHomePushModel new];
-            [model setLive_id:[(ActivityMessageModel *)self.dataArr[indexPath.row] live_id]];
-            [model setStore_avatar:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_avatar]];
-            [model setStore_name:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_name]];
-            [model setAnnouncement_id:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] announcement_id]];
-            [model setStore_id:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_id]];
-            lVC.tempModel = model;
+        }else if ([self.dataArr[indexPath.row] ac_state].integerValue == 1) {
+            // 进行中
+            LiveListVC *listVC = [LiveListVC new];
+            listVC.livelistType = LiveListOfLiving;
+            listVC.activity_id = [self.dataArr[indexPath.row] activity_id];
+            listVC.ac_state = [self.dataArr[indexPath.row] ac_state];
+            listVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:listVC animated:YES];
             
-            lVC.hidesBottomBarWhenPushed = YES;
-            [[SDWebImageDownloader sharedDownloader]
-             downloadImageWithURL:[NSURL URLWithString:[[self.dataArr[indexPath.row] live_data] livingshowinitimg]]
-             options:SDWebImageDownloaderUseNSURLCache
-             progress:nil
-             completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                 if (finished && !error) {
-                     dispatch_async(dispatch_get_main_queue(), ^{
-                         lVC.playerPHImg = image;
-                         [weakSelf.navigationController pushViewController:lVC animated:YES];
-                         [YPC_Tools dismissHud];
-                     });
-                 }else {
-                     [YPC_Tools showSvpHudError:@"图片未下载成功"];
-                 }
-             }];
+        }else if ([self.dataArr[indexPath.row] ac_state].integerValue == 0) {
+            // 结束
+            LiveListVC *listVC = [LiveListVC new];
+            listVC.livelistType = LiveListOfEnd;
+            listVC.activity_id = [self.dataArr[indexPath.row] activity_id];
+            listVC.ac_state = [self.dataArr[indexPath.row] ac_state];
+            listVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:listVC animated:YES];
+            
         }
-    }else if ([self.dataArr[indexPath.row] live_state].integerValue == 2 || [self.dataArr[indexPath.row] live_state].integerValue == 3) {
         
-        VideoPlayerVC *vVC = [VideoPlayerVC new];
-        TempHomePushModel *model = [TempHomePushModel new];
-        [model setLive_id:[(ActivityMessageModel *)self.dataArr[indexPath.row] live_id]];
-        [model setLive_state:[(ActivityMessageModel *)self.dataArr[indexPath.row] live_state]];
-        [model setStore_avatar:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_avatar]];
-        [model setStore_name:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] store_name]];
-        [model setVideo:[[(ActivityMessageModel *)self.dataArr[indexPath.row] live_data] video]];
-        vVC.tempModel = model;
-        vVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:vVC animated:YES];
+    }else if ([self.dataArr[indexPath.row] jumptype].integerValue == 2 || [self.dataArr[indexPath.row] jumptype].integerValue == 5) {
+        // 跳到具体活动
+        if ([self.dataArr[indexPath.row] live_state].integerValue == 0) {
+            // 预热
+            PreheatingVC *pVC = [PreheatingVC new];
+            pVC.liveId = [self.dataArr[indexPath.row] live_id];
+            pVC.hidesBottomBarWhenPushed = YES;
+            [self.navigationController pushViewController:pVC animated:YES];
+            
+        }else if ([self.dataArr[indexPath.row] live_state].integerValue == 1 || [self.dataArr[indexPath.row] live_state].integerValue == 4){
+            // 直播
+            if ([[self.dataArr[indexPath.row] live_data] activity_type].integerValue == 0) {
+                // 图文直播
+                PhotoLivingVC *pVC = [PhotoLivingVC new];
+                pVC.liveId = [self.dataArr[indexPath.row] live_id];
+                [self.navigationController pushViewController:pVC animated:YES];
+                
+            }else if ([[self.dataArr[indexPath.row] live_data] activity_type].integerValue == 1) {
+                // 实时直播
+                WS(weakSelf);
+                [[SDWebImageDownloader sharedDownloader]
+                 downloadImageWithURL:[NSURL URLWithString:[self.dataArr[indexPath.row] livingshowinitimg]]
+                 options:SDWebImageDownloaderUseNSURLCache
+                 progress:nil
+                 completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
+                     if (finished && !error) {
+                         dispatch_async(dispatch_get_main_queue(), ^{
+                             LivingVC *lVC = [LivingVC new];
+                             lVC.liveId = [self.dataArr[indexPath.row] live_id];
+                             lVC.playerPHImg = image;
+                             [weakSelf.navigationController pushViewController:lVC animated:YES];
+                             [YPC_Tools dismissHud];
+                             [self.navigationController pushViewController:lVC animated:YES];
+                         });
+                     }else {
+                         [YPC_Tools showSvpHudError:@"加载失败, 请重试"];
+                     }
+                 }];
+            }
+            
+        }else if ([self.dataArr[indexPath.row] live_state].integerValue == 2 || [self.dataArr[indexPath.row] live_state].integerValue == 3) {
+            VideoPlayerVC *vVC = [VideoPlayerVC new];
+            vVC.liveId = [self.dataArr[indexPath.row] live_id];
+            [self.navigationController pushViewController:vVC animated:YES];
+        }
     }
 
 }

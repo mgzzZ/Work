@@ -196,7 +196,6 @@
     
 //    [LCChatKit setAllLogsEnabled:YES];
 //    [[LCChatKit sharedInstance] setUseDevPushCerticate:YES];
-    [LCChatKit setAppId:LeanCloudAppId appKey:LeanCloudAppKey];
 }
 
 - (void)lcck_setFetchProfiles {
@@ -281,7 +280,7 @@
                                            
                                            UIButton *button = [UIButton buttonWithType:UIButtonTypeCustom];
                                            __weak __typeof(button) weakBtn = button;
-                                           [weakBtn setImage:IMAGE(@"logon_icon_return") forState:UIControlStateNormal];
+                                           [weakBtn setImage:IMAGE(@"back_icon") forState:UIControlStateNormal];
                                            [weakBtn sizeToFit];
                                            [weakBtn addTarget:self
                                                       action:@selector(naviRightAction:)
@@ -456,10 +455,17 @@ typedef void (^UITableViewRowActionHandler)(UITableViewRowAction *action, NSInde
         
         AVIMTypedMessage *message = messages.lastObject;
         NSLog(@"%hhd", message.mediaType);
+        
+        [[LCCKConversationListService sharedInstance] findRecentConversationsWithBlock:^(NSArray *conversations, NSInteger totalUnreadCount, NSError *error) {
+            if (!error) {
+                [YPCRequestCenter shareInstance].kUnReadMesCount = [NSString stringWithFormat:@"%ld", totalUnreadCount];
+            }
+        }];
+        
         if (message.mediaType == LeanCloudCustomMessageDanmu || message.mediaType == LeanCloudCustomMessageLivingLike || message.mediaType == LeanCloudCustomMessageLivingLike || message.mediaType == LeanCloudCustomMessageGoodsTop || message.mediaType == LeanCloudCustomMessageGoodsIssue || message.mediaType == LeanCloudCustomMessageLivingPause || message.mediaType == LeanCloudCustomMessageLivingStop) {
             return ;
         }
-        if (conversation.lcck_type == LCCKConversationTypeSingle || conversation.lcck_type == LCCKConversationTypeGroup) {
+        if ((conversation.lcck_type == LCCKConversationTypeSingle || conversation.lcck_type == LCCKConversationTypeGroup) && message.transient == NO) {
             completionHandler(messages, nil);
             return;
         }
@@ -490,6 +496,7 @@ typedef void (^UITableViewRowActionHandler)(UITableViewRowAction *action, NSInde
                       badgeValue = LCCKBadgeTextForNumberGreaterThanLimit;
                   }
                   [YPCRequestCenter shareInstance].kUnReadMesCount = badgeValue;
+                  [NotificationCenter postNotificationName:LeanCloudNotReadMessageCount object:badgeValue];
               } else {
                   [YPCRequestCenter shareInstance].kUnReadMesCount = @"";
               }

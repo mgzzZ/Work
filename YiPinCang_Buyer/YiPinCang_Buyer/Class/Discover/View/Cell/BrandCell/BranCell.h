@@ -9,6 +9,7 @@
 #import <UIKit/UIKit.h>
 #import "PhotoContainerView.h"
 #import "LiveActivityModel.h"
+#import "GradientView.h"
 @interface BranCell : UITableViewCell
 
 @property (nonatomic,strong)LiveActivityModel *model;
@@ -24,5 +25,7 @@
 @property (nonatomic,strong)PhotoContainerView *bgImgView;
 @property (nonatomic,strong)UIView *countView;
 @property (nonatomic,strong)UILabel *countLab;
-
+@property (nonatomic,strong)OriginalPriceLab *originalLab;
+@property (nonatomic,strong)GradientView *gradientView;
+@property (nonatomic,strong)UIButton *shareBtn;
 @end

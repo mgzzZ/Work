@@ -22,5 +22,4 @@
 @property (nonatomic,copy)NSString *scommto_memberid;
 @property (nonatomic,copy)NSString *scommto_membername;
 
-
 @end

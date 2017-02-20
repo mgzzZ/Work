@@ -54,7 +54,8 @@
 }
 
 - (IBAction)zanClickAction:(UIButton *)sender {
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self]]) {
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self] success:^{
         [YPCNetworking postWithUrl:@"shop/explore/livegoodslike"
                       refreshCache:YES
                             params:[YPCRequestCenter getUserInfoAppendDictionary:@{
@@ -62,8 +63,8 @@
                                                                                    }]
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
-                                   [self.zanBtn setImage:IMAGE(@"find_productdetails_icon_likes_cliked") forState:UIControlStateNormal];
-                                   self.zanBtn.enabled = NO;
+                                   [weakSelf.zanBtn setImage:IMAGE(@"find_productdetails_icon_likes_cliked") forState:UIControlStateNormal];
+                                   weakSelf.zanBtn.enabled = NO;
                                    [_tempModel setStrace_cool:[NSString stringWithFormat:@"%ld", _tempModel.strace_cool.integerValue + 1]];
                                    [_tempModel setIslike:@"1"];
                                    _goodL.text = _tempModel.strace_cool;
@@ -72,9 +73,8 @@
                               fail:^(NSError *error) {
                                   
                               }];
-    }
+    }];
 }
-
 
 - (void)setSelected:(BOOL)selected animated:(BOOL)animated {
     [super setSelected:selected animated:animated];

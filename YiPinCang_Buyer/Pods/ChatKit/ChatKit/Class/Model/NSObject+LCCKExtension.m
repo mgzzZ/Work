@@ -2,7 +2,7 @@
 //  NSObject+LCCKExtension.m
 //  Pods
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/8/10.
+//  v0.8.5 Created by ElonChan on 16/8/10.
 //
 //
 
@@ -101,6 +101,15 @@
         return nil;
     }
     return result;
+}
+
+- (BOOL)lcck_isCreatorForCurrentGroupConversaton {
+    BOOL isCreator = [[LCCKConversationService sharedInstance].currentConversation.creator isEqualToString:[LCChatKit sharedInstance].clientId];
+    BOOL isGroupConversation = [LCCKConversationService sharedInstance].currentConversation.members.count > 2;
+    if (isCreator && isGroupConversation) {
+        return YES;
+    }
+    return NO;
 }
 
 @end

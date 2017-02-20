@@ -28,6 +28,7 @@
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,assign)BOOL isChooseSize;
 @property (nonatomic,copy)NSString *payType;//0是先选  1加入购物车  2立即购买
+
 @end
 
 @implementation ShoppingCarDetailVC
@@ -60,17 +61,72 @@
     self.scrollView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 58, 0));
     self.scrollView.backgroundColor = [UIColor whiteColor];
     self.shopView = [[ShopCarView alloc]init];
-    if (![YPCRequestCenter isLogin]) {
-    }else{
-        self.shopView.shopcar = ^{
-            weakSelf.payType = @"1";
-            [weakSelf chooseSizeShow];
-        };
-        self.shopView.clearing = ^{
-            weakSelf.payType = @"2";
-           [weakSelf chooseSizeShow];
-        };
-    }
+    [self.shopView.carBtn addTarget:self action:@selector(pushCarVC) forControlEvents:UIControlEventTouchUpInside];
+    self.shopView.shopcar = ^{
+        
+        if (weakSelf.model.goodscommon_info.total_storage.integerValue > 0) {
+            if (weakSelf.goods_id.length == 0 || weakSelf.payCount.length == 0) {
+                [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:weakSelf.view] success:^{
+                    weakSelf.payType = @"1";
+                    [weakSelf chooseSizeShow];
+                }];
+            }else{
+                [YPCNetworking postWithUrl:@"shop/cart/add"
+                              refreshCache:YES
+                                    params:[YPCRequestCenter getUserInfoAppendDictionary:@{
+                                                                                           @"goods_id":weakSelf.goods_id,
+                                                                                           @"count":weakSelf.payCount,
+                                                                                           @"click_from_type":@"6"
+                                                                                           }]
+                                   success:^(id response) {
+                                       if ([YPC_Tools judgeRequestAvailable:response]) {
+                                           NSString *carNumber = response[@"data"][@"num"];
+                                           NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                           NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                           NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                           
+                                           [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                           [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                           [YPCRequestCenter shareInstance].carNumber = carNumber;
+                                           
+                                           weakSelf.shopView.car.badgeValue = carNumber;
+
+                                           [weakSelf.shopView openAnimation];
+                                           [weakSelf chooseSizeHide];
+                                           
+                                           
+                                       }
+                                   }
+                                      fail:^(NSError *error) {
+                                          
+                                      }];
+            }
+        }else{
+            [YPC_Tools showSvpWithNoneImgHud:@"该商品已售空"];
+        }
+        
+        
+    };
+    self.shopView.clearing = ^{
+        if (weakSelf.model.goodscommon_info.total_storage.integerValue > 0) {
+            if (weakSelf.goods_id.length == 0) {
+                [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:weakSelf.view] success:^{
+                    weakSelf.payType = @"2";
+                    [weakSelf chooseSizeShow];
+                }];
+            }else{
+                ClearingVC *clearing = [[ClearingVC alloc]init];
+                NSString *str = [NSString stringWithFormat:@"%@|%@",weakSelf.goods_id,weakSelf.payCount];
+                clearing.dataStr = str;
+                [weakSelf.navigationController pushViewController:clearing animated:YES];
+            }
+            
+        }else{
+            [YPC_Tools showSvpWithNoneImgHud:@"该商品已售空"];
+        }
+        
+    };
+    
     [self.view addSubview:self.shopView];
     self.shopView.sd_layout
     .leftEqualToView(self.view)
@@ -237,6 +293,8 @@
 
     [self.scrollView setupAutoContentSizeWithBottomView:txImg bottomMargin:10];
     self.bgView = [[UIView alloc]initWithFrame:self.view.bounds];
+    UITapGestureRecognizer *tap = [[UITapGestureRecognizer alloc]initWithTarget:self action:@selector(hiden)];
+    [self.bgView addGestureRecognizer:tap];
     self.bgView.backgroundColor = [UIColor blackColor];
     [self.view addSubview:self.bgView];
     self.bgView.alpha = 0.3;
@@ -254,7 +312,17 @@
                                                                                            }]
                                    success:^(id response) {
                                        if ([YPC_Tools judgeRequestAvailable:response]) {
-                                           weakSelf.shopView.car.badgeValue = @"1";
+                                           NSString *carNumber = response[@"data"][@"num"];
+                                           NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                           NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                           NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                           
+                                           [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                           [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                           [YPCRequestCenter shareInstance].carNumber = carNumber;
+                                           
+                                           weakSelf.shopView.car.badgeValue = carNumber;
+
                                            [weakSelf.shopView openAnimation];
                                            [weakSelf chooseSizeHide];
                                            
@@ -274,7 +342,14 @@
                 clearing.dataStr = str;
                 [weakSelf.navigationController pushViewController:clearing animated:YES];
             }else{
-                
+                [weakSelf chooseSizeHide];
+                weakSelf.payCount = count;
+                weakSelf.goods_id = goods_id;
+                if (payType.length == 0) {
+                    weakSelf.chooseLab.text = @"您已选择该商品,请进行购买.";
+                }else{
+                    weakSelf.chooseLab.text = payType;
+                }
             }
         }
         
@@ -289,14 +364,24 @@
         [weakSelf.navigationController pushViewController:web animated:YES];
     };
     [self.view addSubview:self.chooseSize];
+    if (self.model.goodscommon_info.total_storage.integerValue <= 0) {
+
+        self.shopView.isSelected = NO;
+    }else{
+        self.shopView.isSelected = YES;
+    }
 }
 
 - (void)getData{
     WS(weakSelf);
+    if (weakSelf.is_goodsid.length == 0) {
+        weakSelf.is_goodsid = @"";
+    }
     [YPCNetworking postWithUrl:@"shop/goods/goodsdetail"
                   refreshCache:YES
                         params:@{
-                                 @"goods_id":weakSelf.goods_id
+                                 @"goods_id":weakSelf.goods_id,
+                                 @"is_goodsid":weakSelf.is_goodsid
                                 }
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
@@ -308,6 +393,12 @@
                                dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.2 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
                                    [weakSelf.titleImg reloadData];
                                });
+                           }else{
+                               if ([response[@"status"][@"error_code"] integerValue] == 1032) {
+                                   dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(0.5 * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
+                                       [weakSelf.navigationController popViewControllerAnimated:YES];
+                                   });
+                               }
                            }
                            
                        }
@@ -320,13 +411,14 @@
     [YPCNetworking postWithUrl:@"shop/cart/editinit"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"goods_id":weakSelf.goods_id
+                                                                               @"goods_id":weakSelf.model.goodscommon_info.goods_commonid
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.chooseModel = [ChooseSizeModel mj_objectWithKeyValues:response[@"data"]];
                                NSInteger maxcount = weakSelf.model.goodscommon_info.total_storage.integerValue;
-                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goodscommon_info.goods_price img:weakSelf.model.image[0] chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
+                               ShoppingImgsModel *model = weakSelf.model.image[0];
+                               [weakSelf.chooseSize updateWithPrice:weakSelf.model.goodscommon_info.goods_price img:model.goods_image chooseMessage:@"请选择颜色和尺码" count:1 maxCount:maxcount model:weakSelf.chooseModel];
                            }
                            
                        }
@@ -404,6 +496,17 @@
     live.store_id = self.model.goodscommon_info.store_id;
     [self.navigationController pushViewController:live animated:YES];
 }
+
+- (void)pushCarVC{
+    [self.navigationController popViewControllerAnimated:YES];
+}
+
+- (void)hiden{
+    [self chooseSizeHide];
+    [self.chooseSize keyboredHiden];
+}
+
+
 
 - (void)didReceiveMemoryWarning {
     [super didReceiveMemoryWarning];

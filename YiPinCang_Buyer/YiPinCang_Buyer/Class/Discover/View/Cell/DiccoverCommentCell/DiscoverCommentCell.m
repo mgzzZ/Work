@@ -70,6 +70,15 @@
         .topSpaceToView(self.nameLab,5)
         .autoHeightRatio(0);
         
+        UIView *view = [[UIView alloc]init];
+        view.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        [self.bgView addSubview:view];
+        view.sd_layout
+        .leftEqualToView(self.bgView)
+        .rightEqualToView(self.bgView)
+        .bottomEqualToView(self.bgView)
+        .heightIs(1);
+        
         
         
     }
@@ -85,7 +94,7 @@
     self.timeLab.text = time;
     [self.timeLab sizeToFit];
     self.timeLab.sd_layout.widthIs(self.timeLab.frame.size.width);
-    if ([model.comment_type isEqualToString:@"3"]) {
+    if ([model.comment_type isEqualToString:@"3"] || [model.comment_type isEqualToString:@"2"]) {
         NSString *huifuStr = [NSString stringWithFormat:@"%@回复%@",model.scomm_membername,model.scommto_membername];
  
         NSMutableAttributedString *name = [[NSMutableAttributedString alloc]initWithString:huifuStr];

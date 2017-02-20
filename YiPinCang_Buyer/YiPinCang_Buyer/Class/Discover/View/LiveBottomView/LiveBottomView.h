@@ -8,16 +8,15 @@
 
 #import <UIKit/UIKit.h>
 #import "LiveSimpleData.h"
-#import "TempHomePushModel.h"
 typedef void(^PushToMessageBlock)(NSString *hx_uname);
-typedef void(^DidCellBlock)(TempHomePushModel *model);
-
+typedef void(^DidCellBlock)(NSString *liveId);
+typedef void(^DidTxBtnClickBlock)(NSString *storeId);
 @interface LiveBottomView : UIView
 
 @property (nonatomic,copy)NSString *store_id;
 @property (nonatomic,copy)DidCellBlock didcell;
 @property (nonatomic,copy)PushToMessageBlock pushMessage;
-
+@property (nonatomic,copy)DidTxBtnClickBlock didTxBtnClick;
 
 - (void)animationShow;
 

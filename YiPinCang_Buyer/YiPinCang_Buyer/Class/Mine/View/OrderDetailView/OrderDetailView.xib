@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
     <objects>
@@ -49,10 +49,10 @@
                     <fontDescription key="fontDescription" type="system" pointSize="15"/>
                 </button>
                 <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="MjA-BF-KTc">
-                    <rect key="frame" x="0.0" y="1" width="163" height="48"/>
+                    <rect key="frame" x="20" y="1" width="143" height="48"/>
                     <subviews>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="付款剩余时间" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="BTh-YK-cao">
-                            <rect key="frame" x="46" y="10" width="71" height="13"/>
+                            <rect key="frame" x="36" y="10" width="71" height="13"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="71" id="5JL-yD-nf4"/>
                                 <constraint firstAttribute="height" constant="13" id="P1V-lt-DFF"/>
@@ -62,7 +62,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="00:29:59" textAlignment="center" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="gdb-aG-Q5b">
-                            <rect key="frame" x="50" y="28" width="64" height="16"/>
+                            <rect key="frame" x="40" y="28" width="64" height="16"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="16" id="iOl-F2-5Ew"/>
                             </constraints>
@@ -71,7 +71,7 @@
                             <nil key="highlightedColor"/>
                         </label>
                         <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="mine_myorder_all_icon_clock" translatesAutoresizingMaskIntoConstraints="NO" id="Ko4-vK-XDV">
-                            <rect key="frame" x="25" y="16.5" width="16" height="16"/>
+                            <rect key="frame" x="15" y="16.5" width="16" height="16"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="16" id="1f0-bK-7Sm"/>
                                 <constraint firstAttribute="width" constant="16" id="vPE-Yo-ijM"/>
@@ -101,7 +101,7 @@
                 <constraint firstItem="FXB-EL-92Z" firstAttribute="centerY" secondItem="iN0-l3-epB" secondAttribute="centerY" id="gfv-oG-t87"/>
                 <constraint firstItem="BzO-Mg-D1Z" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="iGq-68-kRm"/>
                 <constraint firstAttribute="trailing" secondItem="laF-bl-pmc" secondAttribute="trailing" constant="24" id="qBw-cU-6st"/>
-                <constraint firstItem="MjA-BF-KTc" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" id="uq0-PX-mme"/>
+                <constraint firstItem="MjA-BF-KTc" firstAttribute="leading" secondItem="iN0-l3-epB" secondAttribute="leading" constant="20" id="uq0-PX-mme"/>
             </constraints>
             <nil key="simulatedStatusBarMetrics"/>
             <freeformSimulatedSizeMetrics key="simulatedDestinationMetrics"/>

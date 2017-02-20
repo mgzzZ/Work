@@ -12,7 +12,8 @@
 - (BOOL)isValidPhone
 {
     //手机号以13， 15，18, 177开头，八个 \d 数字字符
-    NSString *phoneRegex = @"^((177)|(13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
+//    NSString *phoneRegex = @"^((17[7-8])|(13[0-9])|(15[^4,\\D])|(18[0,0-9]))\\d{8}$";
+    NSString *phoneRegex = @"^((13[0-9]|15[^4]|17[0-1]|17[3]|17[5-8]|18[0-9]|14[5]|14[7]|14[9]))\\d{8}$";
     NSPredicate *phoneTest = [NSPredicate predicateWithFormat:@"SELF MATCHES %@",phoneRegex];
     return [phoneTest evaluateWithObject:self];
 }

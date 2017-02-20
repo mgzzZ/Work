@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina4_7" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -50,18 +50,18 @@
                         <color key="textColor" red="0.74901960779999999" green="0.74901960779999999" blue="0.74901960779999999" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="find_productdetails_icon_commentnumber" translatesAutoresizingMaskIntoConstraints="NO" id="9K8-PZ-fkl">
-                        <rect key="frame" x="266.5" y="192.5" width="25" height="25"/>
+                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="liveroom_comment_icon" translatesAutoresizingMaskIntoConstraints="NO" id="9K8-PZ-fkl">
+                        <rect key="frame" x="275.5" y="197" width="16" height="16"/>
                     </imageView>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="9" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="mp1-i4-aGV">
-                        <rect key="frame" x="237" y="197" width="8.5" height="16"/>
+                        <rect key="frame" x="246" y="197" width="8.5" height="16"/>
                         <fontDescription key="fontDescription" type="system" pointSize="13"/>
                         <color key="textColor" red="0.74901960779999999" green="0.74901960779999999" blue="0.74901960779999999" alpha="1" colorSpace="calibratedRGB"/>
                         <nil key="highlightedColor"/>
                     </label>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" adjustsImageWhenDisabled="NO" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="0wD-Fc-2A3">
-                        <rect key="frame" x="207" y="192.5" width="25" height="25"/>
-                        <state key="normal" image="find_productdetails_icon_likes"/>
+                        <rect key="frame" x="225" y="194" width="16" height="22"/>
+                        <state key="normal" image="liveroom_praise_icon"/>
                         <connections>
                             <action selector="zanClickAction:" destination="KGk-i7-Jjw" eventType="touchUpInside" id="gkq-jd-Geo"/>
                         </connections>
@@ -112,8 +112,8 @@
         </tableViewCell>
     </objects>
     <resources>
-        <image name="find_productdetails_icon_commentnumber" width="25" height="25"/>
-        <image name="find_productdetails_icon_likes" width="25" height="25"/>
         <image name="homepage_yure_videoplay" width="60" height="60"/>
+        <image name="liveroom_comment_icon" width="16" height="16"/>
+        <image name="liveroom_praise_icon" width="16" height="16"/>
     </resources>
 </document>

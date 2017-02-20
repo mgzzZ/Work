@@ -2,7 +2,7 @@
 //  AVIMConversation+LCCKExtension.m
 //  LeanCloudChatKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/11.
+//  v0.8.5 Created by ElonChan on 16/3/11.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
 
@@ -11,15 +11,39 @@
 #import "LCCKUserSystemService.h"
 #import "LCCKSessionService.h"
 #import "LCCKUserDelegate.h"
+#import "NSDate+LCCKDateTools.h"
+#import "AVIMMessage+LCCKExtension.h"
 
 @implementation AVIMConversation (LCCKExtension)
 
 - (AVIMTypedMessage *)lcck_lastMessage {
-    return objc_getAssociatedObject(self, @selector(lcck_lastMessage));
+    AVIMTypedMessage *visiableLastMessage = nil;
+    AVIMTypedMessage *lastMessageFromCache = [self.lastMessage lcck_getValidTypedMessage];
+    id visiableForPartClientIds = [lastMessageFromCache.attributes
+                                   valueForKey:LCCKCustomMessageOnlyVisiableForPartClientIds];
+    BOOL isArray = [visiableForPartClientIds isKindOfClass:[NSArray class]];
+    BOOL isString = [visiableForPartClientIds isKindOfClass:[NSString class]];
+    if (!visiableForPartClientIds) {
+        visiableLastMessage = lastMessageFromCache;
+    } else if (isArray && ([(NSArray *)visiableForPartClientIds count] > 0)) {
+        BOOL visiableForCurrentClientId =
+        [visiableForPartClientIds containsObject:[LCChatKit sharedInstance].clientId];
+        if (visiableForCurrentClientId) {
+            visiableLastMessage = lastMessageFromCache;
+        }
+    } else if (isString && ([(NSString *)visiableForPartClientIds length] > 0)) {
+        if ([visiableForPartClientIds isEqualToString:[LCChatKit sharedInstance].clientId]) {
+            visiableLastMessage = lastMessageFromCache;
+        }
+    }
+    return visiableLastMessage;
 }
 
-- (void)setLcck_lastMessage:(AVIMTypedMessage *)lcck_lastMessage {
-    objc_setAssociatedObject(self, @selector(lcck_lastMessage), lcck_lastMessage, OBJC_ASSOCIATION_RETAIN_NONATOMIC);
+- (NSDate *)lcck_lastMessageAt {
+    NSDate *dateFromServer = self.lastMessageAt;
+    NSDate *dateFromCache = [NSDate dateWithTimeIntervalSince1970:self.lcck_lastMessage.sendTimestamp / 1000];
+    BOOL isServerLate = [dateFromServer lcck_isLaterThan:dateFromCache];
+    return isServerLate ? dateFromServer : dateFromCache;
 }
 
 - (NSInteger)lcck_unreadCount {
@@ -139,6 +163,23 @@
     updateBuilder.attributes = self.attributes;
     [updateBuilder removeObjectForKey:key];
     [self update:[updateBuilder dictionary] callback:callback];
+}
+
+- (void)lcck_setConversationWithMute:(BOOL)mute callback:(LCCKBooleanResultBlock)callback {
+    if (mute) {
+        [self muteWithCallback:^(BOOL succeeded, NSError * _Nullable error) {
+            !callback ?: callback(succeeded, error);
+        }];
+    } else {
+        [self unmuteWithCallback:^(BOOL succeeded, NSError * _Nullable error) {
+            !callback ?: callback(succeeded, error);
+        }];
+    }
+}
+
+- (BOOL)lcck_isCreaterForCurrentUser {
+    BOOL isCreater = [self.creator isEqualToString:[LCChatKit sharedInstance].clientId];
+    return isCreater;
 }
 
 @end

@@ -10,6 +10,8 @@
 #import "AppDelegate.h"
 #import "YYFPSLabel.h"
 #import "YJMGuideViewManager.h"
+#import "AppConfigModel.h"
+
 @interface ChooseVC ()
 
 @end
@@ -18,7 +20,7 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
+    
     NSMutableArray *images = [NSMutableArray new];
     
     [images addObject:[UIImage imageNamed:@"1navigationpage"]];
@@ -34,6 +36,9 @@
                                               andButtonTitleColor:[UIColor whiteColor]
                                                  andButtonBGColor:[UIColor clearColor]
                                              andButtonBorderColor:[UIColor clearColor]];
+    
+    // 获取分享等等相关初试数据
+    [self getAppConfigData];
 }
 
 /**
@@ -42,7 +47,7 @@
  @param sender 女性
  */
 - (IBAction)womenBtnClick:(UIButton *)sender {
-    [YPCRequestCenter shareInstance].homeStyleType = homeStyleFemale;
+//    [YPCRequestCenter shareInstance].homeStyleType = homeStyleFemale;
     if (self.isChangeHomeStyle) {
         self.ChangeStyleBlock();
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -57,7 +62,7 @@
  @param sender 男性
  */
 - (IBAction)manBtnClick:(UIButton *)sender {
-    [YPCRequestCenter shareInstance].homeStyleType = homeStyleMale;
+//    [YPCRequestCenter shareInstance].homeStyleType = homeStyleMale;
     if (self.isChangeHomeStyle) {
         self.ChangeStyleBlock();
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -72,7 +77,7 @@
  @param sender 儿童
  */
 - (IBAction)kidBtnClick:(UIButton *)sender {
-    [YPCRequestCenter shareInstance].homeStyleType = homeStyleChildren;
+//    [YPCRequestCenter shareInstance].homeStyleType = homeStyleChildren;
     if (self.isChangeHomeStyle) {
         self.ChangeStyleBlock();
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -87,7 +92,7 @@
  @param sender 居家
  */
 - (IBAction)homeBtnClick:(UIButton *)sender {
-    [YPCRequestCenter shareInstance].homeStyleType = homeStyleHousehold;
+//    [YPCRequestCenter shareInstance].homeStyleType = homeStyleHousehold;
     if (self.isChangeHomeStyle) {
         self.ChangeStyleBlock();
         [self dismissViewControllerAnimated:YES completion:nil];
@@ -117,24 +122,18 @@
 //    fps.top = 0;
 //    [[AppDelegate shareAppDelegate].window addSubview:fps];
 }
-#pragma mark - Debug
-- (IBAction)ChooseApiAction:(UIButton *)sender {
-    
-    [YPC_Tools customAlertViewWithTitle:nil
-                                Message:nil
-                              BtnTitles:@[@"54", @"56", @"线上"]
-                         CancelBtnTitle:@"取消"
-                    DestructiveBtnTitle:nil
-                          actionHandler:^(LGAlertView *alertView, NSString *title, NSUInteger index) {
-                              if (index == 0) {
-                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.54/ypcang-api/api/ecapi/index.php?url="];
-                              }else if (index == 1) {
-                                  [YPCNetworking updateBaseUrl:@"http://192.168.1.56/ypcang-api/api/ecapi/index.php?url="];
-                              }else {
-                                  [YPCNetworking updateBaseUrl:@"http://api.gongchangtemai.com/index.php?url="];
-                              }
-                          } cancelHandler:nil
-                     destructiveHandler:nil];
+
+- (void)getAppConfigData
+{
+    [YPCNetworking getWithUrl:@"merchant/config"
+                 refreshCache:YES
+                      success:^(id response) {
+                          if ([YPC_Tools judgeRequestAvailable:response]) {
+                              [YPCRequestCenter shareInstance].configModel = [AppConfigModel mj_objectWithKeyValues:response[@"data"][@"share_data"]];
+                          }
+                      } fail:^(NSError *error) {
+                          
+                      }];
 }
 
 - (void)didReceiveMemoryWarning {

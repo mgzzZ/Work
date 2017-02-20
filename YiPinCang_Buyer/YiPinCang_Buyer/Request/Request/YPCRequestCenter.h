@@ -8,6 +8,7 @@
 
 #import <Foundation/Foundation.h>
 #import "UserModel.h"
+#import "AppConfigModel.h"
 #import <AFNetworkReachabilityManager.h>
 
 @interface YPCRequestCenter : NSObject
@@ -18,12 +19,15 @@
 
 @property (nonatomic, copy) NSString *sID; // USER_ID
 @property (nonatomic, copy) NSString *uID; // SESSION_ID
+@property (nonatomic, copy) NSString *carNumber;
+@property (nonatomic, copy) NSString *carEndtime;
+@property (nonatomic, copy) NSString *cart_expire_time;
 @property (nonatomic, strong) UserModel *model; // USER_DATA_MODEL
-
-@property (nonatomic, assign) HomeStyleType homeStyleType;
 
 @property (nonatomic, copy) NSString *kShopingCarCount; // 购物车数量
 @property (nonatomic, copy) NSString *kUnReadMesCount; // 消息未读数量
+
+@property (nonatomic, strong) AppConfigModel *configModel; // 分享等配置model
 
 /*!
  *
@@ -79,7 +83,8 @@
  *    用户是否登录, 并模态登录页面
  *
  */
-+ (BOOL)isLoginAndPresentLoginVC:(UIViewController *)vc;
++ (void)isLoginAndPresentLoginVC:(UIViewController *)vc
+                         success:(YPCVoidBlock)success;
 /*!
  *
  *    设置登录状态为YES

@@ -27,4 +27,5 @@
 @property (nonatomic,copy)NSString *aspect;
 @property (nonatomic,strong)NSMutableArray *strace_content;
 @property (nonatomic,copy)NSString *live_id;
+@property (nonatomic,copy)NSString *goods_marketprice;
 @end

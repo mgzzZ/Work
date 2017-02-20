@@ -17,7 +17,7 @@
 #import "LivingLikeMessage.h"
 #import "LiveBottomView.h"
 #import "VideoPlayerVC.h"
-
+#import "LiveDetailHHHVC.h"
 #define Window [UIApplication sharedApplication].keyWindow
 
 static NSString *status[] = {
@@ -50,6 +50,8 @@ UITextFieldDelegate
 @property (nonatomic, strong) TimerLiveInfoModel *timerLiveModel;
 
 @property (nonatomic, strong) LiveBottomView *liveBottomView;
+@property (strong, nonatomic) IBOutlet UIButton *closeBtn;
+@property (strong, nonatomic) IBOutlet UIButton *shareBtn;
 
 @end
 
@@ -59,6 +61,7 @@ UITextFieldDelegate
     BOOL LivingGroupInfoIsShowing;
     BOOL isFirstLoadData;
     NSDictionary *_currentTopGoodsDic;
+    BOOL isAlreadyJoinDanmakuRoom;
 }
 #pragma mark - 懒加载
 - (LiveBottomView *)liveBottomView
@@ -68,12 +71,12 @@ UITextFieldDelegate
         _liveBottomView = [[LiveBottomView alloc]init];
         _liveBottomView.store_id = self.rtmpModel.store_id;//加载数据
         //点击cell
-        _liveBottomView.didcell = ^(TempHomePushModel *model){
+        _liveBottomView.didcell = ^(NSString *liveId){
             [weakSelf.player stop];
             weakSelf.isRemoveFromWindow = YES;
             weakSelf.playerIsOnWindow = NO;
             VideoPlayerVC *vVC = [VideoPlayerVC new];
-            vVC.tempModel = model;
+            vVC.liveId = liveId;
             vVC.hidesBottomBarWhenPushed = YES;
             [weakSelf.navigationController pushViewController:vVC animated:YES];
         };
@@ -87,6 +90,11 @@ UITextFieldDelegate
                     [YPC_Tools openConversationWithCilentId:hx_name ViewController:weakSelf andOrderId:nil andOrderIndex:nil];
                 }
             }
+        };
+        _liveBottomView.didTxBtnClick = ^(NSString *storeId){
+            LiveDetailHHHVC *live = [[LiveDetailHHHVC alloc]init];
+            live.store_id = storeId;
+            [weakSelf.navigationController pushViewController:live animated:YES];
         };
         [self.view addSubview:_liveBottomView];
     }
@@ -108,13 +116,37 @@ UITextFieldDelegate
     [YPC_Tools setStatusBarIsHidden:YES];
     
     [self config];
-    // 获取拉流初试信息
-    [self getRtmpUrlInfo];
-    [self addKeyboardNotifications];
-    [self getMainData];
-    [self getIssueData];
     
-    [self goodsItemSelectedAction];
+    if ([YPCRequestCenter getCurrentNetworkType] == CurrentNetWork3G4G) {
+        WS(weakSelf);
+        [YPC_Tools customAlertViewWithTitle:@"提示"
+                                    Message:@"当前手机处于移动网络环境"
+                                  BtnTitles:nil
+                             CancelBtnTitle:@"退出"
+                        DestructiveBtnTitle:@"继续"
+                              actionHandler:nil
+                              cancelHandler:^(LGAlertView *alertView) {
+                                  [weakSelf.navigationController popViewControllerAnimated:YES];
+                              }destructiveHandler:^(LGAlertView *alertView) {
+                                  // 获取拉流初试信息
+                                  [weakSelf getRtmpUrlInfo];
+                                  [weakSelf addKeyboardNotifications];
+                                  
+                                  [weakSelf goodsItemSelectedAction];
+                                  
+                                  // 添加通知
+                                  [weakSelf addNotifications];
+                              }];
+    }else {
+        // 获取拉流初试信息
+        [self getRtmpUrlInfo];
+        [self addKeyboardNotifications];
+        
+        [self goodsItemSelectedAction];
+        
+        // 添加通知
+        [self addNotifications];
+    }
 }
 - (void)viewWillAppear:(BOOL)animated
 {
@@ -133,7 +165,7 @@ UITextFieldDelegate
         [self resumeTimer];
     }
     isFirstLoadData = NO;
-    if (self.player.status != AVIMClientStatusNone || self.player.status != AVIMClientStatusClosing || self.player.status != AVIMClientStatusClosed) {
+    if (self.player.status != PLPlayerStatusUnknow || self.player.status != PLPlayerStatusStopped || self.player.status != PLPlayerStatusError) {
         
         if (self.playerIsOnWindow) {
             [self hiddenVideoOnWindowWithViewController:self];
@@ -177,14 +209,14 @@ UITextFieldDelegate
     [YPCNetworking postWithUrl:@"shop/activity/checklivinginfo"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id
+                                                                               @"live_id" : self.liveId
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.rtmpModel = [RTMPModel mj_objectWithKeyValues:response[@"data"]];
                                if (weakSelf.rtmpModel.state.integerValue == 4) {
                                    weakSelf.livingPauseImgV.hidden = NO;
-                               }else {                                   
+                               }else {
                                    // 配置拉流, 准备拉流
                                    [weakSelf configPlayer];
                                }
@@ -194,17 +226,24 @@ UITextFieldDelegate
                                [weakSelf joinDanmakuChatroomWithConversationId:_rtmpModel.hx_lgroupid];
                                // 初始化定时器
                                [weakSelf setUpTimer];
-                               // 添加通知
-                               [self addNotifications];
+                               
+                               weakSelf.closeBtn.hidden = NO;
+                               weakSelf.shareBtn.hidden = NO;
+                               
+                               // 获取商品相关数据
+                               [weakSelf getMainData];
+                               [weakSelf getIssueData];
                            }
                        } fail:^(NSError *error) {
                            YPCAppLog(@"%@", [error description]);
+                           weakSelf.closeBtn.hidden = NO;
+                           weakSelf.shareBtn.hidden = NO;
                        }];
 }
 - (void)setDataForItem
 {
-    [self.avatorImgV sd_setImageWithURL:[NSURL URLWithString:self.tempModel.store_avatar] placeholderImage:YPCImagePlaceHolder];
-    self.livingNameL.text = self.tempModel.store_name;
+    [self.avatorImgV sd_setImageWithURL:[NSURL URLWithString:self.rtmpModel.store_avatar] placeholderImage:YPCImagePlaceHolder];
+    self.livingNameL.text = self.rtmpModel.store_name;
     if (self.rtmpModel.live_like.length > 4) {
         self.likeCountL.text = [NSString stringWithFormat:@"%.2f万   ", self.rtmpModel.live_like.floatValue / 10000];
     }else {
@@ -235,7 +274,7 @@ UITextFieldDelegate
     [YPCNetworking postWithUrl:@"shop/activity/stopactivitydetail"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id
+                                                                               @"live_id" : self.liveId
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
@@ -251,12 +290,13 @@ UITextFieldDelegate
     [YPCNetworking postWithUrl:@"shop/activity/showgoodslist"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id,
-                                                                               @"store_id" : self.tempModel.store_id
+                                                                               @"live_id" : self.liveId,
+                                                                               @"store_id" : self.rtmpModel.store_id
                                                                                }]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.goodsView.allGoodsDataArr = [AllGoodsModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
+                               weakSelf.goodsBtn.badgeValue = [NSString stringWithFormat:@"%ld", weakSelf.goodsView.allGoodsDataArr.count];
                            }
                        } fail:^(NSError *error) {
                            YPCAppLog(@"%@", [error description]);
@@ -268,7 +308,7 @@ UITextFieldDelegate
     [YPCNetworking postWithUrl:@"shop/activity/timergetlivinginfo"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id
+                                                                               @"live_id" : self.liveId
                                                                                }]
                        success:^(id response) {
                            if ([response[@"status"][@"succeed"] integerValue] == 1) {
@@ -298,8 +338,8 @@ UITextFieldDelegate
     [YPCNetworking postWithUrl:@"shop/activity/timerlikeliving"
                   refreshCache:YES
                         params:[YPCRequestCenter getUserInfoAppendDictionary:@{
-                                                                               @"live_id" : self.tempModel.live_id,
-                                                                               @"announcement_id" : self.tempModel.announcement_id,
+                                                                               @"live_id" : self.liveId,
+                                                                               @"announcement_id" : self.rtmpModel.announcement_id,
                                                                                @"count" : [NSString stringWithFormat:@"%ld", self.localLikeCount]
                                                                                }]
                        success:^(id response) {
@@ -438,15 +478,16 @@ UITextFieldDelegate
             if (self.player.status == PLPlayerStatusPlaying || self.player.status == PLPlayerStatusCaching) {
                 WS(weakSelf);
                 [YPC_Tools customAlertViewWithTitle:@"提示"
-                                            Message:@"当前非WiFi网络\n继续播放将产生流量费用"
+                                            Message:@"当前手机处于移动网络环境"
                                           BtnTitles:nil
-                                     CancelBtnTitle:@"停止播放"
-                                DestructiveBtnTitle:@"继续播放"
+                                     CancelBtnTitle:@"继续"
+                                DestructiveBtnTitle:@"退出"
                                       actionHandler:nil
-                                      cancelHandler:^(LGAlertView *alertView) {
-                                          [weakSelf.player stop];
-                                          [weakSelf.navigationController popViewControllerAnimated:YES];
-                                      } destructiveHandler:nil];
+                                      cancelHandler:nil
+                                 destructiveHandler:^(LGAlertView *alertView) {
+                                     [weakSelf.player stop];
+                                     [weakSelf.navigationController popViewControllerAnimated:YES];
+                                 }];
             }
             break;
         case AFNetworkReachabilityStatusReachableViaWiFi:
@@ -503,12 +544,13 @@ UITextFieldDelegate
 }
 - (void)player:(nonnull PLPlayer *)player stoppedWithError:(nullable NSError *)error
 {
-    if (self.reconnectCount < 3) {
+    if (self.reconnectCount <= 3) {
         self.reconnectCount++;
-//        [YPC_Tools showSvpHud:[NSString stringWithFormat:@"正在进行第%ld次重新连接", (long)self.reconnectCount]];
+        //        [YPC_Tools showSvpHud:[NSString stringWithFormat:@"正在进行第%ld次重新连接", (long)self.reconnectCount]];
         [YPC_Tools showSvpHud:@"正在连接..."];
+        WS(weakSelf);
         dispatch_after(dispatch_time(DISPATCH_TIME_NOW, (int64_t)(.5 * pow(2, self.reconnectCount) * NSEC_PER_SEC)), dispatch_get_main_queue(), ^{
-            [self.player play];
+            [weakSelf.player play];
         });
     }else {
         [YPC_Tools showSvpHudError:@"连接失败"];
@@ -519,7 +561,7 @@ UITextFieldDelegate
 }
 - (void)playerWillBeginBackgroundTask:(nonnull PLPlayer *)player
 {
-
+    
 }
 - (void)playerWillEndBackgroundTask:(nonnull PLPlayer *)player
 {
@@ -532,7 +574,7 @@ UITextFieldDelegate
     [self.view endEditing:YES];
     if (![textField.text isEmpty]) {
         // 发送弹幕
-        DanmuMessage *message = [DanmuMessage messageWithText:textField.text attributes:@{@"uID" : [YPCRequestCenter shareInstance].uID, @"name" : [YPCRequestCenter shareInstance].model.name}];
+        DanmuMessage *message = [DanmuMessage messageWithText:textField.text attributes:@{@"uID" : [YPCRequestCenter shareInstance].uID, @"name" : [YPCRequestCenter shareInstance].model.member_truename}];
         AVIMMessageOption *option = [AVIMMessageOption new];
         option.transient = YES;
         option.priority = AVIMMessagePriorityLow;
@@ -559,6 +601,17 @@ UITextFieldDelegate
             break;
         case 2001:
             // 分享
+        {
+            NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+            [YPCShare StartActivityShareInWindowWithName:self.rtmpModel.store_name
+                                               StartTime:self.rtmpModel.starttime
+                                                  LiveID:self.rtmpModel.live_id
+                                                   image:[[SDImageCache sharedImageCache] imageFromDiskCacheForKey:self.rtmpModel.activity_pic]
+                                               brandName:self.rtmpModel.name
+                                                 endTime:self.rtmpModel.endtime
+                                                     uid:uid
+                                          viewController:self];
+        }
             break;
         case 2002:
             // 关闭
@@ -574,9 +627,22 @@ UITextFieldDelegate
             // 点赞
             [self LivingLikeActionWithSender:sender];
             break;
-        case 2005:
+        case 2005:{
             // 发弹幕
-            [self.danmakuTF becomeFirstResponder];
+            WS(weakSelf);
+            [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+                [weakSelf.danmakuTF becomeFirstResponder];
+                [weakSelf.transientClient closeWithCallback:^(BOOL succeeded, NSError * _Nullable error) {
+                    if (succeeded) {
+                        [weakSelf.transientClient closeWithCallback:^(BOOL succeeded, NSError * _Nullable error) {
+                            if (succeeded) {
+                                weakSelf.transientClient = nil;
+                            }
+                        }];
+                    }
+                }];
+            }];
+        }
             break;
         case 2006:
             // 小窗口拉流关闭
@@ -593,7 +659,7 @@ UITextFieldDelegate
                 [self playVideoOnWindow];
                 
                 DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
-                detailVC.live_id = self.tempModel.live_id;
+                detailVC.live_id = self.rtmpModel.live_id;
                 detailVC.strace_id = [_currentTopGoodsDic safe_objectForKey:@"strace_id"];
                 [self.navigationController pushViewController:detailVC animated:YES];
             }
@@ -612,7 +678,7 @@ UITextFieldDelegate
     if (self.playerIsOnWindow) {
         [self hiddenVideoOnWindowWithViewController:self];
     }
-    if (self.player.status == AVIMClientStatusNone || self.player.status == AVIMClientStatusClosing || self.player.status == AVIMClientStatusClosed) {
+    if (self.player.status == PLPlayerStatusStopped || self.player.status == PLPlayerStatusError || self.player.status == PLPlayerStatusUnknow) {
         [self hiddenGoodsAction];
     }
     if (LivingGroupInfoIsShowing) {
@@ -713,7 +779,7 @@ UITextFieldDelegate
 }
 - (void)livingGoodsTopAction:(NSNotification *)not
 {
-    _currentTopGoodsDic = [not userInfo];
+    _currentTopGoodsDic = not.object;
     if (self.livingTopGoodsView.hidden) {
         self.livingTopGoodsView.hidden = NO;
     }
@@ -750,10 +816,10 @@ UITextFieldDelegate
     WS(weakSelf);
     [self.goodsView setCellSelectedBlock:^(NSString *strace_id) {
         if (strace_id) {
-            if (weakSelf.player.status == AVIMClientStatusNone || weakSelf.player.status == AVIMClientStatusClosing || weakSelf.player.status == AVIMClientStatusClosed) {
+            if (weakSelf.player.status == PLPlayerStatusUnknow || weakSelf.player.status == PLPlayerStatusStopped || weakSelf.player.status == PLPlayerStatusError) {
                 
                 DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
-                detailVC.live_id = weakSelf.tempModel.live_id;
+                detailVC.live_id = weakSelf.liveId;
                 detailVC.strace_id = strace_id;
                 [weakSelf.navigationController pushViewController:detailVC animated:YES];
             }else {
@@ -761,7 +827,7 @@ UITextFieldDelegate
                     [weakSelf playVideoOnWindow];
                     
                     DiscoverDetailVC *detailVC = [DiscoverDetailVC new];
-                    detailVC.live_id = weakSelf.tempModel.live_id;
+                    detailVC.live_id = weakSelf.liveId;
                     detailVC.strace_id = strace_id;
                     [weakSelf.navigationController pushViewController:detailVC animated:YES];
                 }
@@ -791,13 +857,13 @@ UITextFieldDelegate
 }
 
 /*
-#pragma mark - Navigation
-
-// In a storyboard-based application, you will often want to do a little preparation before navigation
-- (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
-    // Get the new view controller using [segue destinationViewController].
-    // Pass the selected object to the new view controller.
-}
-*/
+ #pragma mark - Navigation
+ 
+ // In a storyboard-based application, you will often want to do a little preparation before navigation
+ - (void)prepareForSegue:(UIStoryboardSegue *)segue sender:(id)sender {
+ // Get the new view controller using [segue destinationViewController].
+ // Pass the selected object to the new view controller.
+ }
+ */
 
 @end

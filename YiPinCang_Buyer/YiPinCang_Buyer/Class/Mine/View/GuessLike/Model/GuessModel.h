@@ -16,4 +16,5 @@
 @property (nonatomic,copy)NSString *goods_price;
 @property (nonatomic,copy)NSString *goods_serial;
 @property (nonatomic,copy)NSString *strace_id;
+@property (nonatomic,copy)NSString *hot;
 @end

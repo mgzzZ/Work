@@ -14,19 +14,20 @@ PODS:
   - AFNetworking/Serialization (3.1.0)
   - AFNetworking/UIKit (3.1.0):
     - AFNetworking/NSURLSession
-  - AVOSCloud (3.8.0)
-  - AVOSCloudIM (3.8.0):
-    - AVOSCloud (= 3.8.0)
-    - AVOSCloudIM/_ARC (= 3.8.0)
-    - AVOSCloudIM/_NOARC (= 3.8.0)
-  - AVOSCloudIM/_ARC (3.8.0):
-    - AVOSCloud (= 3.8.0)
-    - AVOSCloudIM/_NOARC (= 3.8.0)
-  - AVOSCloudIM/_NOARC (3.8.0):
-    - AVOSCloud (= 3.8.0)
-  - ChatKit (0.8.7):
-    - AVOSCloud (~> 3.8.0)
-    - AVOSCloudIM (~> 3.8.0)
+  - AVOSCloud (3.10.0)
+  - AVOSCloudIM (3.10.0):
+    - AVOSCloud (= 3.10.0)
+    - AVOSCloudIM/_ARC (= 3.10.0)
+    - AVOSCloudIM/_NOARC (= 3.10.0)
+  - AVOSCloudIM/_ARC (3.10.0):
+    - AVOSCloud (= 3.10.0)
+    - AVOSCloudIM/_NOARC (= 3.10.0)
+  - AVOSCloudIM/_NOARC (3.10.0):
+    - AVOSCloud (= 3.10.0)
+  - ChatKit (0.8.13):
+    - AVOSCloud (~> 3.10.0)
+    - AVOSCloudIM (~> 3.10.0)
+    - CYLDeallocBlockExecutor (~> 1.1.2)
     - DACircularProgress (~> 2.3.1)
     - FDStackView (~> 1.0)
     - FMDB (~> 2.6.2)
@@ -37,6 +38,7 @@ PODS:
     - pop (~> 1.0.9)
     - SDWebImage (~> 3.8.0)
     - UITableView+FDTemplateLayoutCell (~> 1.5.beta)
+  - CYLDeallocBlockExecutor (1.1.2)
   - DACircularProgress (2.3.1)
   - DZNEmptyDataSet (1.8.1)
   - FDStackView (1.0)
@@ -44,8 +46,14 @@ PODS:
     - FMDB/standard (= 2.6.2)
   - FMDB/standard (2.6.2)
   - HappyDNS (0.3.10)
-  - iCarousel (1.8.3)
   - ImagePlayerView (1.0.5)
+  - JSPatch (1.1.2):
+    - JSPatch/Core (= 1.1.2)
+  - JSPatch/Core (1.1.2)
+  - JSPatchPlatform (1.6.6):
+    - JSPatchPlatform/Core (= 1.6.6)
+  - JSPatchPlatform/Core (1.6.6):
+    - JSPatch
   - LGAlertView (2.0.13)
   - Masonry (1.0.2)
   - MBProgressHUD (0.9.2)
@@ -56,19 +64,13 @@ PODS:
     - DACircularProgress (~> 2.3)
     - MBProgressHUD (~> 0.9)
     - SDWebImage (!= 3.7.2, ~> 3.7)
-  - PLPlayerKit (2.4.0):
+  - PLPlayerKit (2.4.1):
     - HappyDNS (~> 0.3.10)
   - pop (1.0.9)
   - Qiniu (7.0.20):
     - AFNetworking (~> 3)
     - HappyDNS (~> 0.3)
-  - ReactiveCocoa (2.1.8):
-    - ReactiveCocoa/Core (= 2.1.8)
-    - ReactiveCocoa/no-arc (= 2.1.8)
-  - ReactiveCocoa/Core (2.1.8):
-    - ReactiveCocoa/no-arc
-  - ReactiveCocoa/no-arc (2.1.8)
-  - RTRootNavigationController (0.5.22)
+  - RTRootNavigationController (0.5.23)
   - SAMKeychain (1.5.2)
   - SDAutoLayout (2.1.7)
   - SDCycleScrollView (1.65):
@@ -78,18 +80,19 @@ PODS:
   - SDWebImage/Core (3.8.2)
   - SVProgressHUD (2.1.2)
   - UITableView+FDTemplateLayoutCell (1.5.beta)
-  - UMengUShare/Core (6.1.1):
+  - UMengAnalytics-NO-IDFA (4.2.5)
+  - UMengUShare/Core (6.2.2):
     - UMengUShare/Network
-  - UMengUShare/Network (6.1.1)
-  - UMengUShare/Social/QQ (6.1.1):
+  - UMengUShare/Network (6.2.2)
+  - UMengUShare/Social/QQ (6.2.2):
     - UMengUShare/Core
-  - UMengUShare/Social/Sina (6.1.1):
+  - UMengUShare/Social/Sina (6.2.2):
     - UMengUShare/Core
-  - UMengUShare/Social/WeChat (6.1.1):
+  - UMengUShare/Social/WeChat (6.2.2):
     - UMengUShare/Core
-  - UMengUShare/UI (6.1.1):
+  - UMengUShare/UI (6.2.2):
     - UMengUShare/Core
-  - WMPageController (2.1.5)
+  - YUSegment (0.2.0)
   - YYCache (1.0.4)
   - YYImage (1.0.4):
     - YYImage/Core (= 1.0.4)
@@ -104,25 +107,25 @@ DEPENDENCIES:
   - ChatKit (~> 0.8.7)
   - DZNEmptyDataSet (~> 1.8.1)
   - FMDB (~> 2.6.2)
-  - iCarousel (~> 1.8.3)
   - ImagePlayerView (~> 1.0.3)
+  - JSPatchPlatform
   - LGAlertView (~> 2.0.13)
   - MJExtension (~> 3.0.13)
   - MJRefresh (~> 3.1.12)
   - PLPlayerKit
   - Qiniu (from `https://github.com/qiniu/objc-sdk.git`, branch `AFNetworking-3.x`)
-  - ReactiveCocoa (~> 2.1.8)
   - RTRootNavigationController (~> 0.5.22)
   - SAMKeychain
   - SDAutoLayout (~> 2.1.3)
   - SDCycleScrollView (~> 1.64)
   - SDWebImage (~> 3.8.1)
   - SVProgressHUD (~> 2.1.2)
+  - UMengAnalytics-NO-IDFA
   - UMengUShare/Social/QQ
   - UMengUShare/Social/Sina
   - UMengUShare/Social/WeChat
   - UMengUShare/UI
-  - WMPageController
+  - YUSegment
   - YYText (~> 1.0.7)
   - YYWebImage (~> 1.0.5)
 
@@ -138,16 +141,18 @@ CHECKOUT OPTIONS:
 
 SPEC CHECKSUMS:
   AFNetworking: 5e0e199f73d8626b11e79750991f5d173d1f8b67
-  AVOSCloud: ae9804496f51de99c4143fea7f842d6f46a32b4c
-  AVOSCloudIM: bea73c50c58c7c5e466e0c7134b4b7d2f02c338a
-  ChatKit: 3eaa705e079272c02e5e8ba02560ccf88a487cc2
+  AVOSCloud: 839b30ac3b382ad56c957ed6dd28a0a537d33d67
+  AVOSCloudIM: 13c9cf14b42304f4243d01906c17b5ee8f5529db
+  ChatKit: 95e3277d8dc8873ccf984bfbf503dd02d3c23834
+  CYLDeallocBlockExecutor: ecf39e45dcead9e120f460df5668b8f5093d178e
   DACircularProgress: 4dd437c0fc3da5161cb289e07ac449493d41db71
   DZNEmptyDataSet: 9525833b9e68ac21c30253e1d3d7076cc828eaa7
   FDStackView: 3a4bbe0ce9c35e974246a585168b9da8c32213f1
   FMDB: 854a0341b4726e53276f2a8996f06f1b80f9259a
   HappyDNS: 06a9fed2796663fd87626dbf02552933265bf059
-  iCarousel: d782f635afac190c49bb8ee455882284cff8b85f
   ImagePlayerView: b641cf435d8c259ee2c6b966852cdb1692984edc
+  JSPatch: 741205ebb2e2238c223a436e4c8cf75cf40a345f
+  JSPatchPlatform: 8cc9aaebe21109d5fdfb4500384ddf38ed0990e9
   LGAlertView: 9a5dcbf4f81b02b718083539d7f222280adc9547
   Masonry: 7c429b56da9d4ee0bbb3ed77a5ea710d6a5df39e
   MBProgressHUD: 1569cf7ace17a8bac47aabfbb8580a49690386d1
@@ -155,24 +160,24 @@ SPEC CHECKSUMS:
   MJRefresh: b96cdb21c4aa75a7b07654311ab2f315c497e806
   MLLabel: df58127ce0bd1f87890ecc3232db77a85ce4cd97
   MWPhotoBrowser: 5836d7aa041dc05a13de380c246826578adc5ea5
-  PLPlayerKit: 4a206aa6e620fea4a93ca36b44bf736a025346d3
+  PLPlayerKit: 4604f650b4f446d98f6880db27924405093a112b
   pop: f667631a5108a2e60d9e8797c9b32ddaf2080bce
   Qiniu: 4dbf1e6acb3236c4d7251046a17d08b16d21fcfe
-  ReactiveCocoa: f89f2e009a87951b50321bf9feb958823fcc617e
-  RTRootNavigationController: cf134c044a8ce14d97fc668847ed4567efc53f91
+  RTRootNavigationController: 70c0da2913cf50cbe944b0193a649700ff640a2c
   SAMKeychain: 1865333198217411f35327e8da61b43de79b635b
   SDAutoLayout: e9b36d04b8c0b504762a04d76fbbe5108944297a
   SDCycleScrollView: f72904c77698a7f93a41bcbbc2d78b073bf7326c
   SDWebImage: 098e97e6176540799c27e804c96653ee0833d13c
   SVProgressHUD: c404a55d78acbeb7ebb78b76d3faf986475a6994
   UITableView+FDTemplateLayoutCell: 02b508ab1cb4cea16a8c17ac83d2cd1fd72124f9
-  UMengUShare: 0a80f54ee06f71f3de7c57764c36339e8bf9b7e7
-  WMPageController: e10e3ada7c3d8965fabf2716a04560a189d18f33
+  UMengAnalytics-NO-IDFA: 16666e32edce5be44ae5b14aaaa7f3582e09d6ab
+  UMengUShare: fc0a98b8d5297632e82874318fd72a10d17da228
+  YUSegment: a1fa1237dfd5e6cbca28ca3b1eeac1151d0fb3b5
   YYCache: 8105b6638f5e849296c71f331ff83891a4942952
   YYImage: 1e1b62a9997399593e4b9c4ecfbbabbf1d3f3b54
   YYText: 5c461d709e24d55a182d1441c41dc639a18a4849
   YYWebImage: 5f7f36aee2ae293f016d418c7d6ba05c4863e928
 
-PODFILE CHECKSUM: b1e2b2eecf380f8ae7db5d38daebd91199394f44
+PODFILE CHECKSUM: bf8ebd06faa6fc95a631aab302d319c592f64c42
 
-COCOAPODS: 1.1.1
+COCOAPODS: 1.0.0

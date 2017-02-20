@@ -18,4 +18,5 @@
 - (CGSize)sizeToLimitSize:(CGSize)limitSize;
 - (CGSize)sizeToLimitWidth:(CGFloat)limitWidth;
 - (UIImage*)blurredImage;
+
 @end

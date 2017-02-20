@@ -30,6 +30,7 @@
     contentTV.emptyDataSetSource =contentTV;
     contentTV.delegate = contentTV;
     contentTV.tableFooterView = [UIView new];
+    contentTV.contentInset = UIEdgeInsetsMake(0, 0, 25, 0);
     return contentTV;
 }
 
@@ -161,8 +162,14 @@
     return width;
 }
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
-    
-    return scrollView.frame.origin.y +50;
+    if (iPhone5) {
+        return scrollView.frame.origin.y + 100;
+    }else if(iPhone6){
+        return scrollView.frame.origin.y + 105;
+    }else if (iPhone6P){
+        return scrollView.frame.origin.y + 110;
+    }
+    return 0;
 }
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {

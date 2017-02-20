@@ -19,5 +19,21 @@
     }
     return self;
 }
+- (IBAction)btnClick:(UIButton *)sender {
+    
+    for (int i = 1000; i < 1004; i++) {
+        UIButton *btn = (UIButton *)[self.contentView viewWithTag: i];
+        if (i == 1000) {
+            btn.selected = YES;
+        }else if(i == 1001 && sender.tag == 1001){
+        }else{
+            btn.selected = NO;
+        }
+    }
+    
+    if (self.didBtnClick) {
+        self.didBtnClick(sender,sender.tag);
+    }
+}
 
 @end

@@ -7,30 +7,22 @@
 //
 
 #import "HomeVC.h"
+#import <SAMKeychain.h>
+#import "JPUSHService.h"
+#import "LeanChatFactory.h"
 #import <SDCycleScrollView.h>
 #import "HomeCell.h"
-#import "JPVideoPlayer.h"
 #import "BannerModel.h"
 #import "WebViewController.h"
 #import "HomeTVDetailModel.h"
-#import "VideoPlayerVC.h"
-#import "LivingVC.h"
-#import "PreheatingVC.h"
 #import "IndexModel.h"
 #import "ShoppingCarVC.h"
-#import "TempHomePushModel.h"
 #import "DiscoverDetailVC.h"
 #import "LiveDetailHHHVC.h"
-#import "DiscoverDetailNewVC.h"
 #import "ChooseVC.h"
-/*
- * 滚动类型
- */
-typedef NS_ENUM(NSUInteger, ScrollDerection) {
-    ScrollDerectionUp = 1, // 向上滚动
-    ScrollDerectionDown = 2 // 向下滚动
-};
-static BOOL Debug = NO;
+#import "DiscoverDetailV2VC.h"
+#import "LiveListVC.h"
+
 @interface HomeVC () <UITableViewDelegate, UITableViewDataSource, SDCycleScrollViewDelegate, UITabBarControllerDelegate>
 {
     CGFloat rowHeight;
@@ -38,10 +30,6 @@ static BOOL Debug = NO;
     CGFloat tvHeaderViewHeight;
     NSUInteger maxSection;
     BOOL _isFirstCome; // 判断是否
-    BOOL _videoIsPlaying; // 判断当前是否播放
-    UIButton *_button1;
-    UIButton *_button2;
-    UIButton *_button3;
     IndexModel *_indexModel1;
     IndexModel *_indexModel2;
     IndexModel *_indexModel3;
@@ -52,7 +40,9 @@ static BOOL Debug = NO;
 @property (nonatomic, strong) AFNetworkReachabilityManager *internetReachability;
 
 @property (nonatomic, strong) NSMutableArray *bannerDataArr; // 轮播图数据
-@property (nonatomic, strong) NSMutableArray *tableDataArr; // tableview主数据
+@property (nonatomic, strong) NSMutableArray *tableSection1DataArr; // tableview主数据
+@property (nonatomic, strong) NSMutableArray *tableSection2DataArr;
+@property (nonatomic, strong) NSMutableArray *tableSection3DataArr;
 @property (nonatomic, strong) NSMutableArray *endActivityDataArr; // 结束活动推荐商品数据
 
 @property (nonatomic, strong) UILabel *naviTitleLbl;
@@ -62,15 +52,7 @@ static BOOL Debug = NO;
 @property (strong, nonatomic) IBOutlet UITableView *tableView;
 @property (strong, nonatomic) IBOutlet SDCycleScrollView *bannerView;
 @property (nonatomic, strong) UIImageView *sectionImgV;
-
-@property (nonatomic, strong) HomeCell *playingCell; // 正在播放视频的cell
-@property (nonatomic, strong) NSIndexPath *playingIndexPath; //正在播放cell的indexpath
-@property (nonatomic, strong) NSString *currentVideoPath; // 当前播放视频的网络链接地址
-@property (nonatomic, assign) ScrollDerection preDerection; // 之前滚动方向类型
-@property (nonatomic, assign) ScrollDerection currentDerection; // 当前滚动方向类型
-@property (nonatomic, assign) CGFloat contentOffsetY; // 刚开始拖拽时scrollView的偏移量Y值, 用来判断滚动方向
-
-@property (nonatomic, assign) CurrentNetWorkType networkType; // 当前网络type
+@property (strong, nonatomic) IBOutlet UIView *noNetPhView;
 
 @end
 
@@ -88,13 +70,29 @@ static NSString *EndIdentifier =      @"endCell";
     _bannerDataArr = [NSMutableArray array];
     return _bannerDataArr;
 }
-- (NSMutableArray *)tableDataArr
+- (NSMutableArray *)tableSection1DataArr
 {
-    if (_tableDataArr) {
-        return _tableDataArr;
+    if (_tableSection1DataArr) {
+        return _tableSection1DataArr;
     }
-    _tableDataArr = [NSMutableArray array];
-    return _tableDataArr;
+    _tableSection1DataArr = [NSMutableArray array];
+    return _tableSection1DataArr;
+}
+- (NSMutableArray *)tableSection2DataArr
+{
+    if (_tableSection2DataArr) {
+        return _tableSection2DataArr;
+    }
+    _tableSection2DataArr = [NSMutableArray array];
+    return _tableSection2DataArr;
+}
+- (NSMutableArray *)tableSection3DataArr
+{
+    if (_tableSection3DataArr) {
+        return _tableSection3DataArr;
+    }
+    _tableSection3DataArr = [NSMutableArray array];
+    return _tableSection3DataArr;
 }
 - (NSMutableArray *)endActivityDataArr
 {
@@ -115,57 +113,126 @@ static NSString *EndIdentifier =      @"endCell";
     [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
     self.tabBarController.delegate = self;
     
-    sectionHeight = 42.f;
+    sectionHeight = 52.f;
     tvHeaderViewHeight = ScreenHeight / 100 * 29;
     
     [self setupNaviConfig];
-    [self configBannerView];
-    [self getDataWithBanner];
-    [self addMjRefresh];
+    [NotificationCenter addObserver:self selector:@selector(updateUnReadMessageCount:) name:LeanCloudNotReadMessageCount object:nil];
     
-    _videoIsPlaying = NO;
+    [self judgementKeychainIsOutOfDate];
+    
+    [self configBannerView];
+    
+    [self getAppConfigData];
+    
     _isFirstCome = YES;
+    
 }
+
+- (void)getAppConfigData
+{
+    WS(weakSelf);
+    NSString *currentVersion = [NSBundle mainBundle].infoDictionary[@"CFBundleShortVersionString"];
+    NSString *delteDotVersion = [currentVersion stringByReplacingOccurrencesOfString:@"." withString:@""];
+    [YPCNetworking getWithUrl:@"merchant/config"
+                 refreshCache:YES
+                       params:@{@"version" : delteDotVersion}
+                      success:^(id response) {
+                          if ([YPC_Tools judgeRequestAvailable:response]) {
+                              [YPCRequestCenter shareInstance].configModel = [AppConfigModel mj_objectWithKeyValues:response[@"data"][@"share_data"]];
+                              [YPCNetworking updateBaseUrl:response[@"data"][@"api_url"]];
+                              
+                              [weakSelf getDataWithBanner];
+                              [weakSelf addMjRefresh];
+                              
+                              weakSelf.noNetPhView.hidden = YES;
+                          }
+                      } fail:^(NSError *error) {
+                          if ([error code] == -1009) {
+                              weakSelf.noNetPhView.hidden = NO;
+                          }
+                      }];
+}
+
+- (void)updateUnReadMessageCount:(NSNotification *)object
+{
+    self.naviMesBtn.littleRedBadgeValue = object.object;
+}
+
+- (void)judgementKeychainIsOutOfDate
+{
+    WS(weakSelf);
+    NSString *SID = [SAMKeychain passwordForService:KEY_KEYCHAIN_SERVICE account:KEY_KEYCHAIN_NAME];
+    if (SID) {
+//        [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+            NSDictionary *sessionDic = @{
+                                         @"session" : @{@"sid" : SID,
+                                                        @"uid" : @"0"},
+                                         @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
+                                         };
+            [YPCNetworking postWithUrl:@"shop/user/checkinfo"
+                          refreshCache:YES
+                                params:sessionDic
+                               success:^(id response) {
+                                   NSNumber *num = [NSNumber numberWithInteger:0];
+                                   if (response[@"status"][@"succeed"] != num) {
+                                       NSString *cart = response[@"data"][@"user"][@"cart_num"];
+                                       NSString *cart_add_time = response[@"data"][@"user"][@"cart_add_time"];
+                                       NSString *cart_expire_time = response[@"data"][@"user"][@"cart_expire_time"];
+                                       NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                       [YPCRequestCenter shareInstance].carNumber = cart;
+                                       [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                       [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                       weakSelf.naviShopCar.badgeValue = cart;
+                                       [YPCRequestCenter setUserInfoWithResponse:response];
+                                       [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                           [YPCRequestCenter setUserLogin];
+                                       } failed:^(NSError *error) {
+                                           YPCAppLog(@"%@", [error description]);
+                                           [YPCRequestCenter removeCacheUserKeychain];
+                                       }];
+                                   }else {
+                                       [YPCRequestCenter removeCacheUserKeychain];
+                                   }
+                               }
+                                  fail:^(NSError *error) {
+                                      [YPCRequestCenter removeCacheUserKeychain];
+                                      YPCAppLog(@"%@", [error description]);
+                                  }];
+//        }];
+    }else {
+        [YPCRequestCenter removeCacheUserKeychain];
+    }
+}
+
 - (void)viewWillAppear:(BOOL)animated
 {
     [super viewWillAppear:animated];
     [self.bannerView adjustWhenControllerViewWillAppera];
-    if ([YPCRequestCenter isLogin]) {
-        self.naviMesBtn.littleRedBadgeValue = [YPCRequestCenter shareInstance].kUnReadMesCount;
-        self.naviShopCar.badgeValue = [YPCRequestCenter shareInstance].kShopingCarCount;
+    self.naviMesBtn.littleRedBadgeValue = [YPCRequestCenter shareInstance].kUnReadMesCount;
+    if ([YPCRequestCenter isLogin] && !_isFirstCome) {
         [self getData];
     }
 }
-- (void)viewDidDisappear:(BOOL)animated
-{
-    [super viewDidDisappear:animated];
-    if (_videoIsPlaying) {
-        if (!Debug) {
-            [self stopPlay];
-        }
-    }
-}
+
 - (void)viewDidAppear:(BOOL)animated
 {
     [super viewDidAppear:animated];
-    if (!_isFirstCome) {
-        if (!Debug) {
-            [self handleScrollStop];
-        }
+    if (_isFirstCome) {
+        _isFirstCome = NO;
     }
-    _isFirstCome = NO;
 }
 
 #pragma mark - Config
 - (void)setupNaviConfig
 {
     self.naviTitleLbl = [UILabel new];
-    self.naviTitleLbl.alpha = 0;
     self.naviTitleLbl.text = @"壹品仓-品牌仓储特卖";
     self.naviTitleLbl.font = BoldFont(18);
     self.naviTitleLbl.textColor = [UIColor whiteColor];
     [self.naviTitleLbl sizeToFit];
     self.navigationItem.titleView = self.naviTitleLbl;
+    self.naviTitleLbl.alpha = 0;
     
     self.naviShopCar = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.naviShopCar setImage:IMAGE(@"mine_icon_cart") forState:UIControlStateNormal];
@@ -213,37 +280,10 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - 数据获取
 - (void)getDataWithBanner
 {
-    NSString *type = @"";
-    switch ([YPCRequestCenter shareInstance].homeStyleType) {
-        case homeStyleFemale:
-        {
-            type = @"2";
-        }
-            break;
-        case homeStyleMale:
-        {
-            type = @"1";
-        }
-            break;
-        case homeStyleChildren:
-        {
-            type =@"3";
-        }
-            break;
-        case homeStyleHousehold:
-        {
-            type = @"4";
-        }
-            break;
-            
-        default:
-            break;
-    }
-
     WS(weakSelf);
     [YPCNetworking getWithUrl:@"shop/home/data"
                  refreshCache:YES
-                       params:@{@"type":type}
+                       params:@{}
                       success:^(id response) {
                           if ([YPC_Tools judgeRequestAvailable:response]) {
                               weakSelf.bannerDataArr = [BannerModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"banners"]];
@@ -257,6 +297,7 @@ static NSString *EndIdentifier =      @"endCell";
                           }
                       } fail:^(NSError *error) {
                           YPCAppLog(@"%@", [error description]);
+                          [weakSelf.tableView.mj_header endRefreshing];
                       }];
 }
 - (void)getDataWithTableView
@@ -272,23 +313,22 @@ static NSString *EndIdentifier =      @"endCell";
                       success:^(id response) {
                           if ([YPC_Tools judgeRequestAvailable:response]) {
                               
-                              weakSelf.tableDataArr = [HomeTVDetailModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"activity_list"]];
-                              _indexModel1 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"0"]];
-                              _indexModel2 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"1"]];
-                              _indexModel3 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"2"]];
+                              _indexModel1 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"1"]];
+                              _indexModel2 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"2"]];
+                              _indexModel3 = [IndexModel mj_objectWithKeyValues:response[@"data"][@"indexs"][@"3"]];
+                              
+                              weakSelf.tableSection1DataArr = [HomeTVDetailModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"activity_list"][_indexModel1.type]];
+                              weakSelf.tableSection2DataArr = [HomeTVDetailModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"activity_list"][_indexModel2.type]];
+                              weakSelf.tableSection3DataArr = [HomeTVDetailModel mj_objectArrayWithKeyValuesArray:response[@"data"][@"activity_list"][_indexModel3.type]];
                               
                               [weakSelf.tableView reloadData];
 
                               [weakSelf.tableView.mj_header endRefreshing];
-                              if (!Debug) {
-                                  // 判断是否播放短视频
-                                  [weakSelf judgeCurrentNetworkIsAutoPlayVideos];
-                                  [weakSelf addNetworkNotifications];
-                              }
                           }
                       }
                          fail:^(NSError *error) {
                              YPCAppLog(@"%@", [error description]);
+                             [weakSelf.tableView.mj_header endRefreshing];
                          }];
 }
 // 购物车数量
@@ -297,11 +337,16 @@ static NSString *EndIdentifier =      @"endCell";
     
     [YPCNetworking postWithUrl:@"shop/user/notify"
                   refreshCache:YES
-                        params:[YPCRequestCenter getUserInfoAppendDictionary:@{}]
+                        params:[YPCRequestCenter getUserInfo]
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                NSString *cart = response[@"data"][@"cart_num"];
-                               
+                               NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                               NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                               NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                               [YPCRequestCenter shareInstance].carNumber = cart;
+                               [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                               [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
                                weakSelf.naviShopCar.badgeValue = cart;
                            }
                            
@@ -311,110 +356,66 @@ static NSString *EndIdentifier =      @"endCell";
                               YPCAppLog(@"%@", [error description]);
                           }];
 }
-#pragma mark - 网络状态判断是否播放视频
-- (void)judgeCurrentNetworkIsAutoPlayVideos
-{
-    self.networkType = [YPCRequestCenter getCurrentNetworkType];
-    if (self.networkType == CurrentNetWork3G4G) {
-        
-    }else if (self.networkType == CurrentNetWorkWifi) {
-        // 在可见cell中找第一个有视频的进行播放
-        [self playVideoInVisiableCells];
-    }else {
-        // TODO;
-    }
-}
-
-#pragma mark - 监测网络状态
-- (void)addNetworkNotifications
-{
-    // 网络状态监控
-    [NotificationCenter addObserver:self selector:@selector(reachabilityChanged:) name:AFNetworkingReachabilityDidChangeNotification object:nil];
-    self.internetReachability = [AFNetworkReachabilityManager sharedManager];
-    [self.internetReachability startMonitoring];
-}
-- (void)reachabilityChanged:(NSNotification *)not
-{
-    switch (self.internetReachability.networkReachabilityStatus) {
-        case AFNetworkReachabilityStatusUnknown:
-            self.networkType = CurrentNetWorkUnknown;
-            break;
-        case AFNetworkReachabilityStatusNotReachable:
-            self.networkType = CurrentNetWorkNotReachable;
-            break;
-        case AFNetworkReachabilityStatusReachableViaWWAN:
-            self.networkType = CurrentNetWork3G4G;
-            break;
-        case AFNetworkReachabilityStatusReachableViaWiFi:
-            self.networkType = CurrentNetWorkWifi;
-            break;
-        default:
-            break;
-    }
-}
 
 #pragma mark - tableViewDelegate
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView
 {
-    return 1;
+    if (_indexModel1.count.integerValue > 0 && _indexModel2.count.integerValue > 0 && _indexModel3.count.integerValue > 0) {
+        return 3;
+    }else if ((_indexModel1.count.integerValue > 0 && _indexModel2.count.integerValue > 0 && _indexModel3.count.integerValue == 0) ||
+              (_indexModel1.count.integerValue > 0 && _indexModel3.count.integerValue > 0 && _indexModel2.count.integerValue == 0) ||
+              (_indexModel2.count.integerValue > 0 && _indexModel3.count.integerValue > 0 && _indexModel1.count.integerValue == 0)) {
+        return 2;
+    }else if ((_indexModel1.count.integerValue > 0 && _indexModel2.count.integerValue == 0 && _indexModel3.count.integerValue == 0) ||
+              (_indexModel2.count.integerValue > 0 && _indexModel1.count.integerValue == 0 && _indexModel3.count.integerValue == 0) ||
+              (_indexModel3.count.integerValue > 0 && _indexModel1.count.integerValue == 0 && _indexModel2.count.integerValue == 0)) {
+        return 1;
+    }else {
+        return 0;
+    }
 }
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section
 {
-    return self.tableDataArr.count;
+    if (section == 0) {
+        return _indexModel1.count.integerValue;
+    }else if (section == 1) {
+        return _indexModel2.count.integerValue;
+    }else if (section == 2) {
+        return _indexModel3.count.integerValue;
+    }else {
+        return 0;
+    }
 }
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section
 {
-    return [self setupSectionView];
+    return [self setupSectionViewWithSection:section];
 }
 - (UITableViewCell *)tableView:(UITableView *)tableView cellForRowAtIndexPath:(NSIndexPath *)indexPath
 {
     HomeCell *cell = nil;
-    if (indexPath.row <= _indexModel1.count.integerValue - 1) {
+    if (indexPath.section == 0) {
         cell = [self judgementActivityTypeWithStringType:_indexModel1.type andTableView:tableView];
-    }else if (indexPath.row > _indexModel1.count.integerValue - 1 && indexPath.row <= _indexModel2.count.integerValue + _indexModel1.count.integerValue - 1) {
+        cell.tempModel = self.tableSection1DataArr[indexPath.row];
+    }else if (indexPath.section == 1) {
         cell = [self judgementActivityTypeWithStringType:_indexModel2.type andTableView:tableView];
-    }else{
+        cell.tempModel = self.tableSection2DataArr[indexPath.row];
+    }else if (indexPath.section == 2) {
         cell = [self judgementActivityTypeWithStringType:_indexModel3.type andTableView:tableView];
-    }
-    cell.videoPath = [self.tableDataArr[indexPath.row] video];
-    cell.tempModel = self.tableDataArr[indexPath.row];
-    cell.indexPath = indexPath;
-//    if ([self.playingIndexPath isEqual:indexPath] && cell.autoPlayStyle != NotAutoPlayCellStyle) {
-    if ([self.playingIndexPath isEqual:indexPath]) {
-        cell.isImgPHViewHidden = YES;
-    }else {
-        cell.isImgPHViewHidden = NO;
-    }
-//    if (self.networkType == CurrentNetWorkWifi && cell.autoPlayStyle != NotAutoPlayCellStyle) {
-    if (self.networkType == CurrentNetWorkWifi) {
-        cell.playBtn.hidden = YES;
-    }else {
-        cell.playBtn.hidden = NO;
+        cell.tempModel = self.tableSection3DataArr[indexPath.row];
     }
 
-    cell.cellStyle = PlayUnreachCellStyleNone;
-
-    __weak HomeCell *tempCell = cell;
-    WS(weakSelf);
-    [cell setButtonClickedBlock:^(id object) {
-        if ([object isEqualToString:@"play"]) {
-            [weakSelf cellPlayVideoActionWithCell:tempCell];
-        }else if ([object isEqualToString:@"successRss"]) {
-            [[weakSelf.tableDataArr[indexPath.row] store_info] setIsRss:@"1"];
-        }else if ([object isEqualToString:@"cancelRss"]) {
-            [[weakSelf.tableDataArr[indexPath.row] store_info] setIsRss:@"0"];
-        }
-    }];
     return cell;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row <= _indexModel1.count.integerValue - 1) {
-        return [self heightWithActivityTypeWithStringType:_indexModel1.type andTableDataModel:self.tableDataArr[indexPath.row]];
-    }else if (indexPath.row > _indexModel1.count.integerValue - 1 && indexPath.row <= _indexModel2.count.integerValue + _indexModel1.count.integerValue - 1) {
-        return [self heightWithActivityTypeWithStringType:_indexModel2.type andTableDataModel:self.tableDataArr[indexPath.row]];
-    }else{
-        return [self heightWithActivityTypeWithStringType:_indexModel3.type andTableDataModel:self.tableDataArr[indexPath.row]];
+    if (indexPath.section == 0) {
+        return [self heightWithActivityTypeWithIndexModel:_indexModel1 andTableDataModel:self.tableSection1DataArr[indexPath.row] andIndexPath:indexPath];
+    }else if (indexPath.section == 1) {
+        return [self heightWithActivityTypeWithIndexModel:_indexModel2 andTableDataModel:self.tableSection2DataArr[indexPath.row] andIndexPath:indexPath];
+    }else if (indexPath.section == 2) {
+        return [self heightWithActivityTypeWithIndexModel:_indexModel3 andTableDataModel:self.tableSection3DataArr[indexPath.row] andIndexPath:indexPath];
+    }else {
+        return 0;
     }
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section
@@ -423,210 +424,26 @@ static NSString *EndIdentifier =      @"endCell";
 }
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath
 {
-    if (indexPath.row <= _indexModel1.count.integerValue - 1) {
-        [self pushViewControllerActivityTypeWithStringType:_indexModel1.type andDataArr:self.tableDataArr andIndexPath:indexPath];
-    }else if (indexPath.row > _indexModel1.count.integerValue - 1 && indexPath.row <= _indexModel2.count.integerValue + _indexModel1.count.integerValue - 1) {
-        [self pushViewControllerActivityTypeWithStringType:_indexModel2.type andDataArr:self.tableDataArr andIndexPath:indexPath];
-    }else{
-        [self pushViewControllerActivityTypeWithStringType:_indexModel3.type andDataArr:self.tableDataArr andIndexPath:indexPath];
+    if (indexPath.section == 0) {
+        [self pushViewControllerActivityTypeWithIndexModel:_indexModel1 andDataArr:self.tableSection1DataArr andIndexPath:indexPath];
+    }else if (indexPath.section == 1) {
+        [self pushViewControllerActivityTypeWithIndexModel:_indexModel2 andDataArr:self.tableSection2DataArr andIndexPath:indexPath];
+    }else if(indexPath.section == 2) {
+        [self pushViewControllerActivityTypeWithIndexModel:_indexModel3 andDataArr:self.tableSection3DataArr andIndexPath:indexPath];
     }
 }
 
 #pragma mark - scrollViewDelegate
-/**
- * 松手时已经静止, 只会调用scrollViewDidEndDragging
- */
-- (void)scrollViewDidEndDragging:(UIScrollView *)scrollView willDecelerate:(BOOL)decelerate{
-    if (decelerate == NO && self.networkType == CurrentNetWorkWifi) {
-        // scrollView已经完全静止
-        if (!Debug) {
-            [self handleScrollStop];
-        }
-    }
-}
-/**
- * 松手时还在运动, 先调用scrollViewDidEndDragging, 再调用scrollViewDidEndDecelerating
- */
-- (void)scrollViewDidEndDecelerating:(UIScrollView *)scrollView{
-    // scrollView已经完全静止
-    if (self.networkType == CurrentNetWorkWifi) {
-        if (!Debug) {
-            [self handleScrollStop];
-        }
-    }
-}
--(void)scrollViewWillBeginDragging:(UIScrollView *)scrollView{
-    self.contentOffsetY = scrollView.contentOffset.y;
-}
 -(void)scrollViewDidScroll:(UIScrollView *)scrollView{
-    [self handleQuickScroll]; // 处理循环利用
-    
-    [self AnimationWithSectionViewChangeWithContentOffset:scrollView.contentOffset];
-    
-    if (self.tableDataArr.count > 0) {
-        if (scrollView.contentOffset.y <= sectionHeight) {
-            scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-        }else if (scrollView.contentOffset.y >= sectionHeight) {
-            scrollView.contentInset = UIEdgeInsetsMake(64, 0, 0, 0);
-        }
+    CGPoint point = scrollView.contentOffset;
+    if (point.y > tvHeaderViewHeight - 64 * 2) {
+        CGFloat alpha = MIN(1, 1 - ((tvHeaderViewHeight - point.y) / (64 * 2)));
+        [self.navigationController.navigationBar mz_setBackgroundAlpha:alpha];
+        self.naviTitleLbl.alpha = alpha;
+    }else{
+        [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
+        self.naviTitleLbl.alpha = 0.f;
     }
-}
-- (void)scrollViewDidEndScrollingAnimation:(UIScrollView *)scrollView
-{
-    [self handleScrollStop];
-}
-- (BOOL)scrollViewShouldScrollToTop:(UIScrollView *)scrollView
-{
-    scrollView.contentInset = UIEdgeInsetsMake(0, 0, 0, 0);
-    return YES;
-}
-
-#pragma mark playerMethod
-- (void)playVideoInVisiableCells{
-    
-    NSArray *visiableCells = [self.tableView visibleCells];
-    // 在可见cell中找到第一个有视频的cell
-    HomeCell *videoCell = nil;
-    for (HomeCell *cell in visiableCells) {
-        if (cell.videoPath.length > 0) {
-            videoCell = cell;
-            break;
-        }
-    }
-    // 如果找到了, 就开始播放视频
-    if (videoCell) {
-        // 播放视频隐藏图片开始播放视频
-        [UIView animateWithDuration:1.f animations:^{
-            videoCell.nowifiImgPHView.alpha = 0;
-        }completion:^(BOOL finished) {
-            videoCell.nowifiImgPHView.hidden = YES;
-        }];
-        self.playingIndexPath = videoCell.indexPath;
-        
-        self.playingCell = videoCell;
-        self.currentVideoPath = videoCell.videoPath;
-        JPVideoPlayer *player = [JPVideoPlayer sharedInstance];
-        [player playWithUrl:[NSURL URLWithString:videoCell.videoPath] showView:videoCell.containerView];
-        player.mute = YES;
-        _videoIsPlaying = YES;
-    }
-}
-- (void)handleQuickScroll{
-    
-    if (!self.playingCell) return;
-    
-    NSArray *visiableCells = [self.tableView visibleCells];
-    
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    for (HomeCell *cell in visiableCells) {
-        [indexPaths addObject:cell.indexPath];
-    }
-    
-    BOOL isPlayingCellVisiable = YES;
-    if (![indexPaths containsObject:self.playingCell.indexPath]) {
-        isPlayingCellVisiable = NO;
-    }
-    // 当前播放视频的cell移出视线， 或者cell被快速的循环利用了， 都要移除播放器
-    if (!isPlayingCellVisiable || ![self.playingCell.videoPath isEqualToString:self.currentVideoPath]) {
-        [self stopPlay];
-    }
-}
-
-- (void)handleScrollStop{
-    // 找到下一个要播放的cell(最在屏幕中心的)
-    HomeCell *finnalCell = nil;
-    NSArray *visiableCells = [self.tableView visibleCells];
-    NSMutableArray *indexPaths = [NSMutableArray array];
-    CGFloat gap = MAXFLOAT;
-    
-    for (HomeCell *cell in visiableCells) {
-        [indexPaths addObject:cell.indexPath];
-        if (cell.videoPath.length > 0) { // 如果这个cell有视频
-            // 优先查找滑动不可及cell
-            if (cell.cellStyle != PlayUnreachCellStyleNone) {
-                // 并且不可及cell要全部露出
-                if (cell.cellStyle == PlayUnreachCellStyleUp) {
-                    CGPoint cellLeftUpPoint = cell.frame.origin;
-                    // 不要在边界上
-                    cellLeftUpPoint.y += 1;
-                    CGPoint coorPoint = [cell.superview convertPoint:cellLeftUpPoint toView:nil];
-                    CGRect windowRect = self.view.window.bounds;
-                    BOOL isContain = CGRectContainsPoint(windowRect, coorPoint);
-                    if (isContain) {
-                        finnalCell = cell;
-                    }
-                }
-                else if (cell.cellStyle == PlayUnreachCellStyleDown){
-                    CGPoint cellLeftUpPoint = cell.frame.origin;
-                    cellLeftUpPoint.y += cell.bounds.size.height;
-                    // 不要在边界上
-                    cellLeftUpPoint.y -= 1;
-                    CGPoint coorPoint = [cell.superview convertPoint:cellLeftUpPoint toView:nil];
-                    CGRect windowRect = self.view.window.bounds;
-                    BOOL isContain = CGRectContainsPoint(windowRect, coorPoint);
-                    if (isContain) {
-                        finnalCell = cell;
-                    }
-                }
-            }
-            else if(!finnalCell || finnalCell.cellStyle == PlayUnreachCellStyleNone){
-                CGPoint coorCentre = [cell.superview convertPoint:cell.center toView:nil];
-                CGFloat delta = fabs(coorCentre.y-[UIScreen mainScreen].bounds.size.height*0.5);
-                if (delta < gap) {
-                    gap = delta;
-                    finnalCell = cell;
-                }
-            }
-        }
-    }
-    // 注意, 如果正在播放的cell和finnalCell是同一个cell, 不应该在播放
-//    if (self.playingCell != finnalCell && finnalCell != nil && finnalCell.autoPlayStyle != NotAutoPlayCellStyle) {
-    if (self.playingCell != finnalCell && finnalCell != nil && finnalCell.autoPlayStyle) {
-        self.playingCell.nowifiImgPHView.hidden = NO;
-        [UIView animateWithDuration:.2f animations:^{
-            self.playingCell.nowifiImgPHView.alpha = 1;
-            finnalCell.nowifiImgPHView.alpha = 0;
-        }completion:^(BOOL finished) {
-            finnalCell.nowifiImgPHView.hidden = YES;
-        }];
-        if (self.networkType == CurrentNetWorkWifi) {
-            finnalCell.playBtn.hidden = YES;
-        }else {
-            self.playingCell.playBtn.hidden = NO;
-        }
-        self.playingIndexPath = finnalCell.indexPath;
-        [[JPVideoPlayer sharedInstance] playWithUrl:[NSURL URLWithString:finnalCell.videoPath] showView:finnalCell.containerView];
-        self.playingCell = finnalCell;
-        self.currentVideoPath = finnalCell.videoPath;
-        [JPVideoPlayer sharedInstance].mute = YES;
-        _videoIsPlaying = YES;
-        return;
-    }
-    // 再看正在播放视频的那个cell移出视野, 则停止播放
-    BOOL isPlayingCellVisiable = YES;
-    if (![indexPaths containsObject:self.playingCell.indexPath]) {
-        isPlayingCellVisiable = NO;
-    }
-    if (!isPlayingCellVisiable && self.playingCell) {
-        [self stopPlay];
-    }
-}
--(void)stopPlay{
-    [[JPVideoPlayer sharedInstance] stop];
-    self.playingCell.nowifiImgPHView.hidden = NO;
-    [UIView animateWithDuration:.2f animations:^{
-        self.playingCell.nowifiImgPHView.alpha = 1;
-    }];
-    if (self.networkType == CurrentNetWorkWifi) {
-        self.playingCell.playBtn.hidden = YES;
-    }else {
-        self.playingCell.playBtn.hidden = NO;
-    }
-    self.playingIndexPath = nil;
-    
-    self.playingCell = nil;
-    self.currentVideoPath = nil;
-    _videoIsPlaying = NO;
 }
 
 #pragma mark - BannerViewDelegate
@@ -673,7 +490,7 @@ static NSString *EndIdentifier =      @"endCell";
             break;
         case urlSechmeBrandDetail:
         {
-            DiscoverDetailNewVC *dis = [[DiscoverDetailNewVC alloc]init];
+            DiscoverDetailV2VC *dis = [[DiscoverDetailV2VC alloc]init];
             dis.live_id = detailModel.data.live_id;
             dis.hidesBottomBarWhenPushed = YES;
             [self.navigationController pushViewController:dis animated:YES];
@@ -698,30 +515,21 @@ static NSString *EndIdentifier =      @"endCell";
 #pragma mark - BtnClickAction
 - (void)shopCarClickAction
 {
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
         ShoppingCarVC *carVC = [ShoppingCarVC new];
         carVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:carVC animated:YES];
-    }
+        [weakSelf.navigationController pushViewController:carVC animated:YES];
+        [weakSelf getDataWithBanner];
+    }];
 }
 - (void)mesBtnClickAction
 {
-    if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-        [YPC_Tools pushConversationListViewController:self];
-    }
-}
-- (void)sectionBtnClickAction:(UIButton *)btn
-{
-    if (btn.tag == 1000) {
-        [self stopPlay];
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:0 inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
-    }else if (btn.tag == 1001) {
-        [self stopPlay];
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:_indexModel1.count.integerValue inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
-    }else if (btn.tag == 1002) {
-        [self stopPlay];
-        [self.tableView scrollToRowAtIndexPath:[NSIndexPath indexPathForRow:_indexModel1.count.integerValue + _indexModel2.count.integerValue inSection:0] atScrollPosition:UITableViewScrollPositionTop animated:YES];
-    }
+    WS(weakSelf);
+    [YPCRequestCenter isLoginAndPresentLoginVC:self success:^{
+        [YPC_Tools pushConversationListViewController:weakSelf];
+        [weakSelf getDataWithBanner];
+    }];
 }
 
 #pragma mark - Private Method
@@ -737,21 +545,18 @@ static NSString *EndIdentifier =      @"endCell";
         if (!cell) {
             cell = (HomeCell *)[[NSBundle  mainBundle] loadNibNamed:@"HomeCell" owner:self options:nil][1];
         }
-        cell.autoPlayStyle = CanAutoPlayCellStyle;
         return cell;
     }else if ([type isEqualToString:KEY_Start_Activity]) {
         HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:LivingIdentifier];
         if (!cell) {
             cell = (HomeCell *)[[[NSBundle  mainBundle] loadNibNamed:@"HomeCell" owner:self options:nil]  firstObject];
         }
-        cell.autoPlayStyle = CanAutoPlayCellStyle;
         return cell;
     }else if ([type isEqualToString:KEY_End_Activity]) {
         HomeCell *cell = [tableView dequeueReusableCellWithIdentifier:EndIdentifier];
         if (!cell) {
             cell = (HomeCell *)[[[NSBundle  mainBundle] loadNibNamed:@"HomeCell" owner:self options:nil]  lastObject];
         }
-        cell.autoPlayStyle = NotAutoPlayCellStyle;
         return cell;
     }else {
         return nil;
@@ -762,21 +567,39 @@ static NSString *EndIdentifier =      @"endCell";
  *    根据cell类型判断cell高度
  *
  */
-- (CGFloat)heightWithActivityTypeWithStringType:(NSString *)type andTableDataModel:(HomeTVDetailModel *)model
+- (CGFloat)heightWithActivityTypeWithIndexModel:(IndexModel *)indexModel andTableDataModel:(HomeTVDetailModel *)model andIndexPath:(NSIndexPath *)indexPath
 {
-    if ([type isEqualToString:KEY_Will_Activity]) {
-        willCellHeight = ScreenWidth / 100 * 71 + 147.5f;
-        return willCellHeight;
-    }else if ([type isEqualToString:KEY_Start_Activity]) {
-        startCellHeight = ScreenWidth / 100 * 71 + 94.5f;
-        return startCellHeight;
-    }else if ([type isEqualToString:KEY_End_Activity]) {
-        if (model.goods_data.count > 0) {
-            endCellHeight = ScreenWidth / 100 * 71 + 97.f + 160.f;
-            return endCellHeight;
+    if ([indexModel.type isEqualToString:KEY_Will_Activity]) {
+        if (indexModel.count.integerValue - 1 == indexPath.row) {
+            willCellHeight = 160.f - 15.f - 15.f - 10.f;
         }else {
-            endCellHeight = ScreenWidth / 100 * 71 + 97.f;
-            return endCellHeight;
+            willCellHeight = 160.f - 15.f;
+        }
+        return willCellHeight;
+    }else if ([indexModel.type isEqualToString:KEY_Start_Activity]) {
+        if (indexModel.count.integerValue - 1 == indexPath.row) {
+            startCellHeight = ScreenWidth / 50 * 33;
+        }else {
+            startCellHeight = ScreenWidth / 50 * 33 + 15.f;
+        }
+        return startCellHeight;
+    }else if ([indexModel.type isEqualToString:KEY_End_Activity]) {
+        if (indexModel.count.integerValue - 1 == indexPath.row) {
+            if (model.goods_data.count > 0) {
+                endCellHeight = ScreenWidth / 100 * 61 + 112.f;
+                return endCellHeight;
+            }else {
+                endCellHeight = ScreenWidth / 100 * 61;
+                return endCellHeight;
+            }
+        }else {
+            if (model.goods_data.count > 0) {
+                endCellHeight = ScreenWidth / 100 * 61 + 112.f + 15.f;
+                return endCellHeight;
+            }else {
+                endCellHeight = ScreenWidth / 100 * 61 + 15.f;
+                return endCellHeight;
+            }
         }
     }else {
         return 0;
@@ -787,335 +610,70 @@ static NSString *EndIdentifier =      @"endCell";
  *    根据cell类型, push对应VC
  *
  */
-- (void)pushViewControllerActivityTypeWithStringType:(NSString *)type andDataArr:(NSArray *)dataArr andIndexPath:(NSIndexPath *)indexPath
+- (void)pushViewControllerActivityTypeWithIndexModel:(IndexModel *)indexModel andDataArr:(NSArray *)dataArr andIndexPath:(NSIndexPath *)indexPath
 {
-    if ([type isEqualToString:KEY_Will_Activity]) {
-        PreheatingVC *pVC = [PreheatingVC new];
-        
-        TempHomePushModel *model = [TempHomePushModel new];
-        [model setLive_id:[(HomeTVDetailModel *)dataArr[indexPath.row] live_id]];
-        [model setLive_msg:[dataArr[indexPath.row] store_info].live_msg];
-        [model setStarttime:[dataArr[indexPath.row] starttime]];
-        [model setEndtime:[dataArr[indexPath.row] endtime]];
-        [model setActivity_pic:[dataArr[indexPath.row] activity_pic]];
-        [model setStart:[(HomeTVDetailModel *)dataArr[indexPath.row] start]];
-        [model setEnd:[(HomeTVDetailModel *)dataArr[indexPath.row] end]];
-        [model setAddress:[(HomeTVDetailModel *)dataArr[indexPath.row] address]];
-        [model setName:[(HomeTVDetailModel *)dataArr[indexPath.row] name]];
-        [model setStore_avatar:[dataArr[indexPath.row] store_info].store_avatar];
-        [model setStore_name:[dataArr[indexPath.row] store_info].store_name];
-        
-        pVC.tempModel = model;
-        pVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:pVC animated:YES];
-    }else if ([type isEqualToString:KEY_Start_Activity]) {
-        if ([YPCRequestCenter isLoginAndPresentLoginVC:self]) {
-            WS(weakSelf);
-            [YPC_Tools showSvpHud];
-            LivingVC *lVC = [LivingVC new];
-            
-            TempHomePushModel *model = [TempHomePushModel new];
-            [model setLive_id:[dataArr[indexPath.row] live_id]];
-            [model setStore_avatar:[dataArr[indexPath.row] store_info].store_avatar];
-            [model setStore_name:[dataArr[indexPath.row] store_info].store_name];
-            [model setAnnouncement_id:[dataArr[indexPath.row] announcement_id]];
-            [model setStore_id:[dataArr[indexPath.row] store_info].store_id];
-            lVC.tempModel = model;
-            
-            lVC.hidesBottomBarWhenPushed = YES;
-            [[SDWebImageDownloader sharedDownloader]
-             downloadImageWithURL:[NSURL URLWithString:[self.tableDataArr[indexPath.row] livingshowinitimg]]
-             options:SDWebImageDownloaderUseNSURLCache
-             progress:nil
-             completed:^(UIImage *image, NSData *data, NSError *error, BOOL finished) {
-                 if (finished && !error) {
-                     dispatch_async(dispatch_get_main_queue(), ^{
-                         lVC.playerPHImg = image;
-                         [weakSelf.navigationController pushViewController:lVC animated:YES];
-                         [YPC_Tools dismissHud];
-                     });
-                 }else {
-                     [YPC_Tools showSvpHudError:@"图片未下载成功"];
-                 }
-             }];
-        }
-    }else if ([type isEqualToString:KEY_End_Activity]) {
-        VideoPlayerVC *vVC = [VideoPlayerVC new];
-        TempHomePushModel *model = [TempHomePushModel new];
-        [model setLive_id:[dataArr[indexPath.row] live_id]];
-        [model setLive_state:[(HomeTVDetailModel *)dataArr[indexPath.row] state]];
-        [model setStore_avatar:[dataArr[indexPath.row] store_info].store_avatar];
-        [model setStore_name:[dataArr[indexPath.row] store_info].store_name];
-        [model setVideo:[dataArr[indexPath.row] video]];
-        vVC.tempModel = model;
-        vVC.hidesBottomBarWhenPushed = YES;
-        [self.navigationController pushViewController:vVC animated:YES];
+    LiveListVC *live = [[LiveListVC alloc]init];
+    live.activity_id = [dataArr[indexPath.row] fid];
+    live.ac_state = [dataArr[indexPath.row] ac_state];
+    if ([indexModel.type isEqualToString:KEY_Will_Activity]) {
+        live.livelistType = LiveListOfPreHearting;
+    }else if ([indexModel.type isEqualToString:KEY_Start_Activity]) {
+        live.livelistType = LiveListOfLiving;
+    }else if ([indexModel.type isEqualToString:KEY_End_Activity]) {
+        live.livelistType = LiveListOfEnd;
     }
+    live.hidesBottomBarWhenPushed = YES;
+    [self.navigationController pushViewController:live animated:YES];
 }
 /*!
  *
  *    创建tableview SectionView
  *
  */
-- (UIImageView *)setupSectionView
+- (UIView *)setupSectionViewWithSection:(NSInteger)section
 {
-    if (_indexModel1 && _indexModel2 && _indexModel3) {
-        
-        self.sectionImgV = [[UIImageView alloc] initWithFrame:CGRectMake(0, 0, ScreenWidth, 42.f)];
-        self.sectionImgV.userInteractionEnabled = YES;
-        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleMale) {
-            self.sectionImgV.image = IMAGE(@"homepage_man_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleFemale) {
-            self.sectionImgV.image = IMAGE(@"homepage_woman_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            self.sectionImgV.image = IMAGE(@"homepage_children_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleHousehold) {
-            self.sectionImgV.image = IMAGE(@"homepage_home_live_button");
+    UIView *sectionV = [UIView new];
+    sectionV.frame = CGRectMake(13, 0, ScreenWidth - 26, 52.f);
+    
+    self.sectionImgV = [[UIImageView alloc] initWithFrame:CGRectMake(13, 0, ScreenWidth - 26, 52.f)];
+    self.sectionImgV.contentMode = UIViewContentModeScaleAspectFit;
+    [sectionV addSubview:self.sectionImgV];
+    
+    if (section == 0) {
+        if ([_indexModel1.type isEqualToString:KEY_Will_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_yugao_img");
+        }else if ([_indexModel1.type isEqualToString:KEY_Start_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_zhiboz_img");
+        }else if ([_indexModel1.type isEqualToString:KEY_End_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_huifang_img");
         }
-        
-        _button1 = [UIButton buttonWithType:UIButtonTypeCustom];
-        _button1.acceptEventInterval = 1.f;
-        _button1.frame = CGRectMake(0, 0, ScreenWidth / 3, 42.f);
-        _button1.titleLabel.font = BoldFont(16);
-//        [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-         [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        [_button1 setTitle:_indexModel1.name forState:UIControlStateNormal];
-        [_button1 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
-        [self.sectionImgV addSubview:_button1];
-        _button1.tag = 1000;
-        
-        _button2 = [UIButton buttonWithType:UIButtonTypeCustom];
-        _button2.acceptEventInterval = 1.f;
-        _button2.frame = CGRectMake(ScreenWidth / 3, 0, ScreenWidth / 3, 42.f);
-        _button2.titleLabel.font = LightFont(16);
-        [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        [_button2 setTitle:_indexModel2.name forState:UIControlStateNormal];
-        [_button2 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
-        [self.sectionImgV addSubview:_button2];
-        _button2.tag = 1001;
-        
-        _button3 = [UIButton buttonWithType:UIButtonTypeCustom];
-        _button3.acceptEventInterval = 1.f;
-        _button3.frame = CGRectMake(ScreenWidth / 3 * 2, 0, ScreenWidth / 3, 42.f);
-        _button3.titleLabel.font = LightFont(16);
-        [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        [_button3 setTitle:_indexModel3.name forState:UIControlStateNormal];
-        [_button3 addTarget:self action:@selector(sectionBtnClickAction:) forControlEvents:UIControlEventTouchUpInside];
-        [self.sectionImgV addSubview:_button3];
-        _button3.tag = 1002;
-        
-        [self animationWithButton];
-        
-        return self.sectionImgV;
+        return sectionV;
+    }else if (section == 1) {
+        if ([_indexModel2.type isEqualToString:KEY_Will_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_yugao_img");
+        }else if ([_indexModel2.type isEqualToString:KEY_Start_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_zhiboz_img");
+        }else if ([_indexModel2.type isEqualToString:KEY_End_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_huifang_img");
+        }
+        return sectionV;
+    }else if (section == 2) {
+        if ([_indexModel3.type isEqualToString:KEY_Will_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_yugao_img");
+        }else if ([_indexModel3.type isEqualToString:KEY_Start_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_zhiboz_img");
+        }else if ([_indexModel3.type isEqualToString:KEY_End_Activity]) {
+            self.sectionImgV.image = IMAGE(@"homepage_huifang_img");
+        }
+        return sectionV;
     }else {
         return nil;
     }
 }
-/*!
- *
- *    section类型对应切换动画
- *
- */
-- (void)AnimationWithSectionViewChangeWithContentOffset:(CGPoint)point
-{
-    if (point.y > tvHeaderViewHeight - 64) {
-        CGFloat alpha = MIN(1, 1 - ((tvHeaderViewHeight - point.y) / 64));
-        [self.navigationController.navigationBar mz_setBackgroundAlpha:alpha];
-        self.naviTitleLbl.alpha = alpha;
-    }else{
-        [self.navigationController.navigationBar mz_setBackgroundAlpha:0.f];
-        self.naviTitleLbl.alpha = 0.f;
-    }
-    
-    CGFloat h1 = [self getCellHeightWithIndexModel:_indexModel1];
-    CGFloat h2 = [self getCellHeightWithIndexModel:_indexModel2];
-//    CGFloat h3 = [self getCellHeightWithIndexModel:_indexModel3];
-    
-    if (point.y < h1) {
-        if (![[self getTypeImageWithIndexModel:_indexModel1] isEqual:self.sectionImgV.image]) {
-//            CATransition *transition = [CATransition animation];
-//            transition.type = @"cube";
-//            transition.duration = .3f;
-//            transition.repeatCount = 1;
-//            transition.subtype = kCATransitionFromTop;
-//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
-            self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel1];
-            _button1.titleLabel.font = BoldFont(16);
-            _button2.titleLabel.font = LightFont(16);
-            _button3.titleLabel.font = LightFont(16);
-//            [_button1 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button2 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button3 setTitleColor:[YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren ? [UIColor blackColor] : [Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        }
-    }else if (point.y > h1 && point.y < h1 + h2) {
-        if (![[self getTypeImageWithIndexModel:_indexModel2] isEqual:self.sectionImgV.image]) {
-//            CATransition *transition = [CATransition animation];
-//            transition.type = @"cube";
-//            transition.duration = .3f;
-//            transition.repeatCount = 1;
-//            transition.subtype = kCATransitionFromTop;
-//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
-            self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel2];
-            _button1.titleLabel.font = LightFont(16);
-            _button2.titleLabel.font = BoldFont(16);
-            _button3.titleLabel.font = LightFont(16);
-//            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        }
-    }else{
-        if (![[self getTypeImageWithIndexModel:_indexModel3] isEqual:self.sectionImgV.image]) {
-//            CATransition *transition = [CATransition animation];
-//            transition.type = @"cube";
-//            transition.duration = .3f;
-//            transition.repeatCount = 1;
-//            transition.subtype = kCATransitionFromTop;
-//            [self.sectionImgV.layer addAnimation:transition forKey:@"AnimationCube"];
-            self.sectionImgV.image = [self getTypeImageWithIndexModel:_indexModel3];
-            _button1.titleLabel.font = LightFont(16);
-            _button2.titleLabel.font = LightFont(16);
-            _button3.titleLabel.font = BoldFont(16);
-//            [_button1 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button2 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-//            [_button3 setTitleColor:[Color colorWithHex:@"FFFFFF"] forState:UIControlStateNormal];
-        }
-    }
-}
-/*!
- *
- *    根据不同indexModel类型  
- *    return 相应偏移量
- *
- */
-- (CGFloat)getCellHeightWithIndexModel:(IndexModel *)model
-{
-    if ([model.type isEqualToString:KEY_Will_Activity]) {
-        return willCellHeight * model.count.integerValue;
-    }else if ([model.type isEqualToString:KEY_Start_Activity]) {
-        return startCellHeight * model.count.integerValue;
-    }else if ([model.type isEqualToString:KEY_End_Activity]) {
-        return endCellHeight * model.count.integerValue;
-    }else {
-        return 0.f;
-    }
-}
-/*!
- *
- *    根据不同indexModel类型
- *    return 相应image
- *
- */
-- (UIImage *)getTypeImageWithIndexModel:(IndexModel *)model
-{
-    if ([model.type isEqualToString:KEY_Will_Activity]) {
-        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            return IMAGE(@"homepage_childen_advance_button");
-        }else {
-            return IMAGE(@"homepage_womanhome_advance_button");
-        }
-    }else if ([model.type isEqualToString:KEY_Start_Activity]) {
-        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleMale) {
-            return IMAGE(@"homepage_man_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleFemale) {
-            return IMAGE(@"homepage_woman_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            return IMAGE(@"homepage_children_live_button");
-        }else if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleHousehold) {
-            return IMAGE(@"homepage_home_live_button");
-        }else {
-            return nil;
-        }
-    }else if ([model.type isEqualToString:KEY_End_Activity]) {
-        if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-            return IMAGE(@"homepage_childen_over_button");
-        }else{
-            return IMAGE(@"homepage_home_over_button");
-        }
-    }else {
-        return nil;
-    }
-}
-/*!
- *
- *    点击播放按钮播放视频
- *
- */
-- (void)cellPlayVideoActionWithCell:(HomeCell *)cell
-{
-    WS(weakSelf);
-    if (self.networkType == CurrentNetWork3G4G) {
-        [YPC_Tools customAlertViewWithTitle:nil
-                                    Message:@"正在使用流量播放视频"
-                                  BtnTitles:nil
-                             CancelBtnTitle:@"取消"
-                        DestructiveBtnTitle:@"确定"
-                              actionHandler:nil
-                              cancelHandler:nil
-                         destructiveHandler:^(LGAlertView *alertView) {
-                             
-                             [weakSelf videoPlayingWithCell:cell];
-                         }];
-    }else {
-        [self videoPlayingWithCell:cell];
-    }
-}
-- (void)videoPlayingWithCell:(HomeCell *)tempCell
-{
-    [[JPVideoPlayer sharedInstance] playWithUrl:[NSURL URLWithString:tempCell.videoPath] showView:tempCell.containerView];
-    self.playingCell = tempCell;
-    self.currentVideoPath = tempCell.videoPath;
-    [JPVideoPlayer sharedInstance].mute = YES;
-    _videoIsPlaying = YES;
-    // 播放视频隐藏图片开始播放视频
-    [UIView animateWithDuration:.2f animations:^{
-        tempCell.nowifiImgPHView.alpha = 0;
-    }completion:^(BOOL finished) {
-        tempCell.nowifiImgPHView.hidden = YES;
-    }];
-}
 
-/*!
- *
- *    直播中动效
- *
- */
-- (void)animationWithButton
-{
-    [_button1 setImage:IMAGE(@"homepage_icon_live1_children") forState:UIControlStateNormal];
-    [_button1 setImageEdgeInsets:UIEdgeInsetsMake(0, 0, 0, 10)];
-    NSArray *images = [[NSArray alloc] init];
-//    if ([YPCRequestCenter shareInstance].homeStyleType == homeStyleChildren) {
-    //        images = [NSArray arrayWithObjects:
-    //                  IMAGE(@"homepage_icon_live1_children"),
-    //                  IMAGE(@"homepage_icon_live2_children"),
-    //                  IMAGE(@"homepage_icon_live3_children"),
-    //                  nil];
-    //    }else{
-    images = [NSArray arrayWithObjects:
-              IMAGE(@"homepage_icon_live1"),
-              IMAGE(@"homepage_icon_live2"),
-              IMAGE(@"homepage_icon_live3"),
-              nil];
-//    }
-    _button1.imageView.animationImages = images;
-    _button1.imageView.animationDuration = .5f;
-    _button1.imageView.animationRepeatCount = 0;
-    [_button1.imageView startAnimating];
-}
-
-- (BOOL)tabBarController:(UITabBarController *)tabBarController shouldSelectViewController:(UIViewController *)viewController
-{
-    UIViewController *selectTab = tabBarController.selectedViewController;
-    if ([selectTab isEqual:viewController] && tabBarController.selectedIndex == 0) {
-        WS(weakSelf);
-        ChooseVC *cVC = [ChooseVC new];
-        cVC.isChangeHomeStyle = YES;
-        [cVC setChangeStyleBlock:^{
-            [weakSelf.tableView.mj_header beginRefreshing];
-        }];
-        [self presentViewController:cVC animated:YES completion:nil];
-    }
-    return YES;
+- (IBAction)noNetReloadAction:(UIButton *)sender {
+    [self configBannerView];
+    [self getAppConfigData];
 }
 
 @end

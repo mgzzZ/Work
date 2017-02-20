@@ -35,7 +35,6 @@
 
 - (void)viewDidLoad {
     [super viewDidLoad];
-    // Do any additional setup after loading the view from its nib.
     self.navigationController.navigationBar.subviews.firstObject.alpha = 0;
     [self.phoneTF addTarget:self action:@selector(textFieldChanged) forControlEvents:UIControlEventEditingChanged];
     [self.pwdTF addTarget:self action:@selector(textFieldChanged) forControlEvents:UIControlEventEditingChanged];
@@ -50,6 +49,14 @@
         self.otherLoginLbl.hidden = YES;
         self.lineView1.hidden = YES;
         self.lineView2.hidden = YES;
+    }
+}
+
+- (void)viewWillAppear:(BOOL)animated
+{
+    [super viewWillAppear:animated];
+    if (self.resetPwdPhone) {
+        self.phoneTF.text = self.resetPwdPhone;
     }
 }
 
@@ -97,8 +104,9 @@
 {
     self.topConstraint.constant = 10;
     self.textFieldTopConstraint.constant = 0;
+    WS(weakSelf);
     [UIView animateWithDuration:.3f animations:^{
-        [self.view layoutIfNeeded];
+        [weakSelf.view layoutIfNeeded];
     } completion:nil];
     POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerScaleXY];
     animation.toValue = [NSValue valueWithCGPoint:CGPointMake(.5, .5)];
@@ -115,8 +123,9 @@
 {
     self.topConstraint.constant = 70;
     self.textFieldTopConstraint.constant = 70;
+    WS(weakSelf);
     [UIView animateWithDuration:.3f animations:^{
-        [self.view layoutIfNeeded];
+        [weakSelf.view layoutIfNeeded];
     } completion:nil];
     POPSpringAnimation *animation = [POPSpringAnimation animationWithPropertyNamed:kPOPLayerScaleXY];
     animation.toValue = [NSValue valueWithCGPoint:CGPointMake(1, 1)];
@@ -140,40 +149,37 @@
     }
     [self startLoging];
     WS(weakSelf);
-    [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-        if (!registrationID) {
-            return;
-        }
-        [YPCNetworking postWithUrl:@"shop/user/signin"
-                      refreshCache:YES
-                            params:@{
-                                     @"username" : self.phoneTF.text,
-                                     @"password" : self.pwdTF.text,
-                                     @"registration_id" : registrationID
-                                     } success:^(id response) {
-                                         if ([YPC_Tools judgeRequestAvailable:response]) {
-                                             [YPCRequestCenter setUserInfoWithResponse:response];
-                                             [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                                 [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                                 if (weakSelf.back) {
-                                                     weakSelf.back();
-                                                 }
-                                                 [weakSelf dismissViewControllerAnimated:YES completion:nil];
-                                             } failed:^(NSError *error) {
-                                                 YPCAppLog(@"%@", [error description]);
-                                                 [weakSelf failedLogin];
-                                             }];
-                                         }else {
+//    [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+    [YPCNetworking postWithUrl:@"shop/user/signin"
+                  refreshCache:YES
+                        params:@{
+                                 @"username" : self.phoneTF.text,
+                                 @"password" : self.pwdTF.text,
+                                 @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
+                                 } success:^(id response) {
+                                     if ([YPC_Tools judgeRequestAvailable:response]) {
+                                         [YPCRequestCenter setUserInfoWithResponse:response];
+                                         [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
+                                             [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                             if (weakSelf.SuccessLoginBlock) {
+                                                 weakSelf.SuccessLoginBlock();
+                                             }
+                                             [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                         } failed:^(NSError *error) {
+                                             YPCAppLog(@"%@", [error description]);
                                              [weakSelf failedLogin];
-                                         }
+                                         }];
+                                     }else {
+                                         [weakSelf failedLogin];
                                      }
-                              fail:^(NSError *error) {
-                                  if ([error code] == -1009) {
-                                      [YPC_Tools showSvpWithNoneImgHud:@"请检查网络连接"];
-                                  }
-                                  [weakSelf failedLogin];
-                              }];
-    }];
+                                 }
+                          fail:^(NSError *error) {
+                              if ([error code] == -1009) {
+                                  [YPC_Tools showSvpWithNoneImgHud:@"请检查网络连接"];
+                              }
+                              [weakSelf failedLogin];
+                          }];
+//    }];
 }
 
 - (void)startLoging
@@ -210,6 +216,7 @@
 #pragma mark - 忘记密码
 - (IBAction)forgetPwdAction:(UIButton *)sender {
     [self.view endEditing:YES];
+    WS(weakSelf);
     [YPC_Tools customAlertViewWithTitle:nil
                                 Message:@"通过手机号找回密码"
                               BtnTitles:nil
@@ -222,7 +229,7 @@
                         
                          RegistVC *regist = [[RegistVC alloc]init];
                          regist.from = @"2";
-                         [self.navigationController pushViewController:regist animated:YES];
+                         [weakSelf.navigationController pushViewController:regist animated:YES];
                     }];
     
 }
@@ -233,16 +240,13 @@
     [[UMSocialManager defaultManager] authWithPlatform:UMSocialPlatformType_WechatSession currentViewController:self completion:^(id result, NSError *error) {
         if (!error) {
             [YPC_Tools showSvpHud];
-            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
-                if (!registrationID) {
-                    return;
-                }
+//            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
                 UMSocialAuthResponse *authresponse = result;
                 NSDictionary *dic = @{
                                       @"unionid" : authresponse.uid,
                                       @"access_token" : authresponse.accessToken,
                                       @"openid" : authresponse.openid,
-                                      @"registration_id" : registrationID
+                                      @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
                                       };
                 [YPCNetworking postWithUrl:@"shop/user/wechatlogin"
                               refreshCache:YES
@@ -252,8 +256,8 @@
                                            [YPCRequestCenter setUserInfoWithResponse:response];
                                            [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
                                                [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                               if (weakSelf.back) {
-                                                   weakSelf.back();
+                                               if (weakSelf.SuccessLoginBlock) {
+                                                   weakSelf.SuccessLoginBlock();
                                                }
                                                [weakSelf dismissViewControllerAnimated:YES completion:nil];
                                                [YPC_Tools dismissHud];
@@ -268,9 +272,9 @@
                                        }
                                    } fail:^(NSError *error) {
                                        [weakSelf failedLogin];
-                                       [YPC_Tools showSvpHudError:[error description]];
+                                       [YPC_Tools showSvpHudError:@"登录失败"];
                                    }];
-            }];
+//            }];
         }else {
             if ([error code] == 2009) {
                 [YPC_Tools showSvpWithNoneImgHud:@"登录取消授权"];

@@ -20,7 +20,9 @@
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *timeLabHeight;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *sendtimeLabHeight;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *paytimeLabHeight;
+@property (strong, nonatomic) IBOutlet UIButton *changeAreaBtn;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *payViewHeight;
 @property (strong, nonatomic) IBOutlet UIView *contentView;
+@property (strong, nonatomic) IBOutlet UIImageView *typeImg;
 
 @end

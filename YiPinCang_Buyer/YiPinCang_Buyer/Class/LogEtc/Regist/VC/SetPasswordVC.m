@@ -10,6 +10,7 @@
 #import "UserModel.h"
 #import "JPUSHService.h"
 #import "LeanChatFactory.h"
+#import "LoginVC.h"
 
 @interface SetPasswordVC ()<UITextFieldDelegate>
 @property (strong, nonatomic) IBOutlet UITextField *oldTextField;
@@ -46,7 +47,7 @@
     }else{
         if (weakSelf.setType == SetPasswordBinding) {
             [YPC_Tools showSvpHud];
-            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+//            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
                 [YPCNetworking postWithUrl:@"shop/user/setpassword"
                               refreshCache:YES
                                     params:[YPCRequestCenter getUserInfoAppendDictionary:@{@"password":_oldTextField.text,}]
@@ -61,24 +62,34 @@
                                       fail:^(NSError *error) {
                                           YPCAppLog(@"%@", [error description]);
                                       }];
-            }];
+//            }];
         }else {
             [YPC_Tools showSvpHud];
-            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
+//            [JPUSHService registrationIDCompletionHandler:^(int resCode, NSString *registrationID) {
                 [YPCNetworking postWithUrl:@"shop/user/signup"
                               refreshCache:YES
                                     params:@{
                                              @"token" : _token,
                                              @"password":_oldTextField.text,
-                                             @"registration_id" : registrationID
+                                             @"registration_id" : [JPUSHService registrationID] != nil ? [JPUSHService registrationID] : @"0"
                                              }
                                    success:^(id response) {
                                        if ([YPC_Tools judgeRequestAvailable:response]) {
                                            [YPCRequestCenter setUserInfoWithResponse:response];
                                            [LeanChatFactory invokeThisMethodAfterLoginSuccessWithClientId:response[@"data"][@"user"][@"hx_uname"] success:^{
-                                               [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
-                                               [YPC_Tools dismissHud];
-                                               [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                               [weakSelf.navigationController.childViewControllers enumerateObjectsUsingBlock:^(__kindof UIViewController * _Nonnull obj, NSUInteger idx, BOOL * _Nonnull stop) {
+                                                   if ([[obj class] isEqual:[LoginVC class]]) {
+                                                       __block LoginVC *vc = obj;
+                                                       if (vc.SuccessLoginBlock) {
+                                                           vc.SuccessLoginBlock();
+                                                       }
+                                                       [YPCRequestCenter cacheUserKeychainWithSID:response[@"data"][@"session"][@"sid"]];
+                                                       [YPC_Tools dismissHud];
+                                                       [weakSelf dismissViewControllerAnimated:YES completion:nil];
+                                                       
+                                                       *stop = YES;
+                                                   }
+                                               }];
                                            } failed:^(NSError *error) {
                                                YPCAppLog(@"%@", [error description]);
                                                [YPC_Tools showSvpWithNoneImgHud:@"注册失败"];
@@ -89,7 +100,7 @@
                                           YPCAppLog(@"%@", [error description]);
                                           [YPC_Tools showSvpWithNoneImgHud:@"注册失败"];
                                       }];
-            }];
+//            }];
         }
     }
 }

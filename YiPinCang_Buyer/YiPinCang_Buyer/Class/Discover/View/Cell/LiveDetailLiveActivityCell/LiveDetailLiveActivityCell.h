@@ -17,5 +17,6 @@
 @property (strong, nonatomic) IBOutlet UILabel *numberLab;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *labHeight;
 @property (nonatomic,strong)LiveActivityModel *model;
+@property (strong, nonatomic) IBOutlet OriginalPriceLab *originalPriceLab;
 @property (strong, nonatomic) IBOutlet NSLayoutConstraint *imgHeight;
 @end

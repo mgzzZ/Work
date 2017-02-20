@@ -13,6 +13,9 @@
 #define ScreenWidth                [UIScreen mainScreen].bounds.size.width
 #define ScreenHeight               [UIScreen mainScreen].bounds.size.height
 #define iPhone4 ([UIScreen mainScreen].bounds.size.height == 480)
+#define iPhone5 ([UIScreen mainScreen].bounds.size.width == 320)
+#define iPhone6 ([UIScreen mainScreen].bounds.size.width == 375)
+#define iPhone6P ([UIScreen mainScreen].bounds.size.width == 414)
 #define kWidth(R) (R)*(ScreenWidth)/375
 #define kHeight(R) (iPhone4?((R)*(ScreenHeight)/480):((R)*(ScreenHeight)/667))
 #define kScreen [UIScreen mainScreen].bounds
@@ -26,7 +29,7 @@
 // ===================== 字体
 #define LightFont(fontsize)    [UIFont fontWithName:@"STHeitiSC-Light" size:fontsize]
 #define BoldFont(fontsize)     [UIFont fontWithName:@"STHeitiSC-Medium" size:fontsize]
-
+#define YPCPFFont(fontsize)     [UIFont fontWithName:@"PingFangSC-Regular" size:fontsize]
 //==================== improt
 #import "YPCNetworking.h"
 #import <MJRefresh.h>
@@ -59,8 +62,9 @@
 #import <RTRootNavigationController.h>
 #import "UINavigationBar+BackgroundColor.h"
 #import "YPCRefreshHeader.h"
-#import <ReactiveCocoa/ReactiveCocoa.h>
-#import <ReactiveCocoa/RACEXTScope.h>
+#import <UShareUI/UShareUI.h>
+#import "OriginalPriceLab.h"
+#import "YPCShare.h"
 
 //Documents文件夹的路径
 #define kDocPath NSSearchPathForDirectoriesInDomains(NSDocumentDirectory, NSUserDomainMask, YES).firstObject
@@ -70,6 +74,7 @@
 #define LeanCloudAppKey @"lOrkWTAg8IqCEsrL4s8tM212"
 
 //=================== NotificationCenter
+#define LeanCloudNotReadMessageCount                                @"LeanCloudNotReadMessageCount" // 程序运行请求checkinfo, 通知首页显示消息未读数
 #define DidReceiveDanmakuFormLeanCloudCusstomMessage                @"didReceiveDanmakuFormLeanCloudCusstomMessage" // 收到弹幕消息通知
 #define DidReceiveLivingLikeFormLeanCloudCusstomMessage             @"didReceiveLivingLikeFormLeanCloudCusstomMessage" // 收到leancloud点赞通知
 #define DidReceiveLivingGoodsTopFormLeanCloudCusstomMessage         @"didReceiveLivingGoodsTopFormLeanCloudCusstomMessage" // 收到leancloud点赞通知
@@ -80,6 +85,7 @@
 //通知宏定义
 #define PaySuccess @"PaySuccess"
 #define PayError @"PayError"
+#define WechatPay @"WechatPay"
 //=================== UserDefault
 #define kUserSession        @"userSession"
 #define kUserIsLogin        @"kUserIsLogin"
@@ -93,8 +99,8 @@
 
 
 //===================== 友盟
-#define kUMAppKey @"58199627aed179695e002ce9"
-#define kUMShareURL @"http://www.baidu.com"
+#define kUMAppKey @"58199af3a40fa36dbf002a24"
+#define kUMShareURL @"http://www.ypcang.com"
 #define kUMWXAppID @"wxff15efaf15adc6f8"
 #define kUMWXAppSecret @"83d6dbe46f84bde4cf78d0b58764d797"
 #define kUMQQAppID @"1105708819"

@@ -64,6 +64,14 @@ static NSString *AllIdentifier = @"allIdentifier";
                                                                                    }]
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
+                                   NSString *carNumber = response[@"data"][@"num"];
+                                   NSString *cart_add_time = response[@"data"][@"cart_add_time"];
+                                   NSString *cart_expire_time = response[@"data"][@"cart_expire_time"];
+                                   NSString *timeEnd = [NSString stringWithFormat:@"%zd",cart_add_time.integerValue + cart_expire_time.integerValue];
+                                   
+                                   [YPCRequestCenter shareInstance].carEndtime = timeEnd;
+                                   [YPCRequestCenter shareInstance].cart_expire_time = cart_expire_time;
+                                   [YPCRequestCenter shareInstance].carNumber = carNumber;
                                    [YPC_Tools showSvpWithNoneImgHud:@"添加成功"];
                                    [weakSelf chooseSizeHide];
                                }
@@ -130,11 +138,11 @@ static NSString *AllIdentifier = @"allIdentifier";
     [cell setButtonClickedBlock:^(id object) {
         if ([object isEqualToString:@"joinShopCar"]) {
             
-            if ([YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self]]) {
-                AllGoodsModel *model = weakSelf.allGoodsDataArr[indexPath.row];
+            [YPCRequestCenter isLoginAndPresentLoginVC:[YPC_Tools getControllerWithView:self] success:^{
+                __block AllGoodsModel *model = weakSelf.allGoodsDataArr[indexPath.row];
                 [weakSelf getDataChooseSize:model.goods_commonid price:model.goods_price count:@"1" maxCount:model.total_storage img:model.goods_image];
+            }];
             }
-        }
     }];
     return cell;
 }

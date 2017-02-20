@@ -16,7 +16,7 @@
         _model = model;
     }
     [self.shopImg sd_setImageWithURL:[NSURL URLWithString:model.activity_pic] placeholderImage:YPCImagePlaceHolder];
-    NSString *startTime = [YPC_Tools timeWithTimeIntervalString:model.start Format:@"YYYY-MM-dd    HH:mm"];
+    NSString *startTime = [YPC_Tools timeWithTimeIntervalString:model.start Format:@"MM-dd    HH:mm"];
     NSString *endTime = [YPC_Tools timeWithTimeIntervalString:model.end Format:@"HH:mm"];
     self.timeLab.text = [NSString stringWithFormat:@"%@~%@",startTime,endTime];
     self.oldtimeLab.text = model.transtime;

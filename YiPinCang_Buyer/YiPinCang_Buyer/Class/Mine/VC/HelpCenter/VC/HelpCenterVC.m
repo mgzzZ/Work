@@ -26,18 +26,7 @@
     self.navigationItem.title = @"帮助中心";
     self.view.backgroundColor = [Color colorWithHex:@"#EFEFEF"];
     self.nameArr = @[@[@"常见问题"],@[@"通知公告",@"商务合作",@"意见反馈"]];
-    [self setUp];
     [self getData];
-}
-- (void)setUp{
-    self.tableView = [[UITableView alloc]init];
-    self.tableView.delegate = self;
-    self.tableView.dataSource = self;
-    self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
-    [self.view addSubview:self.tableView];
-    self.tableView.tableFooterView = [UIView new];
-    self.tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
-
 }
 
 
@@ -51,7 +40,7 @@
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakself.dataArr = [HelpModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
-                               
+                               [weakself.tableView reloadData];
                            }
                            
                        }
@@ -60,12 +49,7 @@
                           }];
 }
 
-- (NSMutableArray *)dataArr{
-    if (_dataArr == nil) {
-        _dataArr = [NSMutableArray array];
-    }
-    return _dataArr;
-}
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return self.nameArr.count;
 }
@@ -150,6 +134,27 @@
         [cell setLayoutMargins:UIEdgeInsetsZero];
     }
 }
+
+- (UITableView *)tableView{
+    if (_tableView == nil) {
+        _tableView = [[UITableView alloc]init];
+        _tableView.delegate = self;
+        _tableView.dataSource = self;
+        self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
+        [self.view addSubview:_tableView];
+        _tableView.tableFooterView = [UIView new];
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(0, 0, 0, 0));
+    }
+    return _tableView;
+}
+
+- (NSMutableArray *)dataArr{
+    if (_dataArr == nil) {
+        _dataArr = [NSMutableArray array];
+    }
+    return _dataArr;
+}
+
 
 - (NSString *)returnAcid:(NSString *)acName{
     NSString *ac_id = @"";

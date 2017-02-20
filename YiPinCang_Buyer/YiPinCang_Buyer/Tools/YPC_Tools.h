@@ -71,6 +71,8 @@
 + (BOOL)judgeFooterDataAvailable:(id)response; // 判断是否可以上拉加载
 + (void)judgeFooterIsHidden:(id)response WithTV:(UITableView *)tableView;
 
++ (UIImage *)handleImageWithURLStr:(UIImage *)hImage;
+
 /*!
  *
  *    计算文本高度

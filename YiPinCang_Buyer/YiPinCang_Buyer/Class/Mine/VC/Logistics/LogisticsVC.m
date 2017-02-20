@@ -22,6 +22,8 @@
     [super viewDidLoad];
     // Do any additional setup after loading the view.
     self.navigationItem.title = @"查看物流";
+    self.view.backgroundColor = [UIColor whiteColor];
+    [self.view addSubview:[UIView new]];
     [self getData];
 }
 
@@ -36,14 +38,23 @@
         _tableView.emptyDataSetDelegate = self;
         _tableView.tableFooterView = [UIView new];
         [_tableView setSeparatorStyle:UITableViewCellSeparatorStyleNone];
-        _headerView = [[LoginsticsHeaderView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 77)];
-        _tableView.tableHeaderView = _headerView;
+        _tableView.sd_layout.spaceToSuperView(UIEdgeInsetsMake(64, 0, 0, 0));
+        
     }
     return _tableView;
 }
 
+
+- (LoginsticsHeaderView *)headerView{
+    if (_headerView == nil) {
+        _headerView = [[LoginsticsHeaderView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 77)];
+        self.tableView.tableHeaderView = _headerView;
+    }
+    return _headerView;
+}
+
 - (NSInteger)tableView:(UITableView *)tableView numberOfRowsInSection:(NSInteger)section{
-    return 10;
+    return self.model.content.count;
 }
 - (CGFloat)tableView:(UITableView *)tableView heightForRowAtIndexPath:(NSIndexPath *)indexPath{
     return 70;
@@ -61,6 +72,9 @@
         cell.textLab.textColor = [Color colorWithHex:@"#2C2C2C"];
         cell.lineView.hidden = NO;
     }
+    if (self.model.content.count != 0) {
+        cell.model = self.model.content[indexPath.row];
+    }
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
     return cell;
 }
@@ -68,12 +82,9 @@
     
     return scrollView.frame.origin.y - 50.f;
 }
-- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
-{
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView{
     
-        return [UIImage imageNamed:@"viewlogistics_icon"];
-    
-    
+    return [UIImage imageNamed:@"viewlogistics_icon"];
 }
 - (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
     return YES;
@@ -81,8 +92,7 @@
 - (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
     return YES;
 }
-- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
-{
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView{
     NSString *text = @"暂时没有物流信息";
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
     return [[NSAttributedString alloc] initWithString:text attributes:attributes];
@@ -99,6 +109,13 @@
                        success:^(id response) {
                            if ([YPC_Tools judgeRequestAvailable:response]) {
                                weakSelf.model = [LogisticsinModel mj_objectWithKeyValues:response[@"data"]];
+                               if (weakSelf.model.exname.length > 0) {
+                                  weakSelf.headerView.nameLab.text = weakSelf.model.exname;
+                               }
+                               if (weakSelf.model.codenumber.length > 0) {
+                                   weakSelf.headerView.numberLab.text = weakSelf.model.codenumber;
+                               }
+                               
                                [weakSelf.tableView reloadData];
                                
                            }

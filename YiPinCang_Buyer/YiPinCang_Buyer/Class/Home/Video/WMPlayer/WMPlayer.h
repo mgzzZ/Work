@@ -126,6 +126,12 @@ typedef NS_ENUM(NSUInteger,WMControlType) {
  */
 @property (nonatomic,retain ) UIButton       *closeBtn;
 /**
+ *  右上角分享按钮
+ */
+@property (nonatomic, strong) UIButton *shareBtn;
+//商品按钮
+@property (nonatomic, strong) UIButton *goodsBtn;
+/**
  *  显示加载失败的UILabel
  */
 @property (nonatomic,strong) UILabel        *loadFailedLabel;

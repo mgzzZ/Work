@@ -11,5 +11,6 @@
 @interface ShoppingCarDetailVC : BaseNaviConfigVC
 
 @property (nonatomic,strong)NSString *goods_id;
-
+@property (nonatomic,strong)NSString *is_goodsid;
+@property (nonatomic,copy)NSString *payCount;
 @end

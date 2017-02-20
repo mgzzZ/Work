@@ -38,7 +38,7 @@
 
 - (void)dealloc
 {
-    
+    [self removeFromWindow];
 }
 
 - (void)setIsHiddenOnWindow:(BOOL)isHiddenOnWindow
@@ -92,23 +92,20 @@
 // 通过touchdown touchmove实现点击方法
 - (void)dragButtonClicked:(UIButton *)sender {
     WS(weakSelf);
-    [YPC_Tools customAlertViewWithTitle:nil
-                                Message:@"是否发送订单消息"
-                              BtnTitles:nil
-                         CancelBtnTitle:@"取消"
-                    DestructiveBtnTitle:@"确定"
-                          actionHandler:nil
-                          cancelHandler:nil
-                     destructiveHandler:^(LGAlertView *alertView) {
-                         
-                         GoodsMessage *gMessage = [GoodsMessage GoodsMessageWithOrderId:self.orderId index:self.index conversationType:LCCKConversationTypeSingle];
-                         [self.conversationVC sendCustomMessage:gMessage progressBlock:^(NSInteger percentDone) {
-                         } success:^(BOOL succeeded, NSError *error) {
-                             [weakSelf.conversationVC sendLocalFeedbackTextMessge:@"商品订单发送成功"];
-                         } failed:^(BOOL succeeded, NSError *error) {
-                             [weakSelf.conversationVC sendLocalFeedbackTextMessge:@"商品订单发送失败"];
-                         }];
-                     }];
+    UIAlertController *alert = [UIAlertController alertControllerWithTitle:@"提示" message:@"是否发送订单消息" preferredStyle:UIAlertControllerStyleAlert];
+    UIAlertAction *okAction = [UIAlertAction actionWithTitle:@"确定" style:UIAlertActionStyleDefault handler:^(UIAlertAction * _Nonnull action) {
+        __block GoodsMessage *gMessage = [GoodsMessage GoodsMessageWithOrderId:weakSelf.orderId index:weakSelf.index conversationType:LCCKConversationTypeSingle];
+        [weakSelf.conversationVC sendCustomMessage:gMessage progressBlock:^(NSInteger percentDone) {
+        } success:^(BOOL succeeded, NSError *error) {
+            [weakSelf.conversationVC sendLocalFeedbackTextMessge:@"商品订单发送成功"];
+        } failed:^(BOOL succeeded, NSError *error) {
+            [weakSelf.conversationVC sendLocalFeedbackTextMessge:@"商品订单发送失败"];
+        }];
+    }];
+    UIAlertAction *cancelAction = [UIAlertAction actionWithTitle:@"取消" style:UIAlertActionStyleCancel handler:nil];
+    [alert addAction:okAction];
+    [alert addAction:cancelAction];
+    [self presentViewController:alert animated:YES completion:nil];
 }
 
 - (void)removeFromWindow

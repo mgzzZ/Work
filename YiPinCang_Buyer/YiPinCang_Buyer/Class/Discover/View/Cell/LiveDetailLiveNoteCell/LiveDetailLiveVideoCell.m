@@ -27,9 +27,10 @@
     self.titleLab.textColor = [Color colorWithHex:@"#2C2C2C"];
     self.titleLab.textAlignment = NSTextAlignmentLeft;
     self.titleLab.font = [UIFont systemFontOfSize:15];
+    self.titleLab.numberOfLines = 0;
     [self.contentView addSubview:self.titleLab];
     self.titleLab.sd_layout
-    .leftSpaceToView(self.contentView,15)
+    .leftSpaceToView(self.contentView,27)
     .topSpaceToView(self.contentView,15)
     .rightSpaceToView(self.contentView,15)
     .autoHeightRatio(0);
@@ -39,7 +40,7 @@
     self.bgImg.sd_layout
     .leftEqualToView(self.titleLab)
     .topSpaceToView(self.titleLab,10)
-    .rightEqualToView(self.titleLab)
+    .widthIs(234)
     .heightIs(175);
     self.playBtn = [UIButton buttonWithType:UIButtonTypeCustom];
     [self.playBtn setImage:IMAGE(@"homepage_yure_videoplay1") forState:UIControlStateNormal];
@@ -66,9 +67,9 @@
     self.commentLab.font = [UIFont systemFontOfSize:13];
     self.commentLab.sd_layout
     .rightEqualToView(self.titleLab)
-    .topSpaceToView(self.timeLab,5)
+    .centerYEqualToView(self.timeLab)
     .heightIs(15);
-    self.commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_commentnumber")];
+    self.commentImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_pinglun_button")];
     [self.contentView addSubview:self.commentImg];
     self.commentImg.sd_layout
     .widthIs(25)
@@ -85,7 +86,7 @@
     .rightSpaceToView(self.commentImg,30)
     .centerYEqualToView(self.commentLab)
     .heightIs(15);
-    self.likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_productdetails_icon_likes")];
+    self.likeImg = [[UIImageView alloc]initWithImage:IMAGE(@"find_like_button")];
     [self.contentView addSubview:self.likeImg];
     self.likeImg.sd_layout
     .rightSpaceToView(self.likeLab,5)

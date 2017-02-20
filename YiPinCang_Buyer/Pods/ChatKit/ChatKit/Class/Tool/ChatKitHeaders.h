@@ -2,12 +2,9 @@
 //  ChatKitHeaders.h
 //  LeanCloudIMKit-iOS
 //
-//  v0.8.5 Created by ElonChan (微信向我报BUG:chenyilong1010) on 16/3/11.
+//  v0.8.5 Created by ElonChan on 16/3/11.
 //  Copyright © 2016年 LeanCloud. All rights reserved.
 //
-
-FOUNDATION_EXPORT double LCChatKitVersionNumber;
-FOUNDATION_EXPORT const unsigned char LCChatKitVersionString[];
 
 #if __has_include(<AVOSCloud/AVOSCloud.h>)
     #import <AVOSCloud/AVOSCloud.h>
@@ -20,6 +17,7 @@ FOUNDATION_EXPORT const unsigned char LCChatKitVersionString[];
 #else
     #import "AVOSCloudIM.h"
 #endif
+
 
 #if __has_include(<ChatKit/LCChatKit.h>)
 
@@ -54,6 +52,9 @@ FOUNDATION_EXPORT const unsigned char LCChatKitVersionString[];
     #import <ChatKit/LCCKInputViewPluginLocation.h>
     #import <ChatKit/LCCKAlertController.h>
     #import <ChatKit/NSFileManager+LCCKExtension.h>
+    #import <ChatKit/NSObject+LCCKExtension.h>
+    #import <ChatKit/LCCKChatMessageCell.h>
+    #import <ChatKit/LCCKConstants.h>
 
 #else
 
@@ -88,8 +89,33 @@ FOUNDATION_EXPORT const unsigned char LCChatKitVersionString[];
     #import "LCCKInputViewPluginLocation.h"
     #import "LCCKAlertController.h"
     #import "NSFileManager+LCCKExtension.h"
+    #import "NSObject+LCCKExtension.h"
+    #import "LCCKChatMessageCell.h"
+    #import "LCCKConstants.h"
 
 #endif
 
+#if __has_include(<SDWebImage/UIImageView+WebCache.h>)
+#import <SDWebImage/UIImageView+WebCache.h>
+#import <SDWebImage/UIButton+WebCache.h>
+
+#else
+#import "UIImageView+WebCache.h"
+#import "UIButton+WebCache.h"
+#endif
+
+#if __has_include(<Masonry/Masonry.h>)
+#import <Masonry/Masonry.h>
+#else
+#import "Masonry.h"
+#endif
+
+
+#if __has_include(<MBProgressHUD/MBProgressHUD.h>)
+#import <MBProgressHUD/MBProgressHUD.h>
+
+#else
+#import "MBProgressHUD.h"
+#endif
 
 

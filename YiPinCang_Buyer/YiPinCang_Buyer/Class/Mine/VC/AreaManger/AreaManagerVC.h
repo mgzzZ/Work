@@ -16,5 +16,7 @@ typedef void(^BackAreaBlock)(NSString *name,NSString *area,NSString *isDefault,N
 
 @property (nonatomic,copy)NSString *from;
 
+@property (nonatomic,copy)NSString *pay_sn;
 
+@property (nonatomic,copy)NSString *address_id;
 @end

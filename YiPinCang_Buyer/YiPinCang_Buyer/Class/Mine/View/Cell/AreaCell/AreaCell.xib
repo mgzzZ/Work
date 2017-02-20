@@ -18,14 +18,18 @@
                 <rect key="frame" x="0.0" y="0.0" width="318" height="143"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
+                    <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="vcu-Y4-AQx">
+                        <rect key="frame" x="0.0" y="0.0" width="318" height="133"/>
+                        <color key="backgroundColor" white="1" alpha="1" colorSpace="calibratedWhite"/>
+                    </view>
                     <button opaque="NO" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="dff-va-eao">
                         <rect key="frame" x="15" y="101" width="18" height="18"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="18" id="bi3-2M-3NC"/>
                             <constraint firstAttribute="width" constant="18" id="k2w-xc-tbq"/>
                         </constraints>
-                        <state key="normal" image="find_cart_button_nochouse"/>
-                        <state key="selected" image="mine_cart_icon_choice_red"/>
+                        <state key="normal" image="mmine_cart_button_unclicked"/>
+                        <state key="selected" image="mmine_cart_button_clicked"/>
                     </button>
                     <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="Label" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="vEn-hV-MpW">
                         <rect key="frame" x="13" y="20" width="292" height="20"/>
@@ -70,7 +74,7 @@
                             <color key="titleColor" red="0.40000000000000002" green="0.40000000000000002" blue="0.40000000000000002" alpha="1" colorSpace="calibratedRGB"/>
                         </state>
                     </button>
-                    <imageView userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Group12" translatesAutoresizingMaskIntoConstraints="NO" id="Tfm-y3-CH0">
+                    <imageView hidden="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" image="Group12" translatesAutoresizingMaskIntoConstraints="NO" id="Tfm-y3-CH0">
                         <rect key="frame" x="286" y="50" width="17" height="17"/>
                         <constraints>
                             <constraint firstAttribute="height" constant="17" id="GRI-Pe-Hpz"/>
@@ -109,20 +113,25 @@
                     <constraint firstAttribute="trailing" secondItem="fiz-GV-JIh" secondAttribute="trailing" constant="40" id="TU2-H5-TwO"/>
                     <constraint firstItem="vEn-hV-MpW" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="13" id="WSv-Pm-scC"/>
                     <constraint firstItem="fiz-GV-JIh" firstAttribute="leading" secondItem="vEn-hV-MpW" secondAttribute="leading" id="YTC-Qw-zN0"/>
+                    <constraint firstItem="vcu-Y4-AQx" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" id="bwV-G9-5Kg"/>
                     <constraint firstItem="fiz-GV-JIh" firstAttribute="top" secondItem="vEn-hV-MpW" secondAttribute="bottom" constant="10" id="c0E-Tg-2Il"/>
                     <constraint firstItem="Nm5-Ut-khz" firstAttribute="top" secondItem="4eG-8K-Ff6" secondAttribute="bottom" id="g5z-ne-gPf"/>
                     <constraint firstItem="Tfm-y3-CH0" firstAttribute="centerY" secondItem="fiz-GV-JIh" secondAttribute="centerY" id="gek-9d-0UA"/>
                     <constraint firstItem="vEn-hV-MpW" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" constant="20" id="ifd-Oo-UPG"/>
                     <constraint firstAttribute="trailing" secondItem="Tfm-y3-CH0" secondAttribute="trailing" constant="15" id="jB5-ir-NUS"/>
                     <constraint firstAttribute="trailing" secondItem="CtD-Yt-Nhe" secondAttribute="trailing" id="jGd-4T-0AV"/>
+                    <constraint firstAttribute="bottom" secondItem="vcu-Y4-AQx" secondAttribute="bottom" constant="10" id="oci-g0-Qkv"/>
                     <constraint firstItem="dff-va-eao" firstAttribute="top" secondItem="CtD-Yt-Nhe" secondAttribute="bottom" constant="13" id="rSo-gp-7iD"/>
                     <constraint firstItem="dff-va-eao" firstAttribute="leading" secondItem="H2p-sc-9uM" secondAttribute="leading" constant="15" id="sEP-I6-zQ3"/>
                     <constraint firstItem="iaR-gn-h14" firstAttribute="top" secondItem="CtD-Yt-Nhe" secondAttribute="bottom" id="sP6-Qb-CSU"/>
+                    <constraint firstItem="vcu-Y4-AQx" firstAttribute="top" secondItem="H2p-sc-9uM" secondAttribute="top" id="tUa-eO-1Tn"/>
+                    <constraint firstAttribute="trailing" secondItem="vcu-Y4-AQx" secondAttribute="trailing" id="ttj-dG-Rzq"/>
                     <constraint firstItem="kKW-CG-bMs" firstAttribute="leading" secondItem="dff-va-eao" secondAttribute="trailing" constant="10" id="x53-7S-IWZ"/>
                 </constraints>
             </tableViewCellContentView>
             <connections>
                 <outlet property="areaLab" destination="fiz-GV-JIh" id="eTZ-qd-KvJ"/>
+                <outlet property="bgView" destination="vcu-Y4-AQx" id="dOC-Qd-HTq"/>
                 <outlet property="chooseBtn" destination="dff-va-eao" id="5xz-BI-GR1"/>
                 <outlet property="deleteBtn" destination="iaR-gn-h14" id="dcc-hX-MN4"/>
                 <outlet property="nameLab" destination="vEn-hV-MpW" id="Ddv-gk-5Uc"/>
@@ -135,7 +144,7 @@
         <image name="Group12" width="17" height="17"/>
         <image name="cart_delete_icon" width="15" height="15"/>
         <image name="cart_editor_icon" width="15" height="15"/>
-        <image name="find_cart_button_nochouse" width="25" height="25"/>
-        <image name="mine_cart_icon_choice_red" width="25" height="25"/>
+        <image name="mmine_cart_button_clicked" width="24" height="24"/>
+        <image name="mmine_cart_button_unclicked" width="24" height="24"/>
     </resources>
 </document>

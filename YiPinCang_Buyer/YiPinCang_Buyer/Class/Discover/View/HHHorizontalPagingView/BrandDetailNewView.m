@@ -221,20 +221,88 @@
         self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 42)];
         self.topView.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
         self.topView.bgView.layer.borderWidth = 1;
-        [self.topView.priceBtn addTarget:self action:@selector(priceBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.brandBtn addTarget:self action:@selector(brandBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.otherBtn addTarget:self action:@selector(otherBtnClick:) forControlEvents:UIControlEventTouchUpInside];
-        [self.topView.recommendBtn addTarget:self action:@selector(recommendBtnClick:) forControlEvents:UIControlEventTouchUpInside];
         if ([self.listorder isEqualToString:@"1"]) {
-            
             [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
         }else if ([self.listorder isEqualToString:@"2"]){
-            
             [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
-        }else if ([self.listorder isEqualToString:@"0"]){
-            
+        }else if ([self.listorder isEqualToString:@"0"]){            
             [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
         }
+        WS(weakself);
+        self.topView.didBtnClick = ^(UIButton *clickBtn,NSInteger tag){
+            switch (tag) {
+                case 1000:
+                {
+                    clickBtn.selected = NO;
+                    [weakself chooseHiden];
+                    if (![weakself.listorder isEqualToString:@"0"]) {
+                        weakself.listorder = @"0";
+                        weakself.page = @"1";
+                        [weakself getData:weakself.page isRefresh:YES];
+                    }else{
+                        weakself.listorder = @"0";
+                    }
+                    [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                }
+                    break;
+                case 1001:
+                {
+                    clickBtn.selected = YES;
+                    weakself.topView.brandBtn.selected = NO;
+                    weakself.topView.priceBtn.selected = NO;
+                    weakself.topView.recommendBtn.selected = YES;
+                    [weakself chooseHiden];
+                    [weakself segBrandViewHidenNo:weakself.sectionArr];
+                    [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                }
+                    break;
+                case 1002:
+                {
+                    weakself.topView.priceBtn.selected = NO;
+                    weakself.topView.otherBtn.selected = NO;
+                    weakself.topView.recommendBtn.selected = YES;
+                    if ([weakself.listorder isEqualToString:@"0"]) {
+                        weakself.listorder = @"1";
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
+                    }else if ([weakself.listorder isEqualToString:@"1"]){
+                        weakself.listorder = @"2";
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
+                    }else if ([weakself.listorder isEqualToString:@"2"]){
+                        weakself.listorder = @"0";
+                        [weakself.topView.brandBtn setTitleColor:[Color colorWithHex:@"#666666"] forState:UIControlStateNormal];
+                        [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                    }
+                    weakself.page = @"1";
+                    [weakself getData:weakself.page isRefresh:YES];
+                }
+                    break;
+                case 1003:
+                {
+                    if (clickBtn.selected == NO) {
+                        weakself.listorder = @"3";
+                        clickBtn.selected = YES;
+                        weakself.topView.recommendBtn.selected = YES;
+                    }else{
+                        weakself.listorder = @"0";
+                        clickBtn.selected = NO;
+                        weakself.topView.recommendBtn.selected = NO;
+                    }
+                    [weakself chooseHiden];
+                    weakself.page = @"1";
+                    
+                    [weakself.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+                }
+                    break;
+                    
+                default:
+                    break;
+            }
+            
+            
+            
+        };
         
         [headerView addSubview:self.topView];
         
@@ -245,20 +313,25 @@
     
     return reusableview;
 }
+
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
     
     return scrollView.frame.origin.y + 50.f;
 }
+
 - (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
 {
     return [UIImage imageNamed:@"blankpage_brand_icon"];
 }
+
 - (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
     return YES;
 }
+
 - (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
     return YES;
 }
+
 - (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
 {
     NSString *text = @"该品牌下没有活动商品哦";
@@ -305,67 +378,15 @@
     }
 }
 #pragma mark- btn action
-- (void)recommendBtnClick:(UIButton *)sender{
-    sender.selected = NO;
-    [self chooseHiden];
-    if (![self.listorder isEqualToString:@"0"]) {
-        self.listorder = @"0";
-        self.page = @"1";
-        [self getData:self.page isRefresh:YES];
-    }else{
-        self.listorder = @"0";
-    }
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
 
-- (void)priceBtnClick:(UIButton *)sender{
-    sender.selected = YES;
-    self.topView.brandBtn.selected = NO;
-    self.topView.otherBtn.selected = NO;
-    self.topView.recommendBtn.selected = YES;
-    [self chooseHiden];
-    [self segBrandViewHidenNo:self.sectionArr];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
-
-- (void)brandBtnClick:(UIButton *)sender{
-    
-    self.topView.priceBtn.selected = NO;
-    self.topView.otherBtn.selected = NO;
-    self.topView.recommendBtn.selected = YES;
-    if ([self.listorder isEqualToString:@"0"]) {
-        self.listorder = @"1";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
-    }else if ([self.listorder isEqualToString:@"1"]){
-        self.listorder = @"2";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
-    }else if ([self.listorder isEqualToString:@"2"]){
-        self.listorder = @"0";
-        [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-    }
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-}
-
-- (void)otherBtnClick:(UIButton *)sender{
-    if (sender.selected == NO) {
-        self.listorder = @"3";
-        sender.selected = YES;
-        self.topView.recommendBtn.selected = YES;
-    }else{
-        self.listorder = @"0";
-        sender.selected = NO;
-        self.topView.recommendBtn.selected = NO;
-    }
-    [self chooseHiden];
-    self.page = @"1";
-    [self getData:self.page isRefresh:YES];
-    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
-}
 - (void)cancelClick:(UIGestureRecognizer *)sender{
     self.topView.otherBtn.selected = NO;
     self.topView.priceBtn.selected = NO;
-    
+    self.topView.recommendBtn.selected = NO;
+    self.topView.priceBtn.selected = NO;
+    self.topView.otherBtn.selected = NO;
+    [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
+    [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"666666"] forState:UIControlStateNormal];
     [self chooseHiden];
 }
 

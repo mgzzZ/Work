@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="UTF-8" standalone="no"?>
-<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11542" systemVersion="15G1004" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
+<document type="com.apple.InterfaceBuilder3.CocoaTouch.XIB" version="3.0" toolsVersion="11762" systemVersion="15G31" targetRuntime="iOS.CocoaTouch" propertyAccessControl="none" useAutolayout="YES" useTraitCollections="YES" colorMatched="YES">
     <device id="retina5_5" orientation="portrait">
         <adaptation id="fullscreen"/>
     </device>
     <dependencies>
         <deployment identifier="iOS"/>
-        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11524"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.IBCocoaTouchPlugin" version="11757"/>
         <capability name="Constraints with non-1.0 multipliers" minToolsVersion="5.1"/>
         <capability name="documents saved in the Xcode 8 format" minToolsVersion="8.0"/>
     </dependencies>
@@ -16,6 +16,7 @@
                 <outlet property="audienceView" destination="h2G-B0-noK" id="ZWF-sz-Zoq"/>
                 <outlet property="avatorImgV" destination="Ebb-6h-Bwb" id="cVB-PU-jAs"/>
                 <outlet property="bottomView" destination="KAP-ii-Uap" id="8pV-mo-ykN"/>
+                <outlet property="closeBtn" destination="TXo-BW-PcR" id="Uge-YU-utZ"/>
                 <outlet property="danmakuTF" destination="4al-eE-g1M" id="WeG-s4-bQp"/>
                 <outlet property="danmakuView" destination="BdM-ge-4fK" id="rNJ-X8-AG9"/>
                 <outlet property="danmakuViewBottomC" destination="KiT-Ob-fEb" id="Mhy-12-JVx"/>
@@ -31,6 +32,7 @@
                 <outlet property="livingPauseImgV" destination="0gC-SW-pRv" id="KmJ-cc-Td4"/>
                 <outlet property="livingTopGoodsView" destination="qL0-St-DHm" id="IdN-sQ-sQ9"/>
                 <outlet property="playerPHView" destination="Tnf-DN-lHV" id="N0r-uM-3b7"/>
+                <outlet property="shareBtn" destination="Hu1-CM-N6G" id="3z3-FR-jbx"/>
                 <outlet property="smallCloseBtn" destination="AGL-p5-N41" id="IOd-mB-1nO"/>
                 <outlet property="smallPlayerBgView" destination="htu-CO-cb5" id="eV1-uj-y6j"/>
                 <outlet property="tfBottomC" destination="TUT-Pr-FtS" id="Lpi-FW-eQO"/>
@@ -89,21 +91,21 @@
                             <color key="textColor" red="0.99607843137254903" green="0.99607843137254903" blue="0.99607843137254903" alpha="1" colorSpace="calibratedRGB"/>
                             <nil key="highlightedColor"/>
                         </label>
-                        <button opaque="NO" tag="2000" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vob-TC-AGd">
-                            <rect key="frame" x="60" y="31.666666666666664" width="48" height="21.999999999999993"/>
-                            <state key="normal" image="homepage_live_button_follow"/>
+                        <button hidden="YES" opaque="NO" tag="2000" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="vob-TC-AGd">
+                            <rect key="frame" x="60" y="31.666666666666664" width="47" height="21.999999999999993"/>
+                            <state key="normal" image="liveroom_follow_button"/>
                             <connections>
                                 <action selector="btnClickAction:" destination="-1" eventType="touchUpInside" id="IcS-IT-sy1"/>
                             </connections>
                         </button>
                         <button hidden="YES" opaque="NO" tag="2001" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Hu1-CM-N6G">
-                            <rect key="frame" x="326" y="30" width="25" height="25"/>
-                            <state key="normal" image="productdetails_icon_share"/>
+                            <rect key="frame" x="331" y="31.666666666666664" width="20" height="21.999999999999993"/>
+                            <state key="normal" image="mshare_button"/>
                             <connections>
                                 <action selector="btnClickAction:" destination="-1" eventType="touchUpInside" id="wgX-FO-ee7"/>
                             </connections>
                         </button>
-                        <button opaque="NO" tag="2002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TXo-BW-PcR">
+                        <button hidden="YES" opaque="NO" tag="2002" contentMode="scaleToFill" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="TXo-BW-PcR">
                             <rect key="frame" x="374" y="30" width="25" height="25"/>
                             <state key="normal" image="homepage_live_close"/>
                             <connections>
@@ -128,13 +130,18 @@
                             <rect key="frame" x="0.0" y="368" width="414" height="368"/>
                             <subviews>
                                 <view hidden="YES" clipsSubviews="YES" contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="qL0-St-DHm">
-                                    <rect key="frame" x="15" y="9.6666666666666856" width="150" height="50"/>
+                                    <rect key="frame" x="15" y="20" width="150" height="50"/>
                                     <subviews>
                                         <imageView clipsSubviews="YES" userInteractionEnabled="NO" contentMode="scaleToFill" horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="b9c-Q1-2JH">
                                             <rect key="frame" x="0.0" y="0.0" width="50" height="50"/>
                                             <constraints>
                                                 <constraint firstAttribute="width" constant="50" id="5fx-Fk-0dM"/>
                                             </constraints>
+                                            <userDefinedRuntimeAttributes>
+                                                <userDefinedRuntimeAttribute type="number" keyPath="layer.cornerRaidus">
+                                                    <integer key="value" value="3"/>
+                                                </userDefinedRuntimeAttribute>
+                                            </userDefinedRuntimeAttributes>
                                         </imageView>
                                         <label opaque="NO" userInteractionEnabled="NO" contentMode="left" horizontalHuggingPriority="251" verticalHuggingPriority="251" text="" textAlignment="natural" lineBreakMode="tailTruncation" baselineAdjustment="alignBaselines" adjustsFontSizeToFit="NO" translatesAutoresizingMaskIntoConstraints="NO" id="Zy7-h9-fWE">
                                             <rect key="frame" x="60" y="5" width="85" height="0.0"/>
@@ -155,7 +162,7 @@
                                             </connections>
                                         </button>
                                     </subviews>
-                                    <color key="backgroundColor" cocoaTouchSystemColor="tableCellGroupedBackgroundColor"/>
+                                    <color key="backgroundColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
                                     <constraints>
                                         <constraint firstAttribute="trailing" secondItem="aex-xD-XmC" secondAttribute="trailing" constant="10" id="DvI-Nb-qFo"/>
                                         <constraint firstItem="b9c-Q1-2JH" firstAttribute="leading" secondItem="qL0-St-DHm" secondAttribute="leading" id="LKb-WH-Imf"/>
@@ -185,7 +192,7 @@
                                 </view>
                                 <button opaque="NO" tag="2004" contentMode="scaleToFill" horizontalHuggingPriority="253" contentHorizontalAlignment="center" contentVerticalAlignment="center" lineBreakMode="middleTruncation" translatesAutoresizingMaskIntoConstraints="NO" id="Q7Z-NN-Qvq">
                                     <rect key="frame" x="356" y="308" width="40" height="40"/>
-                                    <state key="normal" image="live_praise_button"/>
+                                    <state key="normal" image="livepraise_button"/>
                                     <connections>
                                         <action selector="btnClickAction:" destination="-1" eventType="touchUpInside" id="PWt-vw-Ao8"/>
                                     </connections>
@@ -258,9 +265,9 @@
                                 <constraint firstItem="BdM-ge-4fK" firstAttribute="leading" secondItem="KAP-ii-Uap" secondAttribute="leading" constant="15" id="fIN-ew-xS9"/>
                                 <constraint firstItem="RgL-eb-0CB" firstAttribute="bottom" secondItem="C99-Wy-tSu" secondAttribute="bottom" id="fbb-OU-Ue6"/>
                                 <constraint firstItem="e8c-bf-Atf" firstAttribute="centerY" secondItem="C99-Wy-tSu" secondAttribute="centerY" id="glO-Vo-qTt"/>
+                                <constraint firstItem="BdM-ge-4fK" firstAttribute="top" secondItem="qL0-St-DHm" secondAttribute="bottom" constant="20" id="jaO-nW-7Q5"/>
                                 <constraint firstItem="e8c-bf-Atf" firstAttribute="leading" secondItem="KAP-ii-Uap" secondAttribute="leading" constant="57" id="t3c-IG-Wv5"/>
                                 <constraint firstItem="C99-Wy-tSu" firstAttribute="leading" secondItem="KAP-ii-Uap" secondAttribute="leading" constant="15" id="wq9-d7-obv"/>
-                                <constraint firstItem="qL0-St-DHm" firstAttribute="top" secondItem="KAP-ii-Uap" secondAttribute="top" constant="10" id="xyh-yu-23A"/>
                             </constraints>
                         </view>
                         <view contentMode="scaleToFill" translatesAutoresizingMaskIntoConstraints="NO" id="w4w-Rd-i2C">
@@ -366,12 +373,12 @@
         </view>
     </objects>
     <resources>
-        <image name="homepage_live_button_follow" width="48" height="22"/>
         <image name="homepage_live_close" width="25" height="25"/>
         <image name="live_cart_button" width="40" height="40"/>
         <image name="live_error_img" width="200" height="150"/>
-        <image name="live_praise_button" width="40" height="40"/>
+        <image name="livepraise_button" width="40" height="40"/>
+        <image name="liveroom_follow_button" width="47" height="21"/>
+        <image name="mshare_button" width="20" height="20"/>
         <image name="pause_Account bitmap" width="183" height="157"/>
-        <image name="productdetails_icon_share" width="25" height="25"/>
     </resources>
 </document>

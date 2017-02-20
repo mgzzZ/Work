@@ -11,6 +11,8 @@
 
 typedef void(^BtnClickBlock)(OrderListModel *model,NSString *str);
 
+typedef void(^DidCollectBlock)();
+
 @interface OrderTypeCell : UITableViewCell<UICollectionViewDelegateFlowLayout,UICollectionViewDelegate,UICollectionViewDataSource>
 @property (strong, nonatomic) IBOutlet UILabel *nameLab;
 @property (strong, nonatomic) IBOutlet UILabel *stateLab;
@@ -37,5 +39,6 @@ typedef void(^BtnClickBlock)(OrderListModel *model,NSString *str);
 @property (weak, nonatomic) IBOutlet UILabel *merchandiseMoreTypeLab;
 @property (strong, nonatomic) IBOutlet UIButton *rightMoreBtn;
 @property (nonatomic ,strong) dispatch_source_t timer;
-@property (nonatomic,strong) BtnClickBlock btnclick;
+@property (nonatomic,copy) BtnClickBlock btnclick;
+@property (nonatomic,copy) DidCollectBlock didCollect;
 @end

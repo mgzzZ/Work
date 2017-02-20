@@ -10,6 +10,7 @@
 
 @interface GoodsImgCell ()
 @property (weak, nonatomic) IBOutlet UIImageView *goodsImgView;
+@property (strong, nonatomic) IBOutlet UILabel *priceL;
 @end
 
 @implementation GoodsImgCell
@@ -19,13 +20,10 @@
     // Initialization code
 }
 
-- (void)setTempStr:(NSString *)tempStr
+- (void)setTempModel:(GoodsModel *)tempModel
 {
-    if (_tempStr != tempStr) {
-        _tempStr = tempStr;
-    }
-    
-    [_goodsImgView sd_setImageWithURL:[NSURL URLWithString:_tempStr] placeholderImage:YPCImagePlaceHolder];
+    [_goodsImgView sd_setImageWithURL:[NSURL URLWithString:tempModel.goods_image] placeholderImage:YPCImagePlaceHolder];
+    self.priceL.text = [NSString stringWithFormat:@"¥%@", tempModel.goods_price];
 }
 
 

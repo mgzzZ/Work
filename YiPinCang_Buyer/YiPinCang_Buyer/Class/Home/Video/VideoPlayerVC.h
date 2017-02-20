@@ -7,11 +7,10 @@
 //
 
 #import "BaseNaviConfigVC.h"
-#import "TempHomePushModel.h"
 #import "WMPlayer.h"
 
 @interface VideoPlayerVC : BaseNaviConfigVC
-@property (nonatomic, strong) TempHomePushModel *tempModel;
+@property (nonatomic, strong) NSString *liveId;
 
 @property (strong, nonatomic) IBOutlet UIView *playerBgView;
 @property (strong, nonatomic) IBOutlet WMPlayer *playerV;

@@ -13,7 +13,9 @@
 @property (strong, nonatomic) IBOutlet UIImageView *bgimg;
 @property (strong, nonatomic) IBOutlet UIButton *fllowBtn;
 @property (strong, nonatomic) IBOutlet UIButton *brandBtn;
-@property (strong, nonatomic) IBOutlet UIView *liveView;
+@property (strong, nonatomic) IBOutlet UIImageView *typeImg;
+@property (strong, nonatomic) IBOutlet UIImageView *LiveImg;
+
 @property (strong, nonatomic) IBOutlet UILabel *brandNameLab;
 @property (strong, nonatomic) IBOutlet UILabel *BrandTitleLab;
 @property (strong, nonatomic) IBOutlet UIButton *titleBtn;

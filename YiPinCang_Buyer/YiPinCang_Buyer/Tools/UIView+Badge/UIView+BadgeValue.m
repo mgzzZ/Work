@@ -66,7 +66,7 @@ static CGFloat badgeValue_height = 17;
 - (void)setLittleRedBadgeValue:(NSString *)littleRedBadgeValue
 {
     objc_setAssociatedObject(self, &badgeValue_static, littleRedBadgeValue, OBJC_ASSOCIATION_COPY_NONATOMIC);
-    if (littleRedBadgeValue == nil || [littleRedBadgeValue isEqualToString:@""] || littleRedBadgeValue.integerValue <= 0) {
+    if (littleRedBadgeValue == nil || [littleRedBadgeValue isEqualToString:@""] || (littleRedBadgeValue.integerValue <= 0 && ![littleRedBadgeValue isEqualToString:@"···"])) {
         [self clearBadgeValue];
     }else{
         //新建小红点

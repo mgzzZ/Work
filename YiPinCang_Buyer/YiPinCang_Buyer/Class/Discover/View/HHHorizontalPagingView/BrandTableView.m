@@ -15,7 +15,6 @@
 #import "BranCell.h"
 @interface BrandTableView ()<UITableViewDelegate,UITableViewDataSource,UICollectionViewDelegateFlowLayout,DZNEmptyDataSetDelegate,DZNEmptyDataSetSource>
 @property (nonatomic,strong)FiterBrandView *fiterBrandView;
-
 @property (nonatomic,strong)TopView *topView;
 @property (nonatomic,strong)UIView *bgView;
 @property (nonatomic,strong)UITapGestureRecognizer *tap;
@@ -102,6 +101,7 @@
                               
                           }];
 }
+
 - (void)upRefresh{
     
     WS(weakself);
@@ -124,15 +124,11 @@
                            weakSelf.brandListArr = [DiscoverBrandLiskModel mj_objectArrayWithKeyValuesArray:response[@"data"]];
                            
                            [weakSelf segBrandData:weakSelf.brandListArr];
-                           
-                           
                        }
                           fail:^(NSError *error) {
                               
                           }];
 }
-
-
 
 - (ClassSegView *)classSegView{
     WS(weakSelf);
@@ -154,9 +150,11 @@
     }
     return _classSegView;
 }
+
 - (NSInteger)numberOfSectionsInTableView:(UITableView *)tableView{
     return 1;
 }
+
 - (UIView *)tableView:(UITableView *)tableView viewForHeaderInSection:(NSInteger)section{
     self.topView = [[TopView alloc]initWithFrame:CGRectMake(0, 0, ScreenWidth, 42)];
     self.topView.bgView.layer.borderColor = [Color colorWithHex:@"0xefefef"].CGColor;
@@ -178,6 +176,7 @@
     return self.topView;
 
 }
+
 - (CGFloat)tableView:(UITableView *)tableView heightForHeaderInSection:(NSInteger)section{
     return 42;
 }
@@ -193,6 +192,9 @@
         cell = [[BranCell alloc]initWithStyle:UITableViewCellStyleDefault reuseIdentifier:cellID];
     }
     [cell setSelectionStyle:UITableViewCellSelectionStyleNone];
+    cell.shareBtn.tag = indexPath.row;
+    [cell.shareBtn addTarget:self action:@selector(shareBtnClick:) forControlEvents:UIControlEventTouchUpInside];
+
     cell.model = self.dataArr[indexPath.row];
     return cell;
 }
@@ -201,6 +203,7 @@
     LiveActivityModel *model = self.dataArr[indexPath.row];
     return [tableView cellHeightForIndexPath:indexPath model:model keyPath:@"model" cellClass:[BranCell class]  contentViewWidth:[self cellContentViewWith]];
 }
+
 - (void)tableView:(UITableView *)tableView didSelectRowAtIndexPath:(NSIndexPath *)indexPath{
     LiveActivityModel *model = self.dataArr[indexPath.row];
     if (self.didcell) {
@@ -208,23 +211,24 @@
     }
 }
 
-
 -(CGFloat)verticalOffsetForEmptyDataSet:(UIScrollView *)scrollView{
     
     return scrollView.frame.origin.y + 50.f;
 }
-- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView
-{
+
+- (UIImage *)imageForEmptyDataSet:(UIScrollView *)scrollView{
     return [UIImage imageNamed:@"blankpage_brand_icon"];
 }
+
 - (BOOL)emptyDataSetShouldAllowScroll:(UIScrollView *)scrollView{
     return YES;
 }
+
 - (BOOL)emptyDataSetShouldDisplay:(UIScrollView *)scrollView{
     return YES;
 }
-- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView
-{
+
+- (NSAttributedString *)titleForEmptyDataSet:(UIScrollView *)scrollView{
     NSString *text = @"该品牌下没有活动商品哦";
     NSDictionary *attributes = @{NSFontAttributeName: [UIFont systemFontOfSize:15.0f], NSForegroundColorAttributeName: [Color colorWithHex:@"0x2c2c2c"]};
     return [[NSAttributedString alloc] initWithString:text attributes:attributes];
@@ -268,6 +272,7 @@
         [self.brandDic setValue:self.bigValueArr[i] forKey:self.sectionArr[i]];
     }
 }
+
 #pragma mark- btn action
 - (void)recommendBtnClick:(UIButton *)sender{
     sender.selected = NO;
@@ -300,11 +305,14 @@
     if ([self.listorder isEqualToString:@"0"]) {
         self.listorder = @"1";
         [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_ascending") forState:UIControlStateNormal];
+        [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
     }else if ([self.listorder isEqualToString:@"1"]){
         self.listorder = @"2";
         [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_clicked_descending") forState:UIControlStateNormal];
+        [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"#EC0024"] forState:UIControlStateNormal];
     }else if ([self.listorder isEqualToString:@"2"]){
         self.listorder = @"0";
+        [self.topView.brandBtn setTitleColor:[Color colorWithHex:@"#666666"] forState:UIControlStateNormal];
         [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
     }
     self.page = @"1";
@@ -326,6 +334,7 @@
     [self getData:self.page isRefresh:YES];
     [self.topView.brandBtn setImage:IMAGE(@"find_button_pricesort_unclicked") forState:UIControlStateNormal];
 }
+
 - (void)cancelClick:(UIGestureRecognizer *)sender{
     self.topView.otherBtn.selected = NO;
     self.topView.priceBtn.selected = NO;
@@ -382,9 +391,13 @@
     self.btnType = @"2";
 }
 
+- (void)shareBtnClick:(UIButton *)sender{
+    LiveActivityModel *model = self.dataArr[sender.tag];
+    NSString *uid = [YPCRequestCenter shareInstance].model.user_id.length > 0 ? [YPCRequestCenter shareInstance].model.user_id : @"0";
+    [YPCShare GoodsShareInWindowWithStraceName:model.strace_title StraceId:model.strace_id image:[[SDImageCache sharedImageCache] imageFromDiskCacheForKey:model.strace_content[0]] discount:model.goods_discount price:model.goods_price uid:uid viewController:[YPC_Tools getControllerWithView:self]];
+}
 
 #pragma mark - 懒加载
-
 
 - (UIView *)bgView{
     if (_bgView == nil) {
@@ -418,8 +431,8 @@
     }
     return _sectionArr;
 }
-- (CGFloat)cellContentViewWith
-{
+
+- (CGFloat)cellContentViewWith{
     CGFloat width = [UIScreen mainScreen].bounds.size.width;
     
     // 适配ios7横屏
@@ -428,6 +441,7 @@
     }
     return width;
 }
+
 - (NSMutableArray *)valueArr{
     if (_valueArr == nil) {
         _valueArr = [[NSMutableArray alloc]init];

@@ -8,7 +8,7 @@
 
 #import "LivingVC.h"
 
-@interface LivingVC (PrivateMethod)
+@interface LivingVC (PrivateMethod) <AVIMClientDelegate>
 
 /*!
  *

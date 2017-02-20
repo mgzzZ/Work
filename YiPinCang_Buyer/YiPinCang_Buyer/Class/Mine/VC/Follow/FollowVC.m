@@ -22,8 +22,6 @@
     // Do any additional setup after loading the view from its nib.
     self.navigationItem.title = @"我的关注";
     self.tableView.tableFooterView = [UIView new];
-    self.tableView.emptyDataSetSource = self;
-    self.tableView.emptyDataSetDelegate = self;
     self.view.backgroundColor = [Color colorWithHex:@"0xefefef"];
     self.tableView.backgroundColor = [Color colorWithHex:@"0xefefef"];
     [self getData];
@@ -105,7 +103,7 @@
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
                                    sender.selected =! sender.selected;
-                                   
+                                   [YPC_Tools showSvpWithNoneImgHud:@"关注成功"];
                                }
                                
                            }
@@ -121,7 +119,7 @@
                            success:^(id response) {
                                if ([YPC_Tools judgeRequestAvailable:response]) {
                                    sender.selected =! sender.selected;
-                                   
+                                   [YPC_Tools showSvpWithNoneImgHud:@"已取消关注"];
                                }
                                
                            }
