@@ -29,4 +29,5 @@ pod 'JSPatchPlatform'
 pod 'YUSegment'
 pod 'PLPlayerKit'
 pod 'UMengAnalytics-NO-IDFA'
+pod 'ReactiveCocoa','~>2.1.8'
 end

@@ -14,9 +14,15 @@
 
 +(instancetype)defaultManager;
 
-//友盟自己的appkey(暂时写成属性)
+/**
+ 友盟appkey
+ */
 @property(nonatomic,strong)NSString* umSocialAppkey;
 @property(nonatomic,strong)NSString* umSocialAppSecret;
+
+/**
+ 返回当前有效(安装并是可用的)平台列表
+ */
 @property(nonatomic,readonly,strong) NSArray * platformTypeArray;
 
 
@@ -82,6 +88,31 @@
  *  @return 是否处理  YES代表处理成功，NO代表不处理
  */
 -(BOOL)handleOpenURL:(NSURL *)url;
+
+/**
+ *  获得从sso或者web端回调到本app的回调
+ *
+ *  @param url               第三方sdk的打开本app的回调的url
+ *  @param sourceApplication 回调的源程序
+ *  @param annotation        annotation
+ *
+ *  @return 是否处理  YES代表处理成功，NO代表不处理
+ *  
+ *  @note 此函数在6.3版本加入
+ */
+-(BOOL)handleOpenURL:(NSURL *)url sourceApplication:(NSString *)sourceApplication annotation:(id)annotation;
+
+/**
+ *  获得从sso或者web端回调到本app的回调
+ *
+ *  @param url     第三方sdk的打开本app的回调的url
+ *  @param options 回调的参数
+ *
+ *  @return 是否处理  YES代表处理成功，NO代表不处理
+ *
+ *  @note 此函数在6.3版本加入
+ */
+-(BOOL)handleOpenURL:(NSURL *)url options:(NSDictionary*)options;
 
 
 /**
